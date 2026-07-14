@@ -1,0 +1,5 @@
+clipcrafter/__pycache__/
+clipcrafter/*.pyc
+clipcrafter/*.pickle
+clipcrafter/vod_cache/
+clipcrafter/scheduled_uploads/**/raw_*

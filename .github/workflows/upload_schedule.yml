@@ -1,0 +1,28 @@
+name: Upload Scheduled Clips
+
+on:
+  schedule:
+    # Runs daily at 08:00 BRT = 11:00 UTC (before the first upload window)
+    - cron: '0 11 * * 3-1'   # Wed(3) through Mon(1) — covers Jul 15-20
+  workflow_dispatch:  # manual trigger for testing
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      - name: Check today's schedule and upload
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+        run: python clipcrafter/ci_upload.py
