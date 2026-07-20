@@ -51,27 +51,44 @@ HOOK_TEMPLATES = {
 }
 
 # Titles optimized for search intent + curiosity (2026 best practices)
-# Format: [curiosity/outcome] + [context] + [channel name]
 TITLE_PATTERNS = [
-    "{kc}{event} IMPOSSIVEL DE VALORANT",
-    "ESSE {event} FOI ABSURDO - Valorant",
+    "{kc}{event} ABSURDO DE VALORANT",
+    "ESSE {event} FOI INACREDITAVEL - Valorant",
     "{kc}{event} QUE NINGUEM ESPERAVA",
     "{event} NA RANKED - Jogando Valorant",
-    "MELHOR {event} DO DIA - Valorant",
+    "MELHOR {event} DO DIA - Valorant #clip",
+    "{event} INSANO QUE VOCE PRECISA VER",
+    "O {event} MAIS LOUCO DA SEMANA",
+    "{kc}{event} - MOMENTO QUE PAROU A LIVE",
+    "SELVAGEM: {event} ABSURDO NO VALORANT",
+    "{kc}{event} - ISSO SIMPLESMENTE ACONTECEU",
+    "{event} PERFEITO - MELHORES MOMENTOS",
+    "QUE {event} ABSURDO - VALORANT GAMEPLAY",
 ]
 TITLE_PATTERNS_AGENT = [
-    "{kc}{event} DE {agent} IMPOSSIVEL - Valorant",
+    "{kc}{event} DE {agent} QUE NINGUEM ESPERAVA",
     "{agent} {kc}{event} ABSURDO - Melhores Jogadas",
     "JOGADA DE {agent} COM {kc}{event} INACREDITAVEL",
+    "{agent} {kc}{event} - MOMENTO DE GENIO",
+    "QUE JOGADA DA {agent} - {kc}{event} PERFEITO",
+    "{agent} SIMPLESMENTE {kc}{event} - VALORANT",
+    "MELHOR {agent} DO DIA - {kc}{event} INSANO",
 ]
 TITLE_PATTERNS_WEAPON = [
-    "{weapon} {kc}{event} - Melhores Momentos Valorant",
-    "{event} DE {weapon} IMPOSSIVEL - Valorant Gameplay",
-    "{agent} COM {weapon} {kc}{event} - Valorant Clips",
+    "{weapon} {kc}{event} QUE VOCE PRECISA VER",
+    "{event} DE {weapon} ABSURDO - Valorant Gameplay",
+    "{agent} DE {weapon} - {kc}{event} PERFEITO",
+    "1VS5 DE {weapon} NO VALORANT - {event}",
+    "{kc}{event} COM {weapon} - JOGADA IMPOSSIVEL",
+    "{weapon} PERFEITA: {agent} {kc}{event} INSANO",
+    "{event} COM {weapon} - SENSACIONAL",
 ]
 TITLE_PATTERNS_MAP = [
     "{kc}{event} NO MAPA {map} - Valorant Gameplay",
-    "{event} INSANO NA {map} - Melhores Jogadas Valorant",
+    "{event} INSANO NA {map} - Melhores Jogadas",
+    "{kc}{event} NA {map} - Jogada PERFEITA",
+    "MELHOR MOMENTO NA {map} - {event} ABSURDO",
+    "{agent} DOMINOU A {map} - {kc}{event}",
 ]
 
 # Event detection: expanded with audio-based signals and PT-BR
@@ -178,7 +195,7 @@ class ValorantStudio:
         title = re.sub(r'\s+', ' ', title).strip()
         if len(title.split()) < 5:
             title = f"{et} ABSURDO - Valorant Gameplay"
-        # Add channel tag at end
+        # Add #clip if not already present
         title = title.rstrip("#").rstrip()
         if "#clip" not in title and len(title) < 90:
             title = f"{title} #clip"
@@ -208,6 +225,7 @@ class ValorantStudio:
 
     def generate_hook_overlay(self, style: str = "auto") -> str:
         """Short 2-line hook for video overlay (first 2s text card).
+        More dramatic, urgent, with ALL CAPS impact.
         Uses literal \\n for ffmpeg drawtext compatibility."""
         a = self.analysis
         hooks_2line = [
@@ -216,13 +234,45 @@ class ValorantStudio:
             "O QUE ACONTECEU\\nDEPOIS...",
             "REACAO DELES\\nFOI EPICA",
             "1VS5?\\nASSISTE ISSO",
+            "NAO VAI\\nACREDITAR",
+            "ELE FEZ\\nISSO NA LIVE",
+            "MOMENTO\\nDE GENIO",
+            "SO ASSISTINDO\\nPRA ENTENDER",
+            "ESPERA SO\\nATE O FINAL",
+            "ISSO FOI\\nREAL MESMO?",
+            "QUE JOGADA\\nMAGNIFICA",
+            "NINGUEM FEZ\\nISSO ANTES",
+            "MIRA\\nPERFEITA",
         ]
         if a.is_ace:
-            hooks_2line = ["!! ACE !!\\nINACREDITAVEL", "1VS5?\\nELE CONSEGUIU"]
+            hooks_2line = [
+                "!! ACE !!\\nINACREDITAVEL",
+                "1VS5?\\nELE CONSEGUIU",
+                "!! ACE !!\\nMOMENTO DO JOGO",
+                "MATOU\\nTODOS OS 5",
+                "!! ACE !!\\nPERFEITO",
+            ]
         elif a.is_clutch:
-            hooks_2line = ["ULTIMO VIVO\\nCONTRA TODOS", "SOZINHO\\nE VENCEU"]
+            hooks_2line = [
+                "ULTIMO VIVO\\nCONTRA TODOS",
+                "SOZINHO\\nE VENCEU",
+                "1 CONTRA\\nVARIOS",
+                "NAO TINHA\\nDIREITO DE GANHAR",
+                "CLUTCH\\nPERFEITO",
+                "SOBRAMOS\\nSO ELE",
+            ]
+        elif a.kill_count >= 4:
+            hooks_2line = [
+                "!! 4K !!\\nMOMENTO ABSURDO",
+                "QUADRA\\nIMPRESSIONANTE",
+                "4 KILLS\\nSEGUIDAS",
+            ]
         elif a.kill_count >= 3:
-            hooks_2line = ["MULTI KILL\\nIMPRESSIOANTE", f"!! {a.kill_count}K !!\\nMOMENTO ABSURDO"]
+            hooks_2line = [
+                "!! 3K !!\\nMOMENTO ABSURDO",
+                "TRIPLO\\nIMPRESSIOANTE",
+                "3 KILLS\\nDE UMA SO VEZ",
+            ]
         return random.choice(hooks_2line)
 
     def get_description_tags(self) -> Tuple[str, List[str]]:
@@ -241,14 +291,19 @@ class ValorantStudio:
             tags.append(f"{a.kill_count}k")
         if a.is_ace:
             tags.extend(["ace","acevalorant","1v5"])
-        # Search keywords for discovery
         tags.extend(["jogadas valorant","melhores momentos","gameplay"])
 
+        cta = (
+            f"INSCREVA-SE no CanalPropra para mais momentos INSANOS de Valorant!\n"
+            f"Comenta qual dessas jogadas foi a melhor!\n"
+            f"Ative o sininho para nao perder os proximos clipes!\n\n"
+        )
+        event_tag = f"#{a.event_type.replace(' ','')}" if a.event_type and a.event_type != "highlight" else "#highlight"
         desc = (
             f"Melhores momentos de Valorant! Jogadas insanas, aces, clutches e muito mais.\n"
-            f"Gameplay legendado com transcricao real.\n"
-            f"Live: Tentando evoluir no Valorant!\n\n"
-            f"#Valorant #ValorantBrasil #{a.event_type.replace(' ','')} "
+            f"Gameplay legendado com transcricao real.\n\n"
+            f"{cta}"
+            f"#Valorant #ValorantBrasil {event_tag} "
             f"#ClipCrafter #CanalPropra #Shorts #Gameplay\n"
         )
         return desc, tags[:20]

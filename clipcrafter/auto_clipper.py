@@ -258,8 +258,7 @@ def process_clip(src: str, dst: str) -> tuple:
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
-            add_watermark=True, watermark_text="@CanalPropra",
-            gameplay_text="GAMEPLAY FERCAMI")
+            add_watermark=True, watermark_text="@CanalPropra")
         if ok:
             analysis = getattr(proc, "_analysis", None)
             if analysis and analysis.speech_text:

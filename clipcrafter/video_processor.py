@@ -255,9 +255,10 @@ class VideoProcessor:
                 # Always run analysis for title generation (even with custom hook)
                 self._analysis = _valorant_studio.analysis if transcript_phrases else None
                 target_w, target_h = 1080, 1920
-                zoom_rate = 0.00015
+                # Punch zoom: fast zoom-in at start that decelerates smoothly
+                zoom_expr = "min(1 + 0.4/(1+t*3) + 0.0001*t, 1.15)"
                 parts = [
-                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.15)':d=1:fps=30[z]",
+                    f"[0:v]zoompan=z='{zoom_expr}':d=1:fps=30[z]",
                     f"[z]scale={target_w}:{target_h}:"
                     f"force_original_aspect_ratio=increase,"
                     f"crop={target_w}:{target_h},boxblur=20:5[bg]",
@@ -266,19 +267,21 @@ class VideoProcessor:
                     "[bg][fg]overlay=(W-w)/2:(H-h)/2[base]"
                 ]
 
-                # Hook de curiosidade nos primeiros 2.5s com scale-in animation
+                # Hook de curiosidade nos primeiros 2.5s — larger, bolder, with animated scale feel
                 if duration > 3:
+                    # Main hook text — large, centered, with thick border
                     parts.append(
                         f"[base]drawtext=text='{hook_text}':"
-                        f"fontcolor=#FF4500:fontsize=56:box=1:boxcolor=black@0.75:"
-                        f"x=(w-text_w)/2:y=(h-text_h)/2{fp}:"
+                        f"fontcolor=#FF4500:fontsize=64:box=1:boxcolor=black@0.85:"
+                        f"x=(w-text_w)/2:y=(h-text_h)/2-40{fp}:"
+                        f"borderw=3:bordercolor=black@0.6:"
                         f"enable='lt(t,2.5)'[base]"
                     )
-                    # Glow/shadow layer for hook (offset text for depth)
+                    # Subtitle "CANALPROPA" below hook
                     parts.append(
-                        f"[base]drawtext=text='{hook_text}':"
-                        f"fontcolor=black@0.4:fontsize=58:"
-                        f"x=(w-text_w)/2+2:y=(h-text_h)/2+2{fp}:"
+                        f"[base]drawtext=text='@CanalPropra':"
+                        f"fontcolor=white:fontsize=32:box=1:boxcolor=black@0.6:"
+                        f"x=(w-text_w)/2:y=(h+text_h)/2+10{fp}:"
                         f"enable='lt(t,2.5)'[base]"
                     )
 
@@ -306,7 +309,7 @@ class VideoProcessor:
                         x, y = "(w-tw)/2", "(h-th)/2"
                     parts.append(
                         f"[base]drawtext=text='{watermark_text}':"
-                        f"fontcolor=white:fontsize=28:box=1:boxcolor=black@0.5:"
+                        f"fontcolor=white:fontsize=32:box=1:boxcolor=black@0.55:"
                         f"x={x}:y={y}{fp}[base]"
                     )
 
@@ -341,10 +344,10 @@ class VideoProcessor:
 
                 if duration > 4:
                     parts.append(
-                        f"[base]drawtext=text='SIGA @CanalPropra':"
-                        f"fontcolor=yellow:fontsize=42:box=1:boxcolor=black@0.7:"
-                        f"x=(w-text_w)/2:y=h-140{fp}:"
-                        f"enable='gte(t,{max(0,duration-3)})'[base]"
+                        f"[base]drawtext=text='INSCREVA-SE\\n@CanalPropra':"
+                        f"fontcolor=yellow:fontsize=48:box=1:boxcolor=black@0.75:"
+                        f"x=(w-text_w)/2:y=h-200{fp}:"
+                        f"enable='gte(t,{max(0,duration-4)})'[base]"
                     )
 
                 if add_highlight and duration > 2:

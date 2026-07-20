@@ -32,8 +32,7 @@ def process_clip(src, dst):
         ok = proc.export_clip(0, proc.duration, str(dst),
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
-            add_watermark=True, watermark_text="@CanalPropra",
-            gameplay_text=None)
+            add_watermark=True, watermark_text="@CanalPropra")
         if not ok:
             return None
         analysis = getattr(proc, "_analysis", None)
