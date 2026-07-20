@@ -1,37 +1,21 @@
-"""Upload runner for GitHub Actions CI. Uploads clips scheduled for today."""
+"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads 3 clips/day."""
 import json, os, sys, base64
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 BRT = timezone(timedelta(hours=-3))
-CI_DIR = Path(__file__).resolve().parent  # clipcrafter/
+CI_DIR = Path(__file__).resolve().parent
 REPO_DIR = CI_DIR.parent
-SCHEDULE_DIR = REPO_DIR / "clipcrafter" / "scheduled_uploads"
+QUEUE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "clip_queue.json"
+STATE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "upload_state.json"
 
-def clean_old_manifest(path):
-    """Re-read manifest and produce new metadata from clip_*.mp4 + meta_*.json."""
-    clips = []
-    i = 1
-    while True:
-        meta_file = path / f"meta_{i}.json"
-        clip_file = path / f"clip_{i}.mp4"
-        if not meta_file.exists() or not clip_file.exists():
-            break
-        meta = json.loads(meta_file.read_text(encoding="utf-8"))
-        meta["file"] = str(clip_file.resolve())
-        clips.append(meta)
-        i += 1
-    return clips
+def load_state():
+    if STATE_FILE.exists():
+        return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    return {"cursor": 0, "uploaded": []}
 
-def today_manifest():
-    today = datetime.now(BRT).strftime("%Y-%m-%d")
-    day_path = SCHEDULE_DIR / today
-    manifest_path = day_path / "_manifest.json"
-    if not manifest_path.exists():
-        return None
-    m = json.loads(manifest_path.read_text(encoding="utf-8"))
-    m["clips"] = clean_old_manifest(day_path)
-    return m
+def save_state(state):
+    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 def main():
     # Setup auth from GitHub secrets
@@ -43,40 +27,51 @@ def main():
 
     clipcrafter_dir = Path.home() / ".clipcrafter"
     clipcrafter_dir.mkdir(parents=True, exist_ok=True)
-
-    cs_path = clipcrafter_dir / "client_secret.json"
-    cs_path.write_bytes(base64.b64decode(client_secret_b64))
-
-    tk_path = clipcrafter_dir / "youtube_token.pickle"
-    tk_path.write_bytes(base64.b64decode(token_pickle_b64))
+    (clipcrafter_dir / "client_secret.json").write_bytes(base64.b64decode(client_secret_b64))
+    (clipcrafter_dir / "youtube_token.pickle").write_bytes(base64.b64decode(token_pickle_b64))
 
     sys.path.insert(0, str(CI_DIR))
     from youtube_uploader import upload_video
 
-    manifest = today_manifest()
-    if not manifest:
-        print(f"No schedule for today ({datetime.now(BRT).strftime('%Y-%m-%d %A')})")
+    queue = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
+    state = load_state()
+
+    if not queue:
+        print("Queue is empty! No more clips to upload.")
         return
 
-    clips = manifest["clips"]
-    times = manifest["times"]
-    print(f"Today: {manifest['day']} — {len(clips)} clips @ {', '.join(times)}")
+    cursor = state["cursor"]
+    if cursor >= len(queue):
+        print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
+        return
 
-    for i, clip in enumerate(clips):
-        target_time = times[i] if i < len(times) else "12:00"
-        # Use publishAt for target time
-        hour, minute = target_time.split(":")
-        dt = datetime.strptime(f"{manifest['date']} {hour}:{minute}:00", "%Y-%m-%d %H:%M:%S")
-        publish_iso = dt.replace(tzinfo=BRT).isoformat()
+    # Take next 3 clips (or remaining if fewer)
+    batch = queue[cursor:cursor+3]
+    remaining = len(queue) - cursor - len(batch)
 
-        file_path = clip["file"]
-        if not os.path.exists(file_path):
+    today = datetime.now(BRT)
+    print(f"Today: {today.strftime('%A %d/%m/%Y')}")
+    print(f"Queue: position {cursor+1}/{len(queue)}, uploading {len(batch)} clips, {remaining} remaining")
+
+    base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
+    upload_times = [
+        base_time,
+        base_time.replace(hour=15),
+        base_time.replace(hour=19),
+    ]
+
+    for i, clip in enumerate(batch):
+        publish_dt = upload_times[i]
+        publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
+
+        file_path = REPO_DIR / clip["file"]
+        if not file_path.exists():
             print(f"  [{i+1}] MISSING: {file_path}")
             continue
 
-        print(f"  [{i+1}] Upload for {target_time}...", end=" ", flush=True)
+        print(f"  [{i+1}] Upload for {publish_dt.hour}:00...", end=" ", flush=True)
         vid = upload_video(
-            video_path=file_path,
+            video_path=str(file_path),
             title=clip["title"],
             description=clip.get("desc", ""),
             tags=clip.get("tags", ["Valorant"]),
@@ -84,11 +79,17 @@ def main():
         )
         if vid:
             print(f"OK -> https://youtube.com/shorts/{vid}")
+            state["uploaded"].append({"idx": cursor+i, "vid": vid, "title": clip["title"]})
         else:
-            print("FAIL")
+            print("FAIL (may hit quota, will retry tomorrow)")
+            # Don't advance cursor on failure
+            save_state(state)
+            sys.exit(0)
         sys.stdout.flush()
 
-    print("Done!")
+    state["cursor"] = cursor + len(batch)
+    save_state(state)
+    print(f"\nDone! Next cursor at {state['cursor']}/{len(queue)}")
 
 if __name__ == "__main__":
     main()
