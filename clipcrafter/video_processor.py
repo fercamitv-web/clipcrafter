@@ -255,10 +255,11 @@ class VideoProcessor:
                 # Always run analysis for title generation (even with custom hook)
                 self._analysis = _valorant_studio.analysis if transcript_phrases else None
                 target_w, target_h = 1080, 1920
-                # Punch zoom: fast zoom-in at start that decelerates smoothly
-                zoom_expr = "min(1 + 0.4/(1+t*3) + 0.0001*t, 1.15)"
+                # Visible zoom — front-loaded effect by capping at 1.12 with fast rate
+                # (reaches cap in ~2s, creating punch feel)
+                zoom_rate = 0.002
                 parts = [
-                    f"[0:v]zoompan=z='{zoom_expr}':d=1:fps=30[z]",
+                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.12)':d=1:fps=30[z]",
                     f"[z]scale={target_w}:{target_h}:"
                     f"force_original_aspect_ratio=increase,"
                     f"crop={target_w}:{target_h},boxblur=20:5[bg]",
