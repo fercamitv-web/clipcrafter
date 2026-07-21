@@ -31,9 +31,33 @@ jobs:
       - name: Discover latest video and process clips
         run: python clipcrafter/ci_discover.py
 
+      - name: Commit new clips and queue changes
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/
+          if git diff --cached --quiet; then
+            echo "No new clips to commit"
+          else
+            git commit -m "Auto-add new clips from ci_discover"
+            git push
+          fi
+
       - name: Upload scheduled clips
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
           TT_COOKIES: ${{ secrets.TT_COOKIES }}
         run: python clipcrafter/ci_upload.py
+
+      - name: Commit queue progress after upload
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/
+          if git diff --cached --quiet; then
+            echo "No changes after upload"
+          else
+            git commit -m "Auto-update queue cursor after upload"
+            git push
+          fi
