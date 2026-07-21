@@ -1,4 +1,4 @@
-"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads 3 clips/day."""
+"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads 3 clips/day to YouTube + TikTok."""
 import json, os, sys, base64
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
@@ -17,21 +17,32 @@ def load_state():
 def save_state(state):
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
-def main():
-    # Setup auth from GitHub secrets
+def setup_youtube():
     client_secret_b64 = os.environ.get("YT_CLIENT_SECRET")
     token_pickle_b64 = os.environ.get("YT_TOKEN_PICKLE")
     if not client_secret_b64 or not token_pickle_b64:
-        print("MISSING SECRETS: YT_CLIENT_SECRET and YT_TOKEN_PICKLE required")
-        sys.exit(1)
-
+        return None
     clipcrafter_dir = Path.home() / ".clipcrafter"
     clipcrafter_dir.mkdir(parents=True, exist_ok=True)
     (clipcrafter_dir / "client_secret.json").write_bytes(base64.b64decode(client_secret_b64))
     (clipcrafter_dir / "youtube_token.pickle").write_bytes(base64.b64decode(token_pickle_b64))
+    from youtube_uploader import upload_video as yt_upload
+    return yt_upload
 
+def setup_tiktok():
+    if not os.environ.get("TT_COOKIES"):
+        return None
+    from tiktok_uploader import upload_video as tt_upload
+    return tt_upload
+
+def main():
     sys.path.insert(0, str(CI_DIR))
-    from youtube_uploader import upload_video
+    yt_upload = setup_youtube()
+    tt_upload = setup_tiktok()
+
+    if not yt_upload and not tt_upload:
+        print("No upload targets configured. Need YT_CLIENT_SECRET+YT_TOKEN_PICKLE and/or TT_* secrets.")
+        sys.exit(1)
 
     queue = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
     state = load_state()
@@ -45,13 +56,16 @@ def main():
         print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
         return
 
-    # Take next 3 clips (or remaining if fewer)
     batch = queue[cursor:cursor+3]
     remaining = len(queue) - cursor - len(batch)
 
     today = datetime.now(BRT)
     print(f"Today: {today.strftime('%A %d/%m/%Y')}")
     print(f"Queue: position {cursor+1}/{len(queue)}, uploading {len(batch)} clips, {remaining} remaining")
+    if yt_upload:
+        print("  YouTube: enabled")
+    if tt_upload:
+        print("  TikTok: enabled")
 
     base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
     upload_times = [
@@ -69,22 +83,51 @@ def main():
             print(f"  [{i+1}] MISSING: {file_path}")
             continue
 
-        print(f"  [{i+1}] Upload for {publish_dt.hour}:00...", end=" ", flush=True)
-        vid = upload_video(
-            video_path=str(file_path),
-            title=clip["title"],
-            description=clip.get("desc", ""),
-            tags=clip.get("tags", ["Valorant"]),
-            privacy_status=publish_iso,
-        )
-        if vid:
-            print(f"OK -> https://youtube.com/shorts/{vid}")
-            state["uploaded"].append({"idx": cursor+i, "vid": vid, "title": clip["title"]})
-        else:
-            print("FAIL (may hit quota, will retry tomorrow)")
-            # Don't advance cursor on failure
-            save_state(state)
-            sys.exit(0)
+        print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
+        title = clip["title"]
+        desc = clip.get("desc", "")
+        tags = clip.get("tags", ["Valorant"])
+        results = []
+
+        # YouTube upload
+        if yt_upload:
+            print(f"    -> YouTube ({publish_dt.hour}:00)...", end=" ", flush=True)
+            vid = yt_upload(
+                video_path=str(file_path),
+                title=title,
+                description=desc,
+                tags=tags,
+                privacy_status=publish_iso,
+            )
+            if vid:
+                print(f"OK https://youtube.com/shorts/{vid}")
+                results.append(f"yt:{vid}")
+            else:
+                print("FAIL (quota?)")
+                save_state(state)
+                sys.exit(0)
+
+        # TikTok upload
+        if tt_upload:
+            print(f"    -> TikTok...", end=" ", flush=True)
+            try:
+                hashtags = [t.replace(" ", "") for t in tags[:5]]
+                tt_id = tt_upload(
+                    video_path=str(file_path),
+                    title=title,
+                    description=desc,
+                    hashtags=hashtags,
+                )
+                if tt_id:
+                    print(f"OK https://tiktok.com/@{tt_id}")
+                    results.append(f"tt:{tt_id}")
+                else:
+                    print("FAIL")
+            except Exception as e:
+                print(f"FAIL ({e})")
+
+        if results:
+            state["uploaded"].append({"idx": cursor+i, "title": title, "platforms": results})
         sys.stdout.flush()
 
     state["cursor"] = cursor + len(batch)

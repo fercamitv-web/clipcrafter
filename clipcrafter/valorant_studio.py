@@ -1,4 +1,4 @@
-"""ValorantStudio v2 — redesigned based on 2026 viral clip research"""
+"""ValorantStudio v3 — multi-game hook/title engine with speech-aware analysis"""
 import os, json, random, re
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
@@ -17,78 +17,326 @@ WEAPONS = ["Vandal","Phantom","Operator","Sheriff","Classic",
 RANKS = ["Ferro","Bronze","Prata","Ouro","Platina","Diamante",
          "Ascendente","Imortal","Radiante"]
 
-# Research-backed 2026 hook patterns — curiosity-first, pattern interrupt, zero intro
+# ============================================================
+# PSYCHOLOGICAL TRIGGER HOOKS — multi-game, each targets a specific
+# retention principle: curiosity gap, open loop, pattern interrupt,
+# loss aversion, social proof, self-relevance, mystery, urgency, contrast.
+# ============================================================
+
 HOOK_TEMPLATES = {
-    "curiosity": [
-        "VOCE PRECISA VER ISSO...",
-        "O QUE ACONTECEU DEPOIS FOI INACREDITAVEL",
-        "NINGUEM ESPERAVA ESSE FINAL",
-        "ISSO SIMPLESMENTE ACONTECEU NA LIVE",
+    # ---------- VALORANT ----------
+    "Valorant_curiosity": [
+        "VOCE NUNCA VAI ADIVINHAR O QUE ACONTECEU DEPOIS DISSO",
+        "OS PROXIMOS 10 SEGUNDOS VAO TE DEIXAR DE QUEIXO CAIDO",
+        "QUANDO ELE ACHOU QUE TINHA VENCIDO, AI QUE TUDO COMECOU",
+        "O QUE VEM DEPOIS DESTE MOMENTO MUDA COMPLETAMENTE O JOGO",
+        "ISSO QUE ACONTECEU NOS SEGUNDOS SEGUINTES FOI ABSURDO",
+        "SE VOCE PISCAR OS OLHOS AGORA VOCE VAI PERDER O MELHOR",
+        "NINGUEM — ABSOLUTAMENTE NINGUEM — ESPERAVA O PROXIMO PASSO",
+        "VOCE ACHA QUE ACABOU? ASSISTE SO O QUE VEM DEPOIS",
+        "A PARTIR DESSE MOMENTO ELE SIMPLESMENTE DESABOU",
     ],
-    "stakes": [
-        "ULTIMO VIVO CONTRA 5 - ERA PRA PERDER",
-        "1VS5? ASSISTE O QUE ELE FEZ",
-        "SEM MIRA NENHUMA E AINDA GANHOU",
-        "MORRERIA SE FOSSE COM VOCE",
+    "Valorant_stakes": [
+        "ELE ESTAVA A UM UNICO TIRO DE PERDER TUDO — ERA PRA TER PERDIDO",
+        "ULTIMO VIVO. CINCO INIMIGOS. SEM MUNICAO. ERA O FIM.",
+        "SE FOSSE VOCE JOGANDO, VOCE TERIA PERDIDO. ASSISTE O QUE ELE FEZ.",
+        "1 CONTRA 5. UM ERRO E O JOGO ACABA. ELE NAO ERROU.",
+        "ELE QUASE PERDEU — POR UM MILISSEGUNDO A HISTORIA SERIA OUTRA",
+        "TODOS CONTRA ELE. ELE SABIA DISSO. ELE VENCEU MESMO ASSIM.",
+        "A PRESSAO ERA INSUPORTAVEL. ASSISTE O QUE VEIO DEPOIS.",
+        "UM PASSO EM FALSO E TUDO DESMORONAVA. ELE NAO DEU ESSE PASSO.",
+        "ISSO ERA PRA DAR ERRADO. NAO TEM COMO TER DADO CERTO.",
     ],
-    "question": [
-        "QUAL A CHANCE DISSO ACONTECER? {event}",
-        "ISSO FOI REAL? {event} ABSURDO!",
-        "COMO ELE SOBREVIVEU? {event} INACREDITAVEL",
-        "MG? OU SORTE? {event} PERFEITO",
+    "Valorant_question": [
+        "COMO QUE ELE SOBREVIVEU A ISSO? A CIENCIA NAO EXPLICA.",
+        "QUAL A PROBABILIDADE MATEMATICA DE UM {event} IGUAL A ESSE? ZERO.",
+        "ISSO FOI REAL MESMO? OU FOI SORTE PURO? ASSISTE E TIRE SUAS CONCLUSAO.",
+        "COMO ELE SOBREVIVEU? RESPONDE NOS COMENTARIOS.",
+        "QUANTAS TENTATIVAS VOCE ACHA QUE ELE PRECISOU PRA ISSO?",
+        "REALMENTE ACONTECEU OU EU TO MALUCO? VOCE DECIDE.",
+        "EXISTE EXPLICACAO LOGICA PRA ISSO? {event}.",
+        "VOCE CONSEGUE ADIVINHAR O FINAL DESSE {event}? EU APOSTO QUE NAO.",
+        "MG? OU HACK? A GALERA DOS COMENTARIOS VAI DECIDIR.",
     ],
-    "bold_statement": [
-        "ESSE E O MELHOR {event} QUE VOCE VAI VER HOJE",
-        "DEPOIS DESSE {event} ELE PAROU DE JOGAR",
-        "NINGUEM ACEDITA NESSE {event}",
+    "Valorant_bold_statement": [
+        "ESSE FOI O {event} MAIS IMPRESSIONANTE DE TODA A HISTORIA DO CANAL",
+        "DEPOIS DESSE {event} ELE SIMPLESMENTE PAROU DE JOGAR POR UM TEMPO",
+        "NINGUEM NO SERVIDOR INTEIRO ACREDITOU NESSE {event}",
+        "ISSO QUE VOCE VAI VER REDEFINE O SIGNIFICADO DE {event}",
+        "O {event} QUE VOCE ESTA PRESTES A VER E HISTORICO",
+        "ESSE E O TIPO DE {event} QUE APARECE UMA VEZ NA VIDA",
+        "SE VOCE NAO VIU ESSE {event} AO VIVO, VOCE PERDEU ALGO UNICO",
+        "O PESSOAL DA PARTIDA INTEIRA PAROU PRA ASSISTIR ESSE {event}",
     ],
-    "one_liner": [
-        "NAO E POSSIVEL ISSO ACONTECEU",
-        "REACAO DELES FOI EPICA",
-        "SO ASSISTINDO PRA ACEDITAR",
-        "ISSO NAO E NORMAL",
+    "Valorant_one_liner": [
+        "NAO EXISTE PALAVRA QUE DESCREVA ISSO QUE VOCE VAI VER",
+        "REACAO DE QUEM VIU AO VIVO FOI MELHOR QUE O PROPRIO CLIPE",
+        "VOCE SO VAI ENTENDER QUANDO VER ATE O FINAL — E VAI QUERER VER DE NOVO",
+        "ISSO NAO E NORMAL. ISSO NAO E HUMANO. ISSO E OUTRO NIVEL.",
+        "O CHAT ENLOUQUECEU. A LIVE CAIU. ELE NAO PAROU.",
+        "AGORA EU SEI O QUE SIGNIFICA FICAR SEM REACAO.",
+    ],
+
+    # ---------- LEAGUE OF LEGENDS ----------
+    "LoL_curiosity": [
+        "VOCE NUNCA VAI ADIVINHAR O QUE ACONTECEU NESSA PARTIDA DE LOL",
+        "OS PROXIMOS SEGUNDOS DESSE LOL VAO TE SURPREENDER COMPLETAMENTE",
+        "NO LOL, ISSO E TÃO RARO QUE POUCOS JOGADORES JA PRESENCIARAM",
+        "O QUE ACONTECEU DEPOIS NO LOL FEZ TODO MUNDO PERGUNTAR 'COMO?'",
+        "ESSA JOGADA DE LOL E TÃO ABSURDA QUE PARECE CENA DE FILME",
+        "ISSO NUNCA TINHA ACONTECIDO EM 10 ANOS DE LOL — ATE AGORA",
+        "O INIMIGO ACHOU QUE TINHA GANHO. AI VEIO O PLOT TWIST.",
+    ],
+    "LoL_stakes": [
+        "UM ERRO E A PARTIDA ACABAVA — ELE SIMPLESMENTE NAO ERROU",
+        "SOZINHO CONTRA VARIOS NO LOL. SEM VISÃO. SEM AJUDA. SEM MEDO.",
+        "SE FOSSE VOCE NAQUELE MOMENTO, VOCE TERIA MORRIDO. ELE NAO.",
+        "A VITORIA TAVA PERDIDA. ATE ELE DECIDIR MUDAR O ROTEIRO.",
+        "UM MILISSEGUNDO DE ATRASO E TUDO DESMORONAVA. ADIVINHA?",
+        "ERA PRA TER DADO ERRADO. O LOL DISSE QUE NAO.",
+    ],
+    "LoL_question": [
+        "QUAL A CHANCE DE ALGO ASSIM ACONTECER EM UMA PARTIDA RANKED DE LOL?",
+        "ISSO FOI REAL OU O JOGO SIMPLESMENTE DECIDIU AJUDAR ELE?",
+        "COMO ELE SOBREVIVEU A ISSO NO LOL? RESPOSTA: SKILL.",
+        "VOCE ACHA QUE ISSO E JOGADA COMUM? ASSISTE DE NOVO.",
+        "QUANTAS HORAS DE LOL VOCE ACHA QUE ELE PRECISOU PRA TENTAR ISSO?",
+        "O QUE VOCE FARIA SE FOSSE O INIMIGO DEPOIS DESSA JOGADA?",
+    ],
+    "LoL_bold_statement": [
+        "ESSA E SIMPLESMENTE A JOGADA DE LOL MAIS IMPRESSIONANTE DO DIA",
+        "DEPOIS DISSO, O INIMIGO SIMPLESMENTE DESISTIU DO LOL",
+        "NINGUEM JOGA LOL ASSIM — NEM OS PROFISSIONAIS FAZEM ISSO",
+        "ISSO NO LOL E O EQUIVALENTE A UM MILAGRE",
+        "QUEM VIU AO VIVO VIU ALGO QUE VAI CONTAR PRA VIDA INTEIRA",
+    ],
+    "LoL_one_liner": [
+        "LOL NUNCA MAIS VAI SER O MESMO DEPOIS DESSA JOGADA",
+        "O INIMIGO SO PODE TER FICADO SEM REACAO DEPOIS DISSO",
+        "VOCE NAO VAI CONSEGUIR PARAR DE ASSISTIR ESSE CLIPE DE LOL",
+        "ELE SIMPLESMENTE DECIDIU QUE IA GANHAR — E GANHOU",
+        "EXISTE JOGADOR DE LOL ANTES E DEPOIS DESSE MOMENTO",
+    ],
+
+    # ---------- COACHING ----------
+    "Coaching_curiosity": [
+        "ESSA DICA MUDA COMPLETAMENTE A FORMA COMO VOCE JOGA VALORANT",
+        "A MAIORIA DOS JOGADORES NUNCA APRENDE ISSO — E PERDE PARTIDAS POR CAUSA DISSO",
+        "SE VOCE SO APRENDER UMA COISA DE VALORANT HOJE, QUE SEJA ISSO",
+        "ISSO QUE ELE FEZ NA PARTIDA E O QUE SEPARA INICIANTES DE AVANCADOS",
+        "POUCAS PESSOAS SABEM DESSE DETALHE — E FAZ TODA DIFERENCA",
+    ],
+    "Coaching_stakes": [
+        "UM UNICO ERRO E VOCE PERDE O ROUND INTEIRO — APRENDA A NAO COMETER",
+        "VOCE TA PERDENDO PARTIDA PORQUE NAO SABE DISSO. HOJE VOCE VAI APRENDER.",
+        "ESSE PEQUENO AJUSTE VAI TE FAZER GANHAR ROUNDS QUE VOCE PERDIA ANTES",
+    ],
+    "Coaching_question": [
+        "VOCE SABE O QUE ELE FEZ DE DIFERENTE AQUI? 99% DOS JOGADORES NAO SABEM.",
+        "QUANTAS PARTIDAS VOCE PERDEU POR NAO SABER DISSO? DEPOIS DE HOJE, NENHUMA.",
+    ],
+    "Coaching_bold_statement": [
+        "ISSO E O ERRO MAIS COMUM QUE DESTROI SUAS PARTIDAS DE VALORANT",
+        "SE VOCE DOMINAR ISSO, VOCE SOBE DE ELO EM UMA SEMANA",
+    ],
+
+    # ---------- GAMING (FALLBACK) ----------
+    "Gaming_curiosity": [
+        "VOCE NUNCA VAI ADIVINHAR O QUE VEIO DEPOIS DESSE MOMENTO",
+        "O QUE ACONTECEU NOS SEGUNDOS SEGUINTES FOI COMPLETAMENTE INESPERADO",
+        "NINGUEM — REPITO, NINGUEM — ESPERAVA QUE ISSO FOSSE ACONTECER",
+        "VOCE ACHA QUE JA VIU TUDO? ESPERA SO ATE O FINAL DESTE CLIPE",
+        "O MELHOR MOMENTO DA LIVE INTEIRA ESTA NESTES PROXIMOS SEGUNDOS",
+    ],
+    "Gaming_stakes": [
+        "ERA PRA TER DADO ERRADO. NAO TEM EXPLICACAO. SO ACONTECEU.",
+        "SE FOSSE VOCE, VOCE TINHA PERDIDO. ELE NAO PERDEU.",
     ],
 }
 
-# Titles optimized for search intent + curiosity (2026 best practices)
-TITLE_PATTERNS = [
-    "{kc}{event} ABSURDO DE VALORANT",
-    "ESSE {event} FOI INACREDITAVEL - Valorant",
-    "{kc}{event} QUE NINGUEM ESPERAVA",
-    "{event} NA RANKED - Jogando Valorant",
-    "MELHOR {event} DO DIA - Valorant #clip",
-    "{event} INSANO QUE VOCE PRECISA VER",
-    "O {event} MAIS LOUCO DA SEMANA",
-    "{kc}{event} - MOMENTO QUE PAROU A LIVE",
-    "SELVAGEM: {event} ABSURDO NO VALORANT",
-    "{kc}{event} - ISSO SIMPLESMENTE ACONTECEU",
-    "{event} PERFEITO - MELHORES MOMENTOS",
-    "QUE {event} ABSURDO - VALORANT GAMEPLAY",
+GENERIC_HOOKS = [
+    "VOCE NUNCA VAI ADIVINHAR O QUE VEIO DEPOIS",
+    "O QUE ACONTECEU DEPOIS FOI COMPLETAMENTE ABSURDO",
+    "ISSO SIMPLESMENTE ACONTECEU NA LIVE — NINGUEM ESPERAVA",
+    "MOMENTO QUE PAROU A LIVE E O CHAT ENLOUQUECEU",
+    "REACAO NA HORA FOI A MELHOR PARTE DO CLIPE INTEIRO",
+    "SO ASSISTINDO ATE O FINAL PRA ENTENDER O QUE REALMENTE ACONTECEU",
+    "ISSO NAO E NORMAL — ISSO E OUTRO PATAMAR",
+    "NINGUEM ESPERAVA ESSE FINAL — INCLUINDO ELE MESMO",
+    "VOCE PRECISA VER ISSO ATE O FIM — PROMETO QUE VALE A PENA",
+    "ELE TINHA TUDO PRA PERDER. ELE PERDEU TUDO? DESCUBRA AGORA.",
+    "ISSO QUE VOCE VAI VER AGORA E EXTREMAMENTE RARO DE ACONTECER",
+    "NAO PULE O VIDEO — O FINAL E SIMPLESMENTE IMPERDIVEL",
+    "SE VOCE NAO VIU ISSO AO VIVO, VOCE VAI QUERER TER VISTO",
+    "A CRESCENDA DESSE CLIPE E ALGO QUE VOCE NAO TA PREPARADO PRA VER",
+    "O QUE PARECIA O FIM ERA NA VERDADE SO O COMECO DO ABSURDO",
 ]
-TITLE_PATTERNS_AGENT = [
-    "{kc}{event} DE {agent} QUE NINGUEM ESPERAVA",
-    "{agent} {kc}{event} ABSURDO - Melhores Jogadas",
-    "JOGADA DE {agent} COM {kc}{event} INACREDITAVEL",
-    "{agent} {kc}{event} - MOMENTO DE GENIO",
-    "QUE JOGADA DA {agent} - {kc}{event} PERFEITO",
-    "{agent} SIMPLESMENTE {kc}{event} - VALORANT",
-    "MELHOR {agent} DO DIA - {kc}{event} INSANO",
+
+# ============================================================
+# PSYCHOLOGICAL 2-LINE OVERLAYS — first 2s retention hooks
+# Each line works as a two-part psychological trigger:
+# top = pattern interrupt / command, bottom = payoff / curiosity.
+# ============================================================
+
+HOOK_2LINE_VALORANT = [
+    "VOCE NUNCA VAI\\nADIVINHAR",
+    "O QUE VEM DEPOIS\\nMUDA TUDO",
+    "ESPERA SO ATE\\nO FINAL",
+    "SE PISCAR\\nPERDEU",
+    "ISSO NAO E\\nPOSSIVEL",
+    "ELE SIMPLESMENTE\\nDOMINOU",
+    "REACAO DELES\\nFOI EPICA",
+    "NINGUEM ESPERAVA\\nESSE FINAL",
+    "COMO ELE\\nFEZ ISSO?",
+    "SO ASSISTINDO\\nPRA ENTENDER",
+    "ESSA JOGADA\\nE HISTORICA",
+    "ISSO FOI REAL\\nMESMO?",
+    "VOCE NAO TA\\nPREPARADO",
+    "O MELHOR MOMENTO\\nDA LIVE INTEIRA",
+    "ERA PRA TER\\nDADO ERRADO",
+    "UM MILISSEGUNDO\\nMUDOU TUDO",
+    "ELE NAO\\nERROU NADA",
+    "ISSO QUE E\\nSELVAGERIA",
+    "CHEGOU NO\\nAPICE",
+    "ISSO RARISSIMO\\nDE VER",
+    "VOCE SO VAI\\nACREDITAR NO FIM",
+    "PARA TUDO\\nE ASSISTE",
 ]
-TITLE_PATTERNS_WEAPON = [
-    "{weapon} {kc}{event} QUE VOCE PRECISA VER",
-    "{event} DE {weapon} ABSURDO - Valorant Gameplay",
-    "{agent} DE {weapon} - {kc}{event} PERFEITO",
-    "1VS5 DE {weapon} NO VALORANT - {event}",
-    "{kc}{event} COM {weapon} - JOGADA IMPOSSIVEL",
-    "{weapon} PERFEITA: {agent} {kc}{event} INSANO",
-    "{event} COM {weapon} - SENSACIONAL",
+
+HOOK_2LINE_VALORANT_ACE = [
+    "!! ACE !!\\nMATOU O TIME INTEIRO",
+    "1VS5? ELE\\nNAO TINHA DIREITO",
+    "!! ACE !!\\nELIMINOU TODOS OS 5",
+    "O TIME INIMIGO\\nFOI DESTRUIDO",
+    "NINGUEM SOBREVIVEU\\nAO ACE",
+    "!! ACE !!\\nMOMENTO PERFEITO",
+    "CINCO INIMIGOS\\nUMA JOGADA",
+    "ELE SOZINHO\\nCONTRA O MUNDO",
+    "!! ACE !!\\nSELVAGERIA PURA",
+    "NAO SOBROU\\nNINGUEM",
 ]
-TITLE_PATTERNS_MAP = [
-    "{kc}{event} NO MAPA {map} - Valorant Gameplay",
-    "{event} INSANO NA {map} - Melhores Jogadas",
-    "{kc}{event} NA {map} - Jogada PERFEITA",
-    "MELHOR MOMENTO NA {map} - {event} ABSURDO",
-    "{agent} DOMINOU A {map} - {kc}{event}",
+
+HOOK_2LINE_VALORANT_CLUTCH = [
+    "ULTIMO VIVO\\nCONTRA TODOS ELES",
+    "SOZINHO. SEM AJUDA.\\nE VENCEU.",
+    "UM CONTRA VARIOS\\nELE GANHOU ASSIM",
+    "NAO TINHA DIREITO\\nDE GANHAR E GANHOU",
+    "CLUTCH PERFEITO\\nSEM ERRAR UM TIRO",
+    "SOBROU SO ELE\\nE NAO TREMEU",
+    "ERA PRA PERDER\\nMAS ELE VIROU",
+    "VIRADA HISTORICA\\nSOZINHO CONTRA TUDO",
+    "DEU A VIRADA\\nQUANDO MAIS PRECISAVA",
+    "UM PASSO DO FIM\\nELE VOLTOU",
+    "A PRESSAO NAO\\nATINGIU ELE",
+]
+
+HOOK_2LINE_VALORANT_KILL = [
+    "!! 4K !!\\nQUADRA INCRIVEL",
+    "MATOU VARIOS\\nSEGUIDOS",
+    "3 KILLS\\nEM SEGUIDA",
+    "!! 4K !!\\nDESTRUIDOR",
+    "TRIPLO\\NIMPOSSIVEL",
+    "!! 3K !!\\nMOMENTO ABSURDO",
+]
+
+HOOK_2LINE_LOL = [
+    "ISSO NO LOL\\nE RARISSIMO",
+    "JOGADA DE LOL\\nINACREDITAVEL",
+    "NO LOL ELE\\nSIMPLESMENTE VIROU",
+    "MOMENTO DE LOL\\nQUE PAROU TUDO",
+    "QUE JOGADA\\nNO LOL",
+    "1 CONTRA VARIOS\\nNO LOL",
+    "LOL INSANO\\NUNCA VI IGUAL",
+    "NO LOL ISSO\\nMUDOU O JOGO",
+    "ELE DOMINOU\\nO LOL INTEIRO",
+]
+
+HOOK_2LINE_GENERIC = [
+    "ISSO NAO E\\nNORMAL",
+    "QUE JOGADA\\nINACREDITAVEL",
+    "MOMENTO\\NUNICO",
+    "VOCE PRECISA\\nVER ISSO",
+    "ESPERA SO\\nATE O FINAL",
+    "ISSO\\nMUDOU TUDO",
+    "ELE NAO\\nESPERAVA ISSO",
+    "QUE\\nFOI ISSO?",
+    "VOCE VAI\\nFICAR CHOCADO",
+    "COMO ELE\\nFEZ ISSO?",
+    "MELHOR MOMENTO\\nDA LIVE INTEIRA",
+]
+
+# ============================================================
+# MULTI-GAME TITLE PATTERNS
+# ============================================================
+
+TITLE_PATTERNS = {
+    "Valorant": [
+        "{kc}{event} ABSURDO DE VALORANT",
+        "ESSE {event} FOI INACREDITAVEL - Valorant",
+        "{kc}{event} QUE NINGUEM ESPERAVA",
+        "{event} NA RANKED - Jogando Valorant",
+        "MELHOR {event} DO DIA - Valorant #clip",
+        "{event} INSANO QUE VOCE PRECISA VER",
+        "O {event} MAIS LOUCO DA SEMANA",
+        "{kc}{event} - MOMENTO QUE PAROU A LIVE",
+        "SELVAGEM: {event} ABSURDO NO VALORANT",
+        "{event} PERFEITO - MELHORES MOMENTOS",
+        "QUE {event} ABSURDO - VALORANT GAMEPLAY",
+        "{event} NA LIVE - CanalPropra",
+    ],
+    "Valorant_agent": [
+        "{kc}{event} DE {agent} QUE NINGUEM ESPERAVA",
+        "{agent} {kc}{event} ABSURDO - Melhores Jogadas",
+        "JOGADA DE {agent} COM {kc}{event} INACREDITAVEL",
+        "{agent} {kc}{event} - MOMENTO DE GENIO",
+        "QUE JOGADA DA {agent} - {kc}{event} PERFEITO",
+        "{agent} SIMPLESMENTE {kc}{event} - VALORANT",
+        "MELHOR {agent} DO DIA - {kc}{event} INSANO",
+    ],
+    "Valorant_weapon": [
+        "{weapon} {kc}{event} QUE VOCE PRECISA VER",
+        "{event} DE {weapon} ABSURDO - Valorant Gameplay",
+        "{agent} DE {weapon} - {kc}{event} PERFEITO",
+        "1VS5 DE {weapon} NO VALORANT - {event}",
+        "{kc}{event} COM {weapon} - JOGADA IMPOSSIVEL",
+        "{weapon} PERFEITA: {agent} {kc}{event} INSANO",
+        "{event} COM {weapon} - SENSACIONAL",
+    ],
+    "Valorant_map": [
+        "{kc}{event} NO MAPA {map} - Valorant Gameplay",
+        "{event} INSANO NA {map} - Melhores Jogadas",
+        "{kc}{event} NA {map} - Jogada PERFEITA",
+        "MELHOR MOMENTO NA {map} - {event} ABSURDO",
+        "{agent} DOMINOU A {map} - {kc}{event}",
+    ],
+    "League of Legends": [
+        "MOMENTO ABSURDO NO LOL",
+        "JOGADA DE LOL INACREDITAVEL",
+        "ISSO NO LOL QUE NINGUEM ESPERAVA",
+        "MELHOR MOMENTO DO DIA NO LOL",
+        "LOL SELVAGEM - Jogada IMPOSSIVEL",
+        "QUE JOGADA NO LOL - Inacreditavel",
+        "MOMENTO QUE PAROU A LIVE NO LOL",
+    ],
+    "Coaching": [
+        "DICA DE VALORANT QUE MUDA TUDO",
+        "APRENDENDO VALORANT - Melhorando",
+        "COACHING VALORANT - Dica ABSURDA",
+        "MELHORANDO NO VALORANT - Gameplay",
+    ],
+    "Gaming": [
+        "MOMENTO ABSURDO NA LIVE",
+        "ISSO ACONTECEU NA LIVE",
+        "MELHOR MOMENTO DA LIVE",
+        "MOMENTO QUE PAROU A LIVE",
+    ],
+}
+
+FALLBACK_TITLES = [
+    "MOMENTO ABSURDO NA LIVE - CanalPropra #clip",
+    "ISSO ACONTECEU NA LIVE - Gameplay #clip",
+    "MELHOR MOMENTO DA LIVE #clip",
+    "MOMENTO QUE PAROU A LIVE #clip",
 ]
 
 # Event detection: expanded with audio-based signals and PT-BR
@@ -125,6 +373,7 @@ class ClipAnalysis:
 class ValorantStudio:
     def __init__(self):
         self.analysis = ClipAnalysis()
+        self.game = "Valorant"  # Default, can be changed via detect_game
 
     def analyze_transcript(self, transcript: List[str]) -> ClipAnalysis:
         a = ClipAnalysis()
@@ -178,24 +427,35 @@ class ValorantStudio:
         wp = weapon or a.weapon
         kc_str = f"{kc}K" if kc >= 2 else ""
 
-        # Select pattern pool based on available context
         context = {"kc": kc_str, "event": et, "agent": ag, "weapon": wp, "map": mp}
-        if wp and ag:
-            pool = [t.format(**context) for t in TITLE_PATTERNS_WEAPON]
-        elif wp:
-            pool = [t.format(**context) for t in TITLE_PATTERNS_WEAPON]
-        elif ag:
-            pool = [t.format(**context) for t in TITLE_PATTERNS_AGENT]
-        elif mp:
-            pool = [t.format(**context) for t in TITLE_PATTERNS_MAP]
+
+        # Select game-appropriate patterns
+        game = self.game
+        if game in ("Valorant", "Valorant Duo"):
+            if wp and ag:
+                pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_weapon", [])]
+            elif wp:
+                pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_weapon", [])]
+            elif ag:
+                pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_agent", [])]
+            elif mp:
+                pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_map", [])]
+            else:
+                pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant", [])]
+        elif game in TITLE_PATTERNS:
+            pool = [t.format(**context) for t in TITLE_PATTERNS[game]]
         else:
-            pool = [t.format(**context) for t in TITLE_PATTERNS]
+            pool = FALLBACK_TITLES[:]
 
         title = random.choice(pool).strip()
         title = re.sub(r'\s+', ' ', title).strip()
         if len(title.split()) < 5:
-            title = f"{et} ABSURDO - Valorant Gameplay"
-        # Add #clip if not already present
+            if game in ("Valorant", "Valorant Duo"):
+                title = f"{et} ABSURDO - Valorant Gameplay"
+            elif game == "League of Legends":
+                title = f"MOMENTO ABSURDO NO LOL"
+            else:
+                title = f"MOMENTO ABSURDO NA LIVE"
         title = title.rstrip("#").rstrip()
         if "#clip" not in title and len(title) < 90:
             title = f"{title} #clip"
@@ -203,108 +463,93 @@ class ValorantStudio:
 
     def generate_hook(self, style: str = "auto") -> str:
         a = self.analysis
-        # All hooks use curiosity/drama — no generic "JOGADA"
         ev_labels = {"ACE":"ACE","CLUTCH":"CLUTCH","ONE TAP":"ONE TAP",
                       "MULTI KILL":"MULTI KILL","ECO WIN":"ECO WIN",
                       "ABILITY PLAY":"CLUTCH","RETOME":"CLUTCH","COLEGA":"JOGADA"}
         event = ev_labels.get(a.event_type, "JOGADA")
 
-        if style == "auto":
-            if a.is_ace:
-                style = "question"
-            elif a.is_clutch:
-                style = "stakes"
-            elif a.is_eco or a.kill_count >= 3:
-                style = "bold_statement"
-            else:
-                style = random.choice(list(HOOK_TEMPLATES.keys()))
+        game_prefix = self.game.split()[0]
+        if game_prefix == "League":
+            game_prefix = "LoL"
+        elif self.game == "Coaching":
+            game_prefix = "Coaching"
+        elif self.game not in ["Valorant", "Valorant Duo", "League of Legends", "Coaching"]:
+            game_prefix = "Gaming"
 
-        templates = HOOK_TEMPLATES.get(style, HOOK_TEMPLATES["curiosity"])
-        hook = random.choice(templates).format(event=event)
+        if style == "auto":
+            if a.is_ace and game_prefix == "Valorant":
+                style = f"{game_prefix}_question"
+            elif a.is_clutch and game_prefix == "Valorant":
+                style = f"{game_prefix}_stakes"
+            elif a.kill_count >= 3 and game_prefix == "Valorant":
+                style = f"{game_prefix}_bold_statement"
+            else:
+                candidates = [k for k in HOOK_TEMPLATES if k.startswith(game_prefix)]
+                style = random.choice(candidates) if candidates else "Valorant_curiosity"
+
+        templates = HOOK_TEMPLATES.get(style, GENERIC_HOOKS)
+        if templates and isinstance(templates, list) and templates[0] and "{event}" in templates[0]:
+            hook = random.choice(templates).format(event=event)
+        else:
+            hook = random.choice(templates) if templates else ""
         return hook[:80]
 
     def generate_hook_overlay(self, style: str = "auto") -> str:
-        """Short 2-line hook for video overlay (first 2s text card).
-        More dramatic, urgent, with ALL CAPS impact.
-        Uses literal \\n for ffmpeg drawtext compatibility."""
         a = self.analysis
-        hooks_2line = [
-            "VOCE PRECISA\\nVER ISSO",
-            "ISSO NAO E\\nNORMAL",
-            "O QUE ACONTECEU\\nDEPOIS...",
-            "REACAO DELES\\nFOI EPICA",
-            "1VS5?\\nASSISTE ISSO",
-            "NAO VAI\\nACREDITAR",
-            "ELE FEZ\\nISSO NA LIVE",
-            "MOMENTO\\nDE GENIO",
-            "SO ASSISTINDO\\nPRA ENTENDER",
-            "ESPERA SO\\nATE O FINAL",
-            "ISSO FOI\\nREAL MESMO?",
-            "QUE JOGADA\\nMAGNIFICA",
-            "NINGUEM FEZ\\nISSO ANTES",
-            "MIRA\\nPERFEITA",
-        ]
-        if a.is_ace:
-            hooks_2line = [
-                "!! ACE !!\\nINACREDITAVEL",
-                "1VS5?\\nELE CONSEGUIU",
-                "!! ACE !!\\nMOMENTO DO JOGO",
-                "MATOU\\nTODOS OS 5",
-                "!! ACE !!\\nPERFEITO",
-            ]
-        elif a.is_clutch:
-            hooks_2line = [
-                "ULTIMO VIVO\\nCONTRA TODOS",
-                "SOZINHO\\nE VENCEU",
-                "1 CONTRA\\nVARIOS",
-                "NAO TINHA\\nDIREITO DE GANHAR",
-                "CLUTCH\\nPERFEITO",
-                "SOBRAMOS\\nSO ELE",
-            ]
-        elif a.kill_count >= 4:
-            hooks_2line = [
-                "!! 4K !!\\nMOMENTO ABSURDO",
-                "QUADRA\\nIMPRESSIONANTE",
-                "4 KILLS\\nSEGUIDAS",
-            ]
-        elif a.kill_count >= 3:
-            hooks_2line = [
-                "!! 3K !!\\nMOMENTO ABSURDO",
-                "TRIPLO\\nIMPRESSIOANTE",
-                "3 KILLS\\nDE UMA SO VEZ",
-            ]
-        return random.choice(hooks_2line)
+        game = self.game
+        if game == "League of Legends":
+            return random.choice(HOOK_2LINE_LOL)
+        elif game == "Coaching":
+            return random.choice(HOOK_2LINE_VALORANT + HOOK_2LINE_GENERIC)
+        elif game not in ["Valorant", "Valorant Duo"]:
+            return random.choice(HOOK_2LINE_GENERIC)
 
-    def get_description_tags(self) -> Tuple[str, List[str]]:
+        if a.is_ace:
+            pool = HOOK_2LINE_VALORANT_ACE
+        elif a.is_clutch:
+            pool = HOOK_2LINE_VALORANT_CLUTCH
+        elif a.kill_count >= 4:
+            pool = HOOK_2LINE_VALORANT_KILL[:3]
+        elif a.kill_count >= 3:
+            pool = HOOK_2LINE_VALORANT_KILL[3:]
+        else:
+            pool = HOOK_2LINE_VALORANT
+        return random.choice(pool)
+
+    def get_description_tags(self, game: str = None) -> Tuple[str, List[str]]:
         a = self.analysis
-        tags = ["ClipCrafter","CanalPropra","Valorant","ValorantBrasil",
-                "shorts","clipe","tentando evoluir","fercami gameplay"]
+        game = game or self.game
+        tags = ["ClipCrafter","CanalPropra","shorts","clipe","fercami"]
+        if game == "Valorant" or game == "Valorant Duo":
+            tags.extend(["Valorant","ValorantBrasil","jogadas valorant","melhores momentos"])
+        elif game == "League of Legends":
+            tags.extend(["LeagueOfLegends","LoL","lolzinho","lolbrasil"])
+        elif game == "Coaching":
+            tags.extend(["Coaching","DicasValorant","melhorar"])
+        else:
+            tags.extend(["Gameplay","jogando","live"])
+
         if a.event_type and a.event_type != "highlight":
             tags.append(a.event_type.lower().replace(" ",""))
-        if a.agent:
-            tags.extend([a.agent, f"{a.agent}Valorant", f"{a.agent}main"])
+        if a.agent and game in ("Valorant", "Valorant Duo"):
+            tags.extend([a.agent, f"{a.agent}Valorant"])
         if a.map_name:
             tags.append(a.map_name)
-        if a.weapon:
+        if a.weapon and game in ("Valorant", "Valorant Duo"):
             tags.extend([a.weapon, f"{a.weapon}Valorant"])
         if a.kill_count >= 3:
             tags.append(f"{a.kill_count}k")
         if a.is_ace:
-            tags.extend(["ace","acevalorant","1v5"])
-        tags.extend(["jogadas valorant","melhores momentos","gameplay"])
+            tags.extend(["ace","1v5"])
 
-        cta = (
-            f"INSCREVA-SE no CanalPropra para mais momentos INSANOS de Valorant!\n"
+        game_tag = game.replace(" ", "") if game != "League of Legends" else "LoL"
+        desc = (
+            f"Melhores momentos de {game}! Jogadas insanas e muito mais.\n\n"
+            f"INSCREVA-SE no CanalPropra para mais momentos INSANOS!\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"
             f"Ative o sininho para nao perder os proximos clipes!\n\n"
-        )
-        event_tag = f"#{a.event_type.replace(' ','')}" if a.event_type and a.event_type != "highlight" else "#highlight"
-        desc = (
-            f"Melhores momentos de Valorant! Jogadas insanas, aces, clutches e muito mais.\n"
-            f"Gameplay legendado com transcricao real.\n\n"
-            f"{cta}"
-            f"#Valorant #ValorantBrasil {event_tag} "
-            f"#ClipCrafter #CanalPropra #Shorts #Gameplay\n"
+            f"#{game_tag} #{a.event_type.replace(' ','')} "
+            f"#ClipCrafter #CanalPropra #Shorts\n"
         )
         return desc, tags[:20]
 

@@ -3,11 +3,11 @@ name: Upload Scheduled Clips
 on:
   schedule:
     # Runs daily at 08:00 BRT = 11:00 UTC (before the first upload window)
-    - cron: '0 11 * * *'   # Daily at 11:00 UTC = 08:00 BRT — script skips days without schedule
+    - cron: '0 11 * * *'   # Daily at 11:00 UTC = 08:00 BRT
   workflow_dispatch:  # manual trigger for testing
 
 jobs:
-  upload:
+  discover-and-upload:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,9 +20,20 @@ jobs:
       - name: Install dependencies
         run: |
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+          pip install yt-dlp numpy requests playwright
+          playwright install chromium
 
-      - name: Check today's schedule and upload
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Discover latest video and process clips
+        run: python clipcrafter/ci_discover.py
+
+      - name: Upload scheduled clips
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+          TT_COOKIES: ${{ secrets.TT_COOKIES }}
         run: python clipcrafter/ci_upload.py

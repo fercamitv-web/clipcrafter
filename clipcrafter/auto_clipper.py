@@ -23,15 +23,17 @@ class ViralSegment:
     end_sec: float
     score: float
     reason: str
+    speech_ratio: float = 0.0
 
 def detect_viral_fast(audio_path: str, video_duration: float,
                       energy_weight: float = 1.0,
                       excitement_weight: float = 0.5,
                       min_clip: float = 3.0, max_clip: float = 60.0,
-                      sensitivity: float = 0.35, top_n: int = 20) -> List[ViralSegment]:
+                      sensitivity: float = 0.35, top_n: int = 20,
+                      speech_weight: float = 0.0) -> List[ViralSegment]:
     """
-    Optimized viral detection using same algorithm as original, but reading M4A directly
-    and skipping expensive full-audio FFT. ~15x faster with similar accuracy.
+    Optimized viral detection using audio energy + excitement + optional speech analysis.
+    speech_weight > 0 enables speech-band filtering to prefer segments with voice.
     """
     from pydub import AudioSegment
     import numpy as np
@@ -44,16 +46,14 @@ def detect_viral_fast(audio_path: str, video_duration: float,
     if total_s < 0.5:
         return []
 
-    # Use audio duration if video_duration is 0 or too small
     if video_duration <= 0 or video_duration > total_s + 10:
         video_duration = total_s
 
-    # Segment audio into small windows (same as original)
     seg_dur = 0.05
     seg_n = int(seg_dur * sr)
     num = int(max(1, total_s / seg_dur))
 
-    # Compute RMS energy per segment
+    # RMS energy per segment
     energy = np.zeros(num, dtype=np.float64)
     for i in range(num):
         start = int(i * seg_n)
@@ -63,12 +63,11 @@ def detect_viral_fast(audio_path: str, video_duration: float,
     if max_e > 0:
         energy /= max_e
 
-    # Smooth
     ws = max(1, int(0.3 / seg_dur))
     kernel = np.ones(ws) / ws
     energy_smooth = np.convolve(energy, kernel, mode='same')
 
-    # Excitement via FFT on 1s windows (much fewer than original's per-segment)
+    # Excitement via FFT on 1s windows
     fft_win = int(1.0 / seg_dur)
     excitement = np.zeros(num)
     for i in range(0, num, fft_win):
@@ -83,22 +82,46 @@ def detect_viral_fast(audio_path: str, video_duration: float,
             total = np.sum(cf) + 1e-10
             excitement[i:end] = high / total
 
-    # Combined score (same as original)
+    # Speech ratio per window (energy in 300-3000Hz band vs total)
+    speech_ratio = np.zeros(num) if speech_weight > 0 else None
+    if speech_weight > 0:
+        for i in range(0, num, fft_win):
+            end = min(i + fft_win, num)
+            start_s = int(i * seg_n)
+            end_s = min(int(end * seg_n), len(samples))
+            chunk = samples[start_s:end_s]
+            if len(chunk) > 100:
+                cf = np.abs(np.fft.rfft(chunk))
+                freqs = np.fft.rfftfreq(len(chunk), 1 / sr)
+                speech_mask = (freqs >= 300) & (freqs <= 3000)
+                low_mask = freqs < 300
+                speech_e = np.sum(cf[speech_mask]**2) if np.any(speech_mask) else 0
+                low_e = np.sum(cf[low_mask]**2) if np.any(low_mask) else 0
+                total_e = speech_e + low_e + (np.sum(cf[~low_mask & ~speech_mask]**2) if np.any(~low_mask & ~speech_mask) else 0)
+                if total_e > 1e-10:
+                    sr_val = speech_e / total_e
+                    # Penalize when bass dominates (music, not speech)
+                    low_dom = low_e / total_e
+                    if low_dom > 0.5:
+                        sr_val *= 0.3
+                    speech_ratio[i:end] = min(sr_val * 1.5, 1.0)
+
+    # Combined score
     combined = (
         energy_weight * energy_smooth +
         excitement_weight * excitement
     )
+    if speech_weight > 0 and speech_ratio is not None:
+        combined += speech_weight * speech_ratio
+
     cn = combined.max()
     if cn > 0:
         combined /= cn
 
-    # Adaptive threshold (same as original)
-    percentile_base = max(10, min(90, 80 - (sensitivity - 1.0) * 30))
-    threshold = np.percentile(combined, 100 - percentile_base)
+    threshold = np.percentile(combined, 100 - max(10, min(90, 80 - (sensitivity - 1.0) * 30)))
     threshold = max(threshold, np.mean(combined) * 1.2)
     above = combined > threshold
 
-    # Find contiguous segments
     segs_raw = []
     in_seg = False
     seg_start = 0
@@ -119,7 +142,6 @@ def detect_viral_fast(audio_path: str, video_duration: float,
     if not segs_raw:
         return []
 
-    # Convert to times and merge
     merged = []
     for s, e in segs_raw:
         t1 = s * seg_dur
@@ -148,17 +170,28 @@ def detect_viral_fast(audio_path: str, video_duration: float,
         score = float(np.mean(seg_c)) if len(seg_c) > 0 else 0
         peak = float(np.max(energy_smooth[si:ei + 1])) if len(seg_c) > 0 else 0
         avg_x = float(np.mean(excitement[si:ei + 1])) if len(seg_c) > 0 else 0
+        avg_s = float(np.mean(speech_ratio[si:ei + 1])) if speech_ratio is not None and len(seg_c) > 0 else 0
         if peak > 0.7 and avg_x > 0.3:
             reason = "Grito / explosao"
+        elif avg_s > 0.5:
+            reason = "Fala / reacao"
         elif peak > 0.5:
             reason = "Alta energia"
         elif avg_x > 0.3:
             reason = "Agitacao / musica intensa"
         else:
             reason = "Momento de destaque"
-        results.append(ViralSegment(s, e, score, reason))
+        results.append(ViralSegment(s, e, score, reason, avg_s))
 
-    results.sort(key=lambda x: x.score, reverse=True)
+    # Filter: prefer segments with speech when available
+    if speech_weight > 0 and results:
+        results.sort(key=lambda x: (x.speech_ratio * 0.6 + x.score * 0.4), reverse=True)
+        # Remove segments with zero speech if we have enough with speech
+        speech_segs = [r for r in results if r.speech_ratio > 0.3]
+        if len(speech_segs) >= top_n // 2:
+            results = speech_segs + [r for r in results if r.speech_ratio <= 0.3]
+    else:
+        results.sort(key=lambda x: x.score, reverse=True)
     return results[:top_n]
 
 
@@ -180,9 +213,9 @@ def save_state(state):
 # VOD DISCOVERY
 # ============================================================
 
-def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/streams",
-                  min_duration: int = 1800) -> List[tuple]:
-    """Discover all VODs from channel streams tab. Returns [(id, duration, title), ...]"""
+def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/videos",
+                  min_duration: int = 600) -> List[tuple]:
+    """Discover all videos from channel videos tab (not streams). Returns [(id, duration, title), ...]"""
     print(f"  Discovering VODs from {channel_url}...", flush=True)
     r = subprocess.run([YT_PY, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
                         channel_url], capture_output=True, text=True, timeout=120)
@@ -214,8 +247,8 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
     r = subprocess.run([YT_PY, "-m", "yt_dlp", "-f", "140", "-k",
-                        "-o", m4a, f"https://youtube.com/watch?v={vod_id}"],
-                       capture_output=True, text=True, timeout=300)
+                         "-o", m4a, f"https://youtube.com/watch?v={vod_id}"],
+                        capture_output=True, text=True, timeout=600)
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         print(f"OK ({os.path.getsize(m4a)//1024}KB)")
         return m4a
@@ -232,10 +265,10 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
     r = subprocess.run([YT_PY, "-m", "yt_dlp", "-f", "18",
-                        "--download-sections", f"*{start}-{end}",
-                        "--force-keyframes-at-cuts",
-                        "-o", output_path, f"https://youtube.com/watch?v={vod_id}"],
-                       capture_output=True, text=True, timeout=120)
+                         "--download-sections", f"*{start}-{end}",
+                         "--force-keyframes-at-cuts",
+                         "-o", output_path, f"https://youtube.com/watch?v={vod_id}"],
+                        capture_output=True, text=True, timeout=180)
     return os.path.exists(output_path) and os.path.getsize(output_path) > 50000
 
 
@@ -243,17 +276,17 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
 # CLIP PROCESSING
 # ============================================================
 
-def process_clip(src: str, dst: str) -> tuple:
+def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
     """Process a clip: shorts mode + hook overlay. Returns (ok, title, hook, desc, tags)."""
     from video_processor import VideoProcessor
     from valorant_studio import ValorantStudio
 
     vs = ValorantStudio()
+    vs.game = game
     proc = VideoProcessor()
     try:
         if not proc.load(src):
-            return False, "highlight - Valorant #clip", "", "", ["Valorant"]
-        # Generate hook overlay text for first 2s
+            return False, f"{game} - CanalPropra #clip", "", "", [game]
         hook_overlay = vs.generate_hook_overlay()
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
@@ -269,9 +302,9 @@ def process_clip(src: str, dst: str) -> tuple:
             else:
                 title = vs.generate_seo_title()
                 hook = vs.generate_hook()
-            desc, tags = vs.get_description_tags()
+            desc, tags = vs.get_description_tags(game)
             return True, title, hook or "", desc, tags
-        return False, "highlight - Valorant #clip", "", "", ["Valorant"]
+        return False, f"{game} - CanalPropra #clip", "", "", [game]
     finally:
         proc.cleanup()
         gc.collect()
@@ -300,9 +333,9 @@ def upload_clip(path: str, title: str, desc: str, tags: list) -> Optional[str]:
 
 def _process_one(pair):
     """Process a single clip (for parallel execution). Returns (idx, ok, title, hook, desc, tags)."""
-    idx, clip_path, processed_path = pair
+    idx, clip_path, processed_path, game = pair
     try:
-        ok, title, hook, desc, tags = process_clip(clip_path, processed_path)
+        ok, title, hook, desc, tags = process_clip(clip_path, processed_path, game)
         return idx, ok, title, hook, desc, tags
     except Exception as e:
         return idx, False, str(e), "", "", []
@@ -323,17 +356,22 @@ def process_batch(pairs, max_workers=2):
 # MAIN PIPELINE
 # ============================================================
 
-def run_pipeline(vod_id: str, duration: int, title: str,
+def run_pipeline(vod_id: str, duration: int, vod_title: str,
                  state: dict, max_clips: int = 15, sensitivity: float = 0.35,
                  jobs: int = 1):
     """Run full pipeline for one VOD."""
+    # Detect game type from VOD title
+    from content_detector import detect_game
+    game = detect_game(vod_title)
+    
     vod_state = state["vods"].get(vod_id, {
-        "title": title, "duration": duration,
+        "title": vod_title, "duration": duration, "game": game,
         "audio_done": False, "segments": [],
         "clips_downloaded": [], "clips_processed": [], "clips_uploaded": [],
         "skip": False
     })
     state["vods"][vod_id] = vod_state
+    vod_state["game"] = game  # Update game each run
 
     if vod_state.get("skip"):
         print(f"  SKIP (marked skip)")
@@ -348,7 +386,7 @@ def run_pipeline(vod_id: str, duration: int, title: str,
     # Step 1: Download audio
     if not vod_state["audio_done"]:
         print(f"\n{'='*50}")
-        print(f"VOD: {vod_id} ({duration//60}:{duration%60:02d}) - {title}")
+        print(f"VOD: {vod_id} ({duration//60}:{duration%60:02d}) - {vod_title}")
         print(f"{'='*50}")
         audio_path = download_audio(vod_id, vod_dir)
         if not audio_path:
@@ -362,7 +400,7 @@ def run_pipeline(vod_id: str, duration: int, title: str,
         audio_path = os.path.join(vod_dir, f"{vod_id}.m4a")
         if not os.path.exists(audio_path):
             audio_path = os.path.join(vod_dir, f"{vod_id}.wav")
-        print(f"\n  VOD: {vod_id} ({duration//60}:{duration%60:02d}) - {title}")
+        print(f"\n  VOD: {vod_id} ({duration//60}:{duration%60:02d}) - {vod_title}")
 
     # Step 2: Detect viral moments
     if not vod_state["segments"]:
@@ -370,7 +408,8 @@ def run_pipeline(vod_id: str, duration: int, title: str,
         t0 = time.time()
         try:
             segs = detect_viral_fast(audio_path, duration,
-                                     sensitivity=sensitivity, top_n=max_clips + 5)
+                                     sensitivity=sensitivity, top_n=max_clips + 5,
+                                     speech_weight=0.6)
             elapsed = time.time() - t0
             print(f"{len(segs)} segments ({elapsed:.0f}s)")
             for s in segs:
@@ -443,10 +482,12 @@ def run_pipeline(vod_id: str, duration: int, title: str,
 
     # Step 4: Process clips (sequential or parallel)
     need_proc = [i for i in sorted(downloaded) if i not in processed]
+    game_name = vod_state.get("game", "Valorant")
     if need_proc:
         if jobs > 1 and len(need_proc) > 1:
             pairs = [(i, os.path.join(clips_dir, f"clip_{i+1:02d}.mp4"),
-                      os.path.join(processed_dir, f"clip_{i+1:02d}_shorts.mp4")) for i in need_proc]
+                      os.path.join(processed_dir, f"clip_{i+1:02d}_shorts.mp4"),
+                      game_name) for i in need_proc]
             print(f"  Processing {len(need_proc)} clips ({jobs} workers)...", flush=True)
             t0 = time.time()
             results = process_batch(pairs, max_workers=jobs)
@@ -471,7 +512,7 @@ def run_pipeline(vod_id: str, duration: int, title: str,
                 t0 = time.time()
                 ok, clip_title, hook, desc, tags = False, "", "", "", []
                 try:
-                    ok, clip_title, hook, desc, tags = process_clip(clip_path, processed_path)
+                    ok, clip_title, hook, desc, tags = process_clip(clip_path, processed_path, game_name)
                 except Exception as e:
                     print(f"ERROR: {e}", flush=True)
                 if ok:

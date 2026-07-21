@@ -21,9 +21,11 @@ USED_IN_SCHEDULE = {
 
 from video_processor import VideoProcessor
 from valorant_studio import ValorantStudio
+from content_detector import detect_game
 
-def process_clip(src, dst):
+def process_clip(src, dst, game="Valorant"):
     vs = ValorantStudio()
+    vs.game = game
     proc = VideoProcessor()
     try:
         if not proc.load(str(src)):
@@ -36,7 +38,7 @@ def process_clip(src, dst):
         if not ok:
             return None
         analysis = getattr(proc, "_analysis", None)
-        title, hook, desc, tags = "MOMENTO ABSURDO - Valorant", "", "", []
+        title, hook, desc, tags = f"MOMENTO ABSURDO - {game}", "", "", []
         if analysis and analysis.speech_text:
             a2 = vs.analyze_transcript(analysis.speech_text.split(" | "))
             title = vs.generate_seo_title(kill_count=a2.kill_count, event_type=a2.event_type,
@@ -45,8 +47,8 @@ def process_clip(src, dst):
         else:
             title = vs.generate_seo_title()
             hook = vs.generate_hook()
-        desc, tags = vs.get_description_tags()
-        return {"title": title, "hook": hook, "desc": desc, "tags": tags, "file": str(dst)}
+        desc, tags = vs.get_description_tags(game)
+        return {"title": title, "hook": hook, "desc": desc, "tags": tags, "file": str(dst), "game": game}
     finally:
         proc.cleanup()
         gc.collect()
@@ -109,7 +111,9 @@ def main():
 
             if not final.exists():
                 print(f"  Process {label}...", end=" ", flush=True)
-                meta = process_clip(raw, final)
+                vod_title = vod_info.get("title", "")
+                game = detect_game(vod_title)
+                meta = process_clip(raw, final, game)
                 if meta:
                     queue.append(meta)
                     # Save individual meta
