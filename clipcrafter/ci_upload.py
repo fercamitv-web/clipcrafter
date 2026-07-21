@@ -54,32 +54,24 @@ def main():
         print("Queue is empty! No more clips to upload.")
         return
 
-    cursor = state["cursor"]
-
-    # Scan forward from cursor to find next 3 clips with existing files
-    batch = []
-    batch_indices = []
-    tmp = cursor
-    while tmp < len(queue) and len(batch) < 3:
-        fp = REPO_DIR / queue[tmp]["file"]
-        if fp.exists():
-            batch.append((tmp, queue[tmp], fp))
-            batch_indices.append(tmp)
-        else:
-            print(f"  SKIP dead entry #{tmp}: {queue[tmp]['file']}")
-        tmp += 1
-    # Remove skipped dead entries from queue (in reverse to preserve indices)
-    for idx in reversed(range(cursor, tmp)):
-        fp = REPO_DIR / queue[idx]["file"]
-        if not fp.exists():
-            queue.pop(idx)
-
-    if not batch:
-        print("No clips with valid files found in queue.")
+    # Remove dead entries (files that don't exist in the repo)
+    before = len(queue)
+    queue = [c for c in queue if (REPO_DIR / c["file"]).exists()]
+    if len(queue) < before:
+        print(f"Cleaned {before - len(queue)} dead entries from queue")
         save_queue(queue)
+
+    if not queue:
+        print("No clips with valid files in queue.")
         return
 
-    remaining = len(queue) - max(batch_indices) - 1 if batch_indices else len(queue) - cursor
+    cursor = state["cursor"]
+    if cursor >= len(queue):
+        print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
+        return
+
+    batch = queue[cursor:cursor+3]
+    remaining = len(queue) - cursor - len(batch)
 
     today = datetime.now(BRT)
     print(f"Today: {today.strftime('%A %d/%m/%Y')}")
@@ -96,9 +88,10 @@ def main():
         base_time.replace(hour=19),
     ]
 
-    for i, (orig_idx, clip, file_path) in enumerate(batch):
+    for i, clip in enumerate(batch):
         publish_dt = upload_times[i]
         publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
+        file_path = REPO_DIR / clip["file"]
 
         print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
         title = clip["title"]
@@ -144,12 +137,10 @@ def main():
                 print(f"FAIL ({e})")
 
         if results:
-            state["uploaded"].append({"idx": orig_idx, "title": title, "platforms": results})
+            state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
         sys.stdout.flush()
 
-    # Advance cursor past all clips we processed (including skipped dead ones)
-    new_cursor = max(batch_indices) + 1 if batch_indices else cursor
-    state["cursor"] = new_cursor
+    state["cursor"] = cursor + len(batch)
     save_queue(queue)
     save_state(state)
     print(f"\nDone! Next cursor at {state['cursor']}/{len(queue)}")
