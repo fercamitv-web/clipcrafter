@@ -217,7 +217,7 @@ def save_state(state):
 
 def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/videos",
                   min_duration: int = 600) -> List[tuple]:
-    """Discover all videos from channel videos tab (not streams). Returns [(id, duration, title), ...]"""
+    """Discover regular uploaded videos from channel (not livestreams). Returns [(id, duration, title), ...]"""
     print(f"  Discovering VODs from {channel_url}...", flush=True)
     r = subprocess.run([YT_PY, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
                         channel_url], capture_output=True, text=True, timeout=120)
@@ -229,12 +229,15 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
     vods = []
     for e in entries:
         if not e: continue
+        live = e.get("live_status")
+        if live is not None:
+            continue  # skip livestream VODs
         vid = e.get("id", "")
         dur = e.get("duration", 0)
         title = e.get("title", "")
         if dur >= min_duration:
             vods.append((vid, dur, title))
-    print(f"  Found {len(vods)} VODs >= {min_duration//60}min")
+    print(f"  Found {len(vods)} VODs >= {min_duration//60}min (filtered livestreams)")
     return vods
 
 
