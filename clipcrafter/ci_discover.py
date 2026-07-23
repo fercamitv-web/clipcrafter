@@ -12,8 +12,8 @@ CLIPS_DIR.mkdir(parents=True, exist_ok=True)
 
 sys.path.insert(0, str(CI_DIR))
 
-def log(msg):
-    print(msg, flush=True)
+def log(msg, end="\n"):
+    print(msg, end=end, flush=True)
 
 def load_queue():
     if QUEUE_FILE.exists():

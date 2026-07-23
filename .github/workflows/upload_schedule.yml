@@ -9,13 +9,17 @@ on:
 jobs:
   discover-and-upload:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Set up LFS
-        run: git lfs install
+      - name: Ensure LFS files are pulled
+        run: |
+          git lfs install
+          git lfs pull
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,7 +49,7 @@ jobs:
             echo "No new clips to commit"
           else
             git commit -m "Auto-add new clips from ci_discover"
-            git push
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
           fi
 
       - name: Upload scheduled clips
@@ -64,5 +68,5 @@ jobs:
             echo "No changes after upload"
           else
             git commit -m "Auto-update queue cursor after upload"
-            git push
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
           fi
