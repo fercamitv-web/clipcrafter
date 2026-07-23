@@ -107,8 +107,8 @@ def main():
         for cp in clip_paths:
             clip_name = f"final_{vid}_{Path(cp).name.replace('raw_', '')}"
             dst = CLIPS_DIR / clip_name
-            result = process_clip(cp, str(dst), game, is_short=True, add_intro=True, add_outro=True)
-            if result:
+            ok, title, hook, desc, tags = process_clip(cp, str(dst), game)
+            if ok:
                 queue.append({
                     "clip_file": clip_name,
                     "vod_id": vid,

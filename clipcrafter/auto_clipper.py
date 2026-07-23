@@ -10,9 +10,7 @@ STATE_DIR = os.path.expanduser("~/.clipcrafter")
 STATE_FILE = os.path.join(STATE_DIR, "auto_clipper_state.json")
 os.makedirs(STATE_DIR, exist_ok=True)
 
-YT_PY = os.path.join(os.environ.get("TEMP", "C:/Temp"), "yt_env", "Scripts", "python.exe")
-if not os.path.exists(YT_PY):
-    YT_PY = sys.executable  # fallback to current Python (works on Linux CI)
+YT_PY = sys.executable  # use system Python (venv yt-dlp often broken)
 BASE_DIR = os.path.expanduser("~/clipcrafter_downloads")
 
 # ============================================================
