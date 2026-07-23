@@ -22,8 +22,9 @@ jobs:
       - name: Install deno & pre-cache npm packages for yt-dlp
         run: |
           curl -fsSL https://deno.land/install.sh | sh
-          echo "$HOME/.deno/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.deno/bin:$PATH"
           deno cache "npm:meriyah@6.1.4" "npm:astring@1.9.0"
+          echo "$HOME/.deno/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
