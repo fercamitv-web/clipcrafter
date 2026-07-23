@@ -220,7 +220,6 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
     """Discover regular uploaded videos from channel (not livestreams). Returns [(id, duration, title), ...]"""
     print(f"  Discovering VODs from {channel_url}...", flush=True)
     r = subprocess.run([YT_PY, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
-                        "--extractor-args", "youtube:player_client=android",
                         channel_url], capture_output=True, text=True, timeout=120)
     if r.returncode != 0:
         print(f"  FAIL: {r.stderr[-200:]}")
@@ -269,7 +268,7 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
     cmd = [YT_PY, "-m", "yt_dlp", "-f", "140", "-k",
-           "--extractor-args", "youtube:player_client=android"] + _cookies_args() + \
+           "--no-check-formats"] + _cookies_args() + \
           ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
@@ -295,7 +294,7 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
         return True
     cmd = [YT_PY, "-m", "yt_dlp", "-f", "18", "--download-sections", f"*{start}-{end}",
            "--force-keyframes-at-cuts",
-           "--extractor-args", "youtube:player_client=android"] + _cookies_args() + \
+           "--no-check-formats"] + _cookies_args() + \
           ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     return os.path.exists(output_path) and os.path.getsize(output_path) > 50000
