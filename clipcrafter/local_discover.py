@@ -110,6 +110,10 @@ def main():
             ok, title, hook, desc, tags = process_clip(cp, str(dst), game)
             if ok:
                 queue.append({
+                    "file": clip_name,
+                    "title": title,
+                    "desc": desc,
+                    "tags": tags,
                     "clip_file": clip_name,
                     "vod_id": vid,
                     "game": game,

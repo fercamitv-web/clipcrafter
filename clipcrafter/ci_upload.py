@@ -56,7 +56,7 @@ def main():
 
     # Remove dead entries (files that don't exist in the repo)
     before = len(queue)
-    queue = [c for c in queue if (REPO_DIR / c["file"]).exists()]
+    queue = [c for c in queue if (REPO_DIR / c.get("clip_file", c.get("file", ""))).exists()]
     if len(queue) < before:
         print(f"Cleaned {before - len(queue)} dead entries from queue")
         save_queue(queue)
@@ -91,7 +91,7 @@ def main():
     for i, clip in enumerate(batch):
         publish_dt = upload_times[i]
         publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
-        file_path = REPO_DIR / clip["file"]
+        file_path = REPO_DIR / clip.get("file", clip.get("clip_file", ""))
 
         print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
         title = clip["title"]
