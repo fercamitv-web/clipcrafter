@@ -49,6 +49,7 @@ jobs:
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
           TT_COOKIES: ${{ secrets.TT_COOKIES }}
         run: python clipcrafter/ci_upload.py
 

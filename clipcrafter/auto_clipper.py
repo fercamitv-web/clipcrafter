@@ -245,15 +245,31 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
 # AUDIO DOWNLOAD
 # ============================================================
 
+def _cookies_args() -> list:
+    """Return yt-dlp args for cookies if YT_COOKIES env is set."""
+    c = os.environ.get("YT_COOKIES", "")
+    if c:
+        p = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
+        if not os.path.exists(p):
+            import base64
+            try:
+                data = base64.b64decode(c).decode("utf-8")
+                with open(p, "w") as f:
+                    f.write(data)
+            except Exception:
+                return []
+        return ["--cookies", p]
+    return []
+
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     """Download m4a audio with -k to keep file. Returns path or None."""
     m4a = os.path.join(out_dir, f"{vod_id}.m4a")
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
-    r = subprocess.run([YT_PY, "-m", "yt_dlp", "-f", "140", "-k",
-                         "-o", m4a, f"https://youtube.com/watch?v={vod_id}"],
-                        capture_output=True, text=True, timeout=600)
+    cmd = [YT_PY, "-m", "yt_dlp", "-f", "140", "-k"] + _cookies_args() + \
+          ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         print(f"OK ({os.path.getsize(m4a)//1024}KB)")
         return m4a
@@ -275,11 +291,10 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     """Download a single clip segment."""
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
-    r = subprocess.run([YT_PY, "-m", "yt_dlp", "-f", "18",
-                         "--download-sections", f"*{start}-{end}",
-                         "--force-keyframes-at-cuts",
-                         "-o", output_path, f"https://youtube.com/watch?v={vod_id}"],
-                        capture_output=True, text=True, timeout=180)
+    cmd = [YT_PY, "-m", "yt_dlp", "-f", "18", "--download-sections", f"*{start}-{end}",
+           "--force-keyframes-at-cuts"] + _cookies_args() + \
+          ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     return os.path.exists(output_path) and os.path.getsize(output_path) > 50000
 
 
