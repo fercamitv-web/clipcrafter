@@ -267,7 +267,7 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
-    cmd = [YT_PY, "-m", "yt_dlp", "-f", "140", "-k", "--js-runtimes", "node"] + _cookies_args() + \
+    cmd = [YT_PY, "-m", "yt_dlp", "-f", "140", "-k"] + _cookies_args() + \
           ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
@@ -292,7 +292,7 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
     cmd = [YT_PY, "-m", "yt_dlp", "-f", "18", "--download-sections", f"*{start}-{end}",
-           "--force-keyframes-at-cuts", "--js-runtimes", "node"] + _cookies_args() + \
+           "--force-keyframes-at-cuts"] + _cookies_args() + \
           ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     return os.path.exists(output_path) and os.path.getsize(output_path) > 50000
