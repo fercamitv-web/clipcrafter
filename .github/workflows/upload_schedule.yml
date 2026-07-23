@@ -13,13 +13,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Ensure LFS files are pulled
-        run: |
-          git lfs install
-          git lfs pull
 
       - name: Set up Python
         uses: actions/setup-python@v5
