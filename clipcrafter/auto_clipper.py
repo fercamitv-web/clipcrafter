@@ -257,7 +257,13 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         print(f"OK ({os.path.getsize(m4a)//1024}KB)")
         return m4a
-    print(f"FAIL")
+    print(f"FAIL (rc={r.returncode})")
+    err = r.stderr.strip()[-500:] if r.stderr else ""
+    out = r.stdout.strip()[-500:] if r.stdout else ""
+    if err:
+        print(f"    {err}")
+    if out:
+        print(f"    {out}")
     return None
 
 
