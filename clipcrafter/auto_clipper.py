@@ -11,6 +11,7 @@ STATE_FILE = os.path.join(STATE_DIR, "auto_clipper_state.json")
 os.makedirs(STATE_DIR, exist_ok=True)
 
 YT_PY = sys.executable  # use system Python (venv yt-dlp often broken)
+YT_DLP = "yt-dlp"  # yt-dlp standalone executable
 BASE_DIR = os.path.expanduser("~/clipcrafter_downloads")
 
 # ============================================================
@@ -217,7 +218,7 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
                   min_duration: int = 600) -> List[tuple]:
     """Discover regular uploaded videos from channel (not livestreams). Returns [(id, duration, title), ...]"""
     print(f"  Discovering VODs from {channel_url}...", flush=True)
-    r = subprocess.run([YT_PY, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
+    r = subprocess.run([YT_DLP] + YT_EXTRACTOR_ARGS + ["--flat-playlist", "--dump-single-json",
                         channel_url], capture_output=True, text=True, timeout=120)
     if r.returncode != 0:
         print(f"  FAIL: {r.stderr[-200:]}")
@@ -243,6 +244,8 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
 # AUDIO DOWNLOAD
 # ============================================================
 
+YT_EXTRACTOR_ARGS = ["--extractor-args", "youtube:player_client=android"]
+
 def _cookies_args() -> list:
     """Return yt-dlp args for cookies if YT_COOKIES env is set."""
     c = os.environ.get("YT_COOKIES", "")
@@ -255,9 +258,9 @@ def _cookies_args() -> list:
                 with open(p, "w") as f:
                     f.write(data)
             except Exception:
-                return []
-        return ["--cookies", p]
-    return []
+                return YT_EXTRACTOR_ARGS
+        return YT_EXTRACTOR_ARGS + ["--cookies", p]
+    return YT_EXTRACTOR_ARGS
 
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     """Download m4a audio with -k to keep file. Returns path or None."""
@@ -265,7 +268,7 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
-    cmd = [YT_PY, "-m", "yt_dlp", "-f", "140", "-k"] + _cookies_args() + \
+    cmd = [YT_DLP, "-f", "140", "-k"] + _cookies_args() + \
           ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
@@ -289,7 +292,7 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     """Download a single clip segment."""
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
-    cmd = [YT_PY, "-m", "yt_dlp", "-f", "18", "--download-sections", f"*{start}-{end}",
+    cmd = [YT_DLP, "-f", "18", "--download-sections", f"*{start}-{end}",
            "--force-keyframes-at-cuts"] + _cookies_args() + \
           ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
