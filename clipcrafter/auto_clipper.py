@@ -256,9 +256,11 @@ def _cookies_args() -> list:
                 data = base64.b64decode(c).decode("utf-8")
                 with open(p, "w") as f:
                     f.write(data)
-            except Exception:
+            except Exception as e:
+                print(f"    [cookies] failed to write: {e}")
                 return []
         return ["--cookies", p]
+    print("    [cookies] YT_COOKIES not set")
     return []
 
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
