@@ -247,7 +247,9 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
 
 def _cookies_args() -> list:
     """Return yt-dlp args for cookies if YT_COOKIES env is set."""
+    import sys as _sys
     c = os.environ.get("YT_COOKIES", "")
+    _sys.stderr.write(f"[cookies] YT_COOKIES set={bool(c)} len={len(c) if c else 0}\n")
     if c:
         p = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
         if not os.path.exists(p):
@@ -256,11 +258,11 @@ def _cookies_args() -> list:
                 data = base64.b64decode(c).decode("utf-8")
                 with open(p, "w") as f:
                     f.write(data)
+                _sys.stderr.write(f"[cookies] wrote {len(data)} bytes\n")
             except Exception as e:
-                print(f"    [cookies] failed to write: {e}")
+                _sys.stderr.write(f"[cookies] failed: {e}\n")
                 return []
         return ["--cookies", p]
-    print("    [cookies] YT_COOKIES not set")
     return []
 
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
