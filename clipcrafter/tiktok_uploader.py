@@ -77,9 +77,7 @@ def upload_video(video_path: str, title: str = None,
                 raise Exception("Session expired. Run login_interactive() again.")
 
             # Upload file via hidden input
-            file_input = page.locator("input[type=file]")
-            file_input.wait_for(timeout=15000)
-            file_input.set_input_files(video_path)
+            page.locator("input[type=file]").set_input_files(video_path)
             print("  File selected, waiting for processing...")
 
             # Wait for upload to complete (look for caption textarea)
