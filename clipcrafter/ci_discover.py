@@ -119,6 +119,7 @@ def process_one_video(vid, dur, title, queue):
                     "hook": hook or "",
                     "desc": desc or "",
                     "tags": tags or [],
+                    "clip_file": dest.name,
                     "file": f"clipcrafter/scheduled_uploads/clips/{dest.name}",
                 })
                 log(f"OK ({time.time()-t0:.0f}s) -> {clip_title[:50]}")

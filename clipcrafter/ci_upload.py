@@ -56,10 +56,10 @@ def main():
 
     # Remove dead entries (files that don't exist in the repo)
     before = len(queue)
-    queue = [c for c in queue if (REPO_DIR / c.get("clip_file", c.get("file", ""))).exists()]
-    if len(queue) < before:
-        print(f"Cleaned {before - len(queue)} dead entries from queue")
-        save_queue(queue)
+    alive = [c for c in queue if (REPO_DIR / c.get("file", "clipcrafter/scheduled_uploads/clips/" + c.get("clip_file", ""))).exists()]
+    if len(alive) < before:
+        print(f"Cleaned {before - len(alive)} dead entries from queue")
+    queue = alive
 
     if not queue:
         print("No clips with valid files in queue.")
@@ -91,7 +91,7 @@ def main():
     for i, clip in enumerate(batch):
         publish_dt = upload_times[i]
         publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
-        file_path = REPO_DIR / clip.get("file", clip.get("clip_file", ""))
+        file_path = REPO_DIR / clip.get("file", "clipcrafter/scheduled_uploads/clips/" + clip.get("clip_file", ""))
 
         print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
         title = clip["title"]

@@ -110,11 +110,11 @@ def main():
             ok, title, hook, desc, tags = process_clip(cp, str(dst), game)
             if ok:
                 queue.append({
-                    "file": clip_name,
+                    "file": f"clipcrafter/scheduled_uploads/clips/{clip_name}",
+                    "clip_file": clip_name,
                     "title": title,
                     "desc": desc,
                     "tags": tags,
-                    "clip_file": clip_name,
                     "vod_id": vid,
                     "game": game,
                     "uploaded_youtube": False,
