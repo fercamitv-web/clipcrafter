@@ -56,7 +56,7 @@ def upload_video(video_path: str, title: str = None,
 
     video_id = None
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless, channel="chrome")
+        browser = p.chromium.launch(headless=headless)
         ctx = browser.new_context(
             viewport={"width": 1280, "height": 900},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -65,6 +65,9 @@ def upload_video(video_path: str, title: str = None,
         page = ctx.new_page()
 
         try:
+            # Visit main page first to establish session
+            page.goto("https://www.tiktok.com", timeout=30000)
+            time.sleep(3)
             # Navigate to upload page
             page.goto("https://www.tiktok.com/upload/", timeout=30000)
             time.sleep(3)
