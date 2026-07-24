@@ -38,19 +38,19 @@ def login_interactive():
 def upload_video(video_path: str, title: str = None,
                  description: str = "", hashtags: list = None,
                  headless: bool = True) -> str:
-    cookies = load_cookies()
-    if not cookies:
-        raise Exception("No TikTok cookies. Execute 'login_interactive()' first.")
+    # CI: try cookies from env first
+    ci_cookies_b64 = os.environ.get("TT_COOKIES")
+    if ci_cookies_b64:
+        cookies = json.loads(base64.b64decode(ci_cookies_b64))
+    else:
+        cookies = load_cookies()
+        if not cookies:
+            raise Exception("No TikTok cookies. Execute 'login_interactive()' first.")
 
     if not title:
         title = Path(video_path).stem
     if hashtags is None:
         hashtags = ["ClipCrafter", "games"]
-
-    # CI: try cookies from env
-    ci_cookies_b64 = os.environ.get("TT_COOKIES")
-    if ci_cookies_b64:
-        cookies = json.loads(base64.b64decode(ci_cookies_b64))
 
     from playwright.sync_api import sync_playwright
 
