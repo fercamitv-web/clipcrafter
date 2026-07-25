@@ -544,11 +544,11 @@ class ValorantStudio:
 
         game_tag = game.replace(" ", "") if game != "League of Legends" else "LoL"
         desc = (
-            f"Melhores momentos de {game}! Jogadas insanas e muito mais.\n\n"
+            f"Melhores momentos de {game} - Canal Propra Fercami Gameplay!\n\n"
             f"INSCREVA-SE no CanalPropra para mais momentos INSANOS!\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"
             f"Ative o sininho para nao perder os proximos clipes!\n\n"
-            f"#{game_tag} #{a.event_type.replace(' ','')} "
+            f"#CanalPropraFercamiGameplay #{game_tag} #{a.event_type.replace(' ','')} "
             f"#ClipCrafter #CanalPropra #Shorts\n"
         )
         return desc, tags[:20]

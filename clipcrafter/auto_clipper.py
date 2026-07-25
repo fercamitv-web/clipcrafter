@@ -292,7 +292,8 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     """Download a single clip segment."""
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
-    cmd = [YT_DLP, "-f", "18", "--download-sections", f"*{start}-{end}",
+    cmd = [YT_DLP, "-f", "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]",
+           "--download-sections", f"*{start}-{end}",
            "--force-keyframes-at-cuts"] + _cookies_args() + \
           ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
@@ -318,7 +319,7 @@ def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
-            add_watermark=True, watermark_text="@CanalPropra")
+            add_watermark=True,             watermark_text="Canal Propra Fercami Gameplay")
         if ok:
             analysis = getattr(proc, "_analysis", None)
             if analysis and analysis.speech_text:

@@ -415,7 +415,7 @@ class VideoProcessor:
                     "-t", str(duration),
                     "-filter_complex", filter_complex,
                     "-map", "[base]", "-map", audio_label,
-                    "-c:v", "libx264", "-preset", "fast",
+                    "-c:v", "libx264", "-preset", "medium", "-crf", "18",
                     "-c:a", "aac", "-b:a", "128k",
                     "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart",
@@ -486,7 +486,7 @@ class VideoProcessor:
                 cmd = [
                     "ffmpeg", "-ss", str(start_sec), "-i", self.video_path,
                     "-t", str(duration),
-                    "-c:v", "libx264", "-preset", "fast",
+                    "-c:v", "libx264", "-preset", "medium", "-crf", "18",
                     "-c:a", "aac", "-b:a", "128k",
                     "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart",
@@ -569,7 +569,7 @@ class VideoProcessor:
             f"[a_end][a_start]acrossfade=d={f}[a_blend];"
             f"[a_main][a_blend]concat=n=2:v=0:a=1[a_out]",
             "-map", "[v_out]", "-map", "[a_out]",
-            "-c:v", "libx264", "-preset", "fast",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
             "-c:a", "aac", "-b:a", "128k",
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
