@@ -25,10 +25,12 @@ class ViralSegment:
     score: float
     reason: str
     speech_ratio: float = 0.0
+    delta_peak: float = 0.0
 
 def detect_viral_fast(audio_path: str, video_duration: float,
                       energy_weight: float = 1.0,
                       excitement_weight: float = 0.5,
+                      delta_weight: float = 0.4,
                       min_clip: float = 3.0, max_clip: float = 60.0,
                       sensitivity: float = 0.35, top_n: int = 20,
                       speech_weight: float = 0.0) -> List[ViralSegment]:
@@ -67,6 +69,13 @@ def detect_viral_fast(audio_path: str, video_duration: float,
     ws = max(1, int(0.3 / seg_dur))
     kernel = np.ones(ws) / ws
     energy_smooth = np.convolve(energy, kernel, mode='same')
+
+    # Sudden energy changes (impact detection)
+    delta = np.abs(np.diff(energy_smooth, prepend=energy_smooth[0]))
+    energy_delta = np.convolve(delta, kernel, mode='same')
+    max_d = energy_delta.max()
+    if max_d > 0:
+        energy_delta /= max_d
 
     # Excitement via FFT on 1s windows
     fft_win = int(1.0 / seg_dur)
@@ -110,7 +119,8 @@ def detect_viral_fast(audio_path: str, video_duration: float,
     # Combined score
     combined = (
         energy_weight * energy_smooth +
-        excitement_weight * excitement
+        excitement_weight * excitement +
+        delta_weight * energy_delta
     )
     if speech_weight > 0 and speech_ratio is not None:
         combined += speech_weight * speech_ratio
@@ -172,8 +182,13 @@ def detect_viral_fast(audio_path: str, video_duration: float,
         peak = float(np.max(energy_smooth[si:ei + 1])) if len(seg_c) > 0 else 0
         avg_x = float(np.mean(excitement[si:ei + 1])) if len(seg_c) > 0 else 0
         avg_s = float(np.mean(speech_ratio[si:ei + 1])) if speech_ratio is not None and len(seg_c) > 0 else 0
-        if peak > 0.7 and avg_x > 0.3:
+        d_peak = float(np.max(energy_delta[si:ei + 1])) if len(seg_c) > 0 else 0
+        if d_peak > 0.8:
+            reason = "Impacto / surpresa"
+        elif peak > 0.7 and avg_x > 0.3:
             reason = "Grito / explosao"
+        elif avg_s > 0.5 and peak > 0.5:
+            reason = "Reacao intensa"
         elif avg_s > 0.5:
             reason = "Fala / reacao"
         elif peak > 0.5:
@@ -182,7 +197,7 @@ def detect_viral_fast(audio_path: str, video_duration: float,
             reason = "Agitacao / musica intensa"
         else:
             reason = "Momento de destaque"
-        results.append(ViralSegment(s, e, score, reason, avg_s))
+        results.append(ViralSegment(s, e, score, reason, avg_s, d_peak))
 
     # Filter: prefer segments with speech when available
     if speech_weight > 0 and results:
@@ -381,6 +396,39 @@ def process_batch(pairs, max_workers=2):
 
 
 # ============================================================
+# SMART DURATION
+# ============================================================
+
+def extend_segment(start: float, end: float, score: float = 0.5,
+                   video_dur: float = 99999.0) -> tuple:
+    """Extend segment to optimal duration based on virality score.
+    High score = longer clip, low score = shorter clip."""
+    if score > 0.7:
+        min_dur, max_dur = 30, 55
+    elif score > 0.5:
+        min_dur, max_dur = 25, 40
+    else:
+        min_dur, max_dur = 15, 30
+    dur = end - start
+    if min_dur <= dur <= max_dur:
+        return start, end
+    target = max(min_dur, min(dur, max_dur))
+    extra = (target - dur) / 2
+    new_start = max(0.0, start - extra)
+    new_end = min(video_dur, end + extra)
+    if new_end - new_start < min_dur:
+        if new_start == 0:
+            new_end = min(video_dur, new_start + min_dur)
+        else:
+            new_start = max(0.0, new_end - min_dur)
+    if new_end - new_start > max_dur:
+        mid = (new_start + new_end) / 2
+        new_start = max(0.0, mid - max_dur / 2)
+        new_end = min(video_dur, mid + max_dur / 2)
+    return new_start, new_end
+
+
+# ============================================================
 # MAIN PIPELINE
 # ============================================================
 
@@ -466,31 +514,13 @@ def run_pipeline(vod_id: str, duration: int, vod_title: str,
 
     print(f"  Already: {len(downloaded)}/{len(processed)}/{len(uploaded)} downloaded/processed/uploaded")
 
-    def _extend_seg(start, end, min_dur=20, max_dur=50, video_dur=duration):
-        """Extend segment to minimum duration by adding context before/after."""
-        dur = end - start
-        if dur >= min_dur:
-            return start, end
-        extra = (min_dur - dur) / 2
-        new_start = max(0, start - extra)
-        new_end = min(video_dur if video_dur > 0 else 99999, end + extra)
-        # If still too short, add more
-        if new_end - new_start < min_dur:
-            if new_start == 0:
-                new_end = min(video_dur, new_start + min_dur)
-            else:
-                new_start = max(0, new_end - min_dur)
-        if new_end - new_start > max_dur:
-            mid = (new_start + new_end) / 2
-            new_start = max(0, mid - max_dur/2)
-            new_end = min(video_dur, mid + max_dur/2)
-        return new_start, new_end
-
-    # Step 3: Download ALL clips first (extend to 20s minimum)
+    # Step 3: Download ALL clips first (extend based on score)
     need_dl = [i for i in range(min(len(segs), max_clips)) if i not in downloaded]
     for idx in need_dl:
         seg = segs[idx]
-        ext_start, ext_end = _extend_seg(seg["start"], seg["end"])
+        ext_start, ext_end = extend_segment(seg["start"], seg["end"],
+                                            score=seg.get("score", 0.5),
+                                            video_dur=duration)
         label = f"clip_{idx+1:02d}"
         path = os.path.join(clips_dir, f"{label}.mp4")
         print(f"  DL {idx+1}/{len(segs)} at {int(ext_start)//60}:{int(ext_start)%60:02d} "

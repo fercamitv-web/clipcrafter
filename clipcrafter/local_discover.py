@@ -31,7 +31,7 @@ def already_processed(vid, queue):
     return any(e.get("vod_id") == vid for e in queue)
 
 def main():
-    from auto_clipper import discover_vods, download_audio, download_clip, process_clip, detect_viral_fast
+    from auto_clipper import discover_vods, download_audio, download_clip, process_clip, detect_viral_fast, extend_segment
     from content_detector import detect_game
 
     print("=" * 60)
@@ -91,10 +91,13 @@ def main():
 
         clip_paths = []
         for si, seg in enumerate(segs[:10]):
+            # Extend short clips, cap long ones based on virality score
+            ext_start, ext_end = extend_segment(seg.start_sec, seg.end_sec,
+                                                score=seg.score, video_dur=dur)
             clip_file = clips_dir_v / f"raw_seg{si+1:02d}.mp4"
             out_path = str(clip_file)
-            print(f"  Downloading clip {si+1} ({seg.start_sec:.0f}s-{seg.end_sec:.0f}s)...", end=" ")
-            if download_clip(vid, seg.start_sec, seg.end_sec, out_path):
+            print(f"  Downloading clip {si+1} ({ext_start:.0f}s-{ext_end:.0f}s, original {seg.end_sec-seg.start_sec:.0f}s, sc={seg.score:.2f})...", end=" ")
+            if download_clip(vid, ext_start, ext_end, out_path):
                 print(f"OK ({os.path.getsize(out_path)//1024}KB)")
                 clip_paths.append(out_path)
             else:
