@@ -262,7 +262,8 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
 YT_EXTRACTOR_ARGS = ["--extractor-args", "youtube:player_client=android,web,ios"]
 
 def _cookies_args() -> list:
-    """Return yt-dlp args for cookies if YT_COOKIES env is set."""
+    """Return yt-dlp args for cookies if YT_COOKIES env is set.
+    Falls back to browser cookies on local PC."""
     c = os.environ.get("YT_COOKIES", "")
     if c:
         p = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
@@ -275,6 +276,15 @@ def _cookies_args() -> list:
             except Exception:
                 return YT_EXTRACTOR_ARGS
         return YT_EXTRACTOR_ARGS + ["--cookies", p]
+    # Local PC: try browser cookies
+    for browser in ["chrome", "brave", "edge", "firefox"]:
+        try:
+            r = subprocess.run([YT_DLP, "--cookies-from-browser", browser, "--version"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode == 0:
+                return YT_EXTRACTOR_ARGS + ["--cookies-from-browser", browser]
+        except Exception:
+            continue
     return YT_EXTRACTOR_ARGS
 
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
@@ -286,15 +296,21 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(wav) and os.path.getsize(wav) > 100000:
         return wav
     print(f"    Downloading audio...", end=" ", flush=True)
-    # Try best audio formats in order, with short timeout per attempt
+    # Try best audio formats in order
     for fmt in ["251", "140", "bestaudio/best"]:
         out = m4a if fmt != "251" else wav
         cmd = [YT_DLP, "-f", fmt, "-k"] + _cookies_args() + \
               ["-o", out, f"https://youtube.com/watch?v={vod_id}"]
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-        if os.path.exists(out) and os.path.getsize(out) > 100000:
-            print(f"OK ({os.path.getsize(out)//1024}KB)")
-            return out
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+            if os.path.exists(out) and os.path.getsize(out) > 100000:
+                print(f"OK ({os.path.getsize(out)//1024}KB)")
+                return out
+        except subprocess.TimeoutExpired:
+            print(f"  (timeout {fmt})", end=" ", flush=True)
+            continue
+        except Exception:
+            continue
     print(f"FAIL")
     err = r.stderr.strip()[-500:] if r.stderr else ""
     out = r.stdout.strip()[-500:] if r.stdout else ""
