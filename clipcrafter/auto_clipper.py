@@ -351,12 +351,12 @@ def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
     proc = VideoProcessor()
     try:
         if not proc.load(src):
-            return False, f"{game} - CanalPropra #clip", "", "", [game]
+            return False, f"{game} - Fercami Gameplay #clip", "", "", [game]
         hook_overlay = vs.generate_hook_overlay()
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
-            add_watermark=True,             watermark_text="Canal Propra Fercami Gameplay")
+            add_watermark=True,             watermark_text="Fercami Gameplay")
         if ok:
             analysis = getattr(proc, "_analysis", None)
             if analysis and analysis.speech_text:

@@ -519,7 +519,7 @@ class ValorantStudio:
     def get_description_tags(self, game: str = None) -> Tuple[str, List[str]]:
         a = self.analysis
         game = game or self.game
-        tags = ["ClipCrafter","CanalPropra","shorts","clipe","fercami"]
+        tags = ["ClipCrafter","CanalPropra","FercamiGameplay","shorts","clipe","fercami"]
         if game == "Valorant" or game == "Valorant Duo":
             tags.extend(["Valorant","ValorantBrasil","jogadas valorant","melhores momentos"])
         elif game == "League of Legends":
@@ -544,11 +544,11 @@ class ValorantStudio:
 
         game_tag = game.replace(" ", "") if game != "League of Legends" else "LoL"
         desc = (
-            f"Melhores momentos de {game} - Canal Propra Fercami Gameplay!\n\n"
+            f"Melhores momentos de {game} - Fercami Gameplay!\n\n"
             f"INSCREVA-SE no CanalPropra para mais momentos INSANOS!\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"
             f"Ative o sininho para nao perder os proximos clipes!\n\n"
-            f"#CanalPropraFercamiGameplay #{game_tag} #{a.event_type.replace(' ','')} "
+            f"#FercamiGameplay #{game_tag} #{a.event_type.replace(' ','')} "
             f"#ClipCrafter #CanalPropra #Shorts\n"
         )
         return desc, tags[:20]
