@@ -31,7 +31,7 @@ def detect_viral_fast(audio_path: str, video_duration: float,
                       energy_weight: float = 1.0,
                       excitement_weight: float = 0.5,
                       delta_weight: float = 0.4,
-                      min_clip: float = 3.0, max_clip: float = 60.0,
+                      min_clip: float = 3.0, max_clip: float = 70.0,
                       sensitivity: float = 0.35, top_n: int = 20,
                       speech_weight: float = 0.0) -> List[ViralSegment]:
     """
@@ -404,11 +404,11 @@ def extend_segment(start: float, end: float, score: float = 0.5,
     """Extend segment to optimal duration based on virality score.
     High score = longer clip, low score = shorter clip."""
     if score > 0.7:
-        min_dur, max_dur = 30, 55
+        min_dur, max_dur = 45, 65
     elif score > 0.5:
-        min_dur, max_dur = 25, 40
+        min_dur, max_dur = 35, 55
     else:
-        min_dur, max_dur = 15, 30
+        min_dur, max_dur = 25, 45
     dur = end - start
     if min_dur <= dur <= max_dur:
         return start, end
