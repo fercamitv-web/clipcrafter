@@ -56,7 +56,8 @@ def main():
 
     for i, (vid, dur, title) in enumerate(unprocessed[:5]):
         print(f"\n{'='*50}")
-        print(f"Video {i+1}/{min(5, len(unprocessed))}: {vid} ({dur//60}:{dur%60:02d}) - {title[:70]}")
+        safe_title = title[:70].encode('ascii', 'replace').decode('ascii')
+        print(f"Video {i+1}/{min(5, len(unprocessed))}: {vid} ({dur//60}:{dur%60:02d}) - {safe_title}")
         print(f"{'='*50}")
 
         game = detect_game(title)
