@@ -259,7 +259,7 @@ def discover_vods(channel_url: str = "https://www.youtube.com/@CanalPropra/video
 # AUDIO DOWNLOAD
 # ============================================================
 
-YT_EXTRACTOR_ARGS = ["--extractor-args", "youtube:player_client=android"]
+YT_EXTRACTOR_ARGS = ["--extractor-args", "youtube:player_client=android,web,ios"]
 
 def _cookies_args() -> list:
     """Return yt-dlp args for cookies if YT_COOKIES env is set."""
@@ -283,12 +283,14 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         return m4a
     print(f"    Downloading audio...", end=" ", flush=True)
-    cmd = [YT_DLP, "-f", "140", "-k"] + _cookies_args() + \
-          ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-    if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
-        print(f"OK ({os.path.getsize(m4a)//1024}KB)")
-        return m4a
+    formats = ["140", "251", "bestaudio/best"]
+    for fmt in formats:
+        cmd = [YT_DLP, "-f", fmt, "-k"] + _cookies_args() + \
+              ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
+            print(f"OK ({os.path.getsize(m4a)//1024}KB)")
+            return m4a
     print(f"FAIL (rc={r.returncode})")
     err = r.stderr.strip()[-500:] if r.stderr else ""
     out = r.stdout.strip()[-500:] if r.stdout else ""
