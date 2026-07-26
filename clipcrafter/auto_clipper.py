@@ -280,18 +280,22 @@ def _cookies_args() -> list:
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     """Download m4a audio with -k to keep file. Returns path or None."""
     m4a = os.path.join(out_dir, f"{vod_id}.m4a")
+    wav = os.path.join(out_dir, f"{vod_id}.wav")
     if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
         return m4a
+    if os.path.exists(wav) and os.path.getsize(wav) > 100000:
+        return wav
     print(f"    Downloading audio...", end=" ", flush=True)
-    formats = ["140", "251", "bestaudio/best"]
-    for fmt in formats:
+    # Try best audio formats in order, with short timeout per attempt
+    for fmt in ["251", "140", "bestaudio/best"]:
+        out = m4a if fmt != "251" else wav
         cmd = [YT_DLP, "-f", fmt, "-k"] + _cookies_args() + \
-              ["-o", m4a, f"https://youtube.com/watch?v={vod_id}"]
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if os.path.exists(m4a) and os.path.getsize(m4a) > 100000:
-            print(f"OK ({os.path.getsize(m4a)//1024}KB)")
-            return m4a
-    print(f"FAIL (rc={r.returncode})")
+              ["-o", out, f"https://youtube.com/watch?v={vod_id}"]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if os.path.exists(out) and os.path.getsize(out) > 100000:
+            print(f"OK ({os.path.getsize(out)//1024}KB)")
+            return out
+    print(f"FAIL")
     err = r.stderr.strip()[-500:] if r.stderr else ""
     out = r.stdout.strip()[-500:] if r.stdout else ""
     if err:

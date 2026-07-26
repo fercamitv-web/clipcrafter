@@ -557,12 +557,12 @@ class ValorantStudio:
         """Research says 30-60s is optimal, median viral clip is 37s.
         High energy = longer clip, low energy = shorter."""
         base = 37  # median viral clip length from 175-clip study
-    if energy_score > 0.7:
-        return (45, 65)  # high energy can sustain longer
-    elif energy_score > 0.5:
-        return (35, 55)
-    else:
-        return (25, 45)
+        if energy_score > 0.7:
+            return (45, 65)  # high energy can sustain longer
+        elif energy_score > 0.5:
+            return (35, 55)
+        else:
+            return (25, 45)
 
     def _fallback_title(self) -> str:
         return "CLIPE DE VALORANT - Tentando Evoluir #clip"
