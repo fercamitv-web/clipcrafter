@@ -264,6 +264,11 @@ YT_EXTRACTOR_ARGS = ["--extractor-args", "youtube:player_client=android,web,ios"
 def _cookies_args() -> list:
     """Return yt-dlp args for cookies if YT_COOKIES env is set.
     Falls back to browser cookies on local PC."""
+    js = []
+    if sys.platform == "win32":
+        p = os.path.expanduser("~/.deno/bin/deno.exe")
+        if os.path.exists(p) or os.path.exists(r"C:\Users\ferca\.deno\bin\deno.exe"):
+            js = ["--js-runtimes", "deno:C:/Users/ferca/.deno/bin/deno.exe"]
     c = os.environ.get("YT_COOKIES", "")
     if c:
         p = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
@@ -274,18 +279,18 @@ def _cookies_args() -> list:
                 with open(p, "w") as f:
                     f.write(data)
             except Exception:
-                return YT_EXTRACTOR_ARGS
-        return YT_EXTRACTOR_ARGS + ["--cookies", p]
+                return YT_EXTRACTOR_ARGS + js
+        return YT_EXTRACTOR_ARGS + ["--cookies", p] + js
     # Local PC: try browser cookies
     for browser in ["chrome", "brave", "edge", "firefox"]:
         try:
             r = subprocess.run([YT_DLP, "--cookies-from-browser", browser, "--version"],
                                capture_output=True, text=True, timeout=15)
             if r.returncode == 0:
-                return YT_EXTRACTOR_ARGS + ["--cookies-from-browser", browser]
+                return YT_EXTRACTOR_ARGS + ["--cookies-from-browser", browser] + js
         except Exception:
             continue
-    return YT_EXTRACTOR_ARGS
+    return YT_EXTRACTOR_ARGS + js
 
 def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     """Download m4a audio with -k to keep file. Returns path or None."""
