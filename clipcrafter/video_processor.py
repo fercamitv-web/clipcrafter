@@ -268,7 +268,7 @@ class VideoProcessor:
                     "[bg][fg]overlay=(W-w)/2:(H-h)/2[base]"
                 ]
 
-                # Hook de curiosidade nos primeiros 2.5s — larger, bolder, with animated scale feel
+                # Hook de curiosidade nos primeiros 2s — larger, bolder, with animated scale feel
                 if duration > 3:
                     # Main hook text — large, centered, with thick border
                     parts.append(
@@ -276,14 +276,14 @@ class VideoProcessor:
                         f"fontcolor=#FF4500:fontsize=64:box=1:boxcolor=black@0.85:"
                         f"x=(w-text_w)/2:y=(h-text_h)/2-40{fp}:"
                         f"borderw=3:bordercolor=black@0.6:"
-                        f"enable='lt(t,2.5)'[base]"
+                        f"enable='lt(t,2)'[base]"
                     )
                     # Subtitle "CANALPROPA" below hook
                     parts.append(
                         f"[base]drawtext=text='@CanalPropra':"
                         f"fontcolor=white:fontsize=32:box=1:boxcolor=black@0.6:"
                         f"x=(w-text_w)/2:y=(h+text_h)/2+10{fp}:"
-                        f"enable='lt(t,2.5)'[base]"
+                        f"enable='lt(t,2)'[base]"
                     )
 
                 # Word-by-word subtitles via ASS karaoke

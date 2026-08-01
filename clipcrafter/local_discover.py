@@ -30,6 +30,10 @@ def save_queue(queue):
 def already_processed(vid, queue):
     return any(e.get("vod_id") == vid for e in queue)
 
+def already_on_disk(vid):
+    """Resumability: video already processed if its final clips exist."""
+    return any(CLIPS_DIR.glob(f"final_{vid}_*.mp4"))
+
 def main():
     from auto_clipper import discover_vods, download_audio, download_clip, process_clip, detect_viral_fast, extend_segment
     from content_detector import detect_game
@@ -47,7 +51,8 @@ def main():
 
     print(f"Found {len(all_vods)} videos total")
 
-    unprocessed = [(vid, dur, title) for vid, dur, title in all_vods if not already_processed(vid, queue)]
+    unprocessed = [(vid, dur, title) for vid, dur, title in all_vods
+                   if not already_processed(vid, queue) and not already_on_disk(vid)]
     print(f"Unprocessed: {len(unprocessed)} videos")
 
     if not unprocessed:
@@ -130,6 +135,8 @@ def main():
                 continue
 
         print(f"Queue now has {len(queue)} clips")
+
+        save_queue(queue)
 
         gc.collect()
 

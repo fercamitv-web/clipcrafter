@@ -31,7 +31,7 @@ def detect_viral_fast(audio_path: str, video_duration: float,
                       energy_weight: float = 1.0,
                       excitement_weight: float = 0.5,
                       delta_weight: float = 0.4,
-                      min_clip: float = 3.0, max_clip: float = 70.0,
+                      min_clip: float = 3.0, max_clip: float = 32.0,
                       sensitivity: float = 0.35, top_n: int = 20,
                       speech_weight: float = 0.0) -> List[ViralSegment]:
     """
@@ -281,12 +281,15 @@ def _cookies_args() -> list:
             except Exception:
                 return YT_EXTRACTOR_ARGS + js
         return YT_EXTRACTOR_ARGS + ["--cookies", p] + js
-    # Local PC: try browser cookies
-    for browser in ["chrome", "brave", "edge", "firefox"]:
+    # Local PC: try browser cookies (validate with a real extraction, not just --version)
+    test_url = "https://youtube.com/watch?v=BaW_jenozKc"
+    for browser in ["firefox", "chrome", "brave", "edge"]:
         try:
-            r = subprocess.run([YT_DLP, "--cookies-from-browser", browser, "--version"],
-                               capture_output=True, text=True, timeout=15)
-            if r.returncode == 0:
+            r = subprocess.run([YT_DLP, "--cookies-from-browser", browser,
+                                "--simulate", "--skip-download", "--no-warnings",
+                                test_url], capture_output=True, text=True, timeout=45)
+            err = (r.stderr or "") + (r.stdout or "")
+            if r.returncode == 0 and "Could not copy" not in err and "decrypt" not in err:
                 return YT_EXTRACTOR_ARGS + ["--cookies-from-browser", browser] + js
         except Exception:
             continue
@@ -301,9 +304,11 @@ def download_audio(vod_id: str, out_dir: str) -> Optional[str]:
     if os.path.exists(wav) and os.path.getsize(wav) > 100000:
         return wav
     print(f"    Downloading audio...", end=" ", flush=True)
-    # Try best audio formats in order
-    for fmt in ["251", "140", "bestaudio/best"]:
+    # Try best audio formats in order, then fall back to combined 360p (18)
+    for fmt in ["251", "140", "bestaudio/best", "18"]:
         out = m4a if fmt != "251" else wav
+        if fmt == "18":
+            out = os.path.join(out_dir, f"{vod_id}_c18.mp4")
         cmd = [YT_DLP, "-f", fmt, "-k"] + _cookies_args() + \
               ["-o", out, f"https://youtube.com/watch?v={vod_id}"]
         try:
@@ -334,12 +339,16 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
     """Download a single clip segment."""
     if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
         return True
-    cmd = [YT_DLP, "-f", "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]",
-           "--download-sections", f"*{start}-{end}",
-           "--force-keyframes-at-cuts"] + _cookies_args() + \
-          ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
-    return os.path.exists(output_path) and os.path.getsize(output_path) > 50000
+    for fmt in ["bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]",
+                "18"]:
+        cmd = [YT_DLP, "-f", fmt,
+               "--download-sections", f"*{start}-{end}",
+               "--force-keyframes-at-cuts"] + _cookies_args() + \
+              ["-o", output_path, f"https://youtube.com/watch?v={vod_id}"]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 50000:
+            return True
+    return False
 
 
 # ============================================================
@@ -429,29 +438,27 @@ def process_batch(pairs, max_workers=2):
 def extend_segment(start: float, end: float, score: float = 0.5,
                    video_dur: float = 99999.0) -> tuple:
     """Extend segment to optimal duration based on virality score.
-    High score = longer clip, low score = shorter clip."""
+    Research-based (2026): viewed-vs-swiped ratio is the #1 distribution
+    signal, so shorter clips (12-30s) beat longer ones (they target
+    80-100%+ retention vs 70% for 30-60s). The hook must land in the
+    first 2s, so the peak stays anchored at the START (no lead-in padding)
+    and we extend forward only. High score = slightly longer."""
     if score > 0.7:
-        min_dur, max_dur = 45, 65
+        min_dur, max_dur = 20, 30
     elif score > 0.5:
-        min_dur, max_dur = 35, 55
+        min_dur, max_dur = 15, 25
     else:
-        min_dur, max_dur = 25, 45
+        min_dur, max_dur = 12, 20
     dur = end - start
     if min_dur <= dur <= max_dur:
         return start, end
     target = max(min_dur, min(dur, max_dur))
-    extra = (target - dur) / 2
-    new_start = max(0.0, start - extra)
-    new_end = min(video_dur, end + extra)
+    new_start = start
+    new_end = min(video_dur, end + (target - dur))
     if new_end - new_start < min_dur:
-        if new_start == 0:
-            new_end = min(video_dur, new_start + min_dur)
-        else:
-            new_start = max(0.0, new_end - min_dur)
+        new_start = max(0.0, new_end - min_dur)
     if new_end - new_start > max_dur:
-        mid = (new_start + new_end) / 2
-        new_start = max(0.0, mid - max_dur / 2)
-        new_end = min(video_dur, mid + max_dur / 2)
+        new_end = min(video_dur, new_start + max_dur)
     return new_start, new_end
 
 

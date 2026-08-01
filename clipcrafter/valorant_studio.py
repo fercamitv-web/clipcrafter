@@ -554,15 +554,16 @@ class ValorantStudio:
         return desc, tags[:20]
 
     def suggest_duration(self, energy_score: float = 0.5) -> Tuple[float, float]:
-        """Research says 30-60s is optimal, median viral clip is 37s.
-        High energy = longer clip, low energy = shorter."""
-        base = 37  # median viral clip length from 175-clip study
+        """Research (2026): viewed-vs-swiped ratio is the #1 distribution
+        signal, so shorter clips win. Retention targets: 100-120% (<15s),
+        80-90% (15-30s), 70-80% (30-60s). 15-30s is the sweet spot.
+        High energy = slightly longer, low energy = shorter."""
         if energy_score > 0.7:
-            return (45, 65)  # high energy can sustain longer
+            return (20, 30)
         elif energy_score > 0.5:
-            return (35, 55)
+            return (15, 25)
         else:
-            return (25, 45)
+            return (12, 20)
 
     def _fallback_title(self) -> str:
         return "CLIPE DE VALORANT - Tentando Evoluir #clip"
