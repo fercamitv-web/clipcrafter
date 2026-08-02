@@ -38,13 +38,20 @@ def setup_tiktok():
     from tiktok_uploader import upload_video as tt_upload
     return tt_upload
 
+def setup_instagram():
+    if not os.environ.get("IG_ACCESS_TOKEN") or not os.environ.get("IG_USER_ID"):
+        return None
+    from instagram_uploader import upload_video as ig_upload
+    return ig_upload
+
 def main():
     sys.path.insert(0, str(CI_DIR))
     yt_upload = setup_youtube()
     tt_upload = setup_tiktok()
+    ig_upload = setup_instagram()
 
-    if not yt_upload and not tt_upload:
-        print("No upload targets configured. Need YT_CLIENT_SECRET+YT_TOKEN_PICKLE and/or TT_* secrets.")
+    if not yt_upload and not tt_upload and not ig_upload:
+        print("No upload targets configured. Need YT_CLIENT_SECRET+YT_TOKEN_PICKLE and/or TT_* and/or IG_* secrets.")
         sys.exit(1)
 
     queue = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
@@ -80,6 +87,8 @@ def main():
         print("  YouTube: enabled")
     if tt_upload:
         print("  TikTok: enabled")
+    if ig_upload:
+        print("  Instagram: enabled")
 
     base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
     upload_times = [
@@ -131,6 +140,24 @@ def main():
                 if tt_id:
                     print(f"OK https://tiktok.com/@{tt_id}")
                     results.append(f"tt:{tt_id}")
+                else:
+                    print("FAIL")
+            except Exception as e:
+                print(f"FAIL ({e})")
+
+        # Instagram Reels upload
+        if ig_upload:
+            print(f"    -> Instagram...", end=" ", flush=True)
+            try:
+                ig_id = ig_upload(
+                    video_path=str(file_path),
+                    title=title,
+                    description=desc,
+                    tags=tags,
+                )
+                if ig_id:
+                    print(f"OK media_id={ig_id}")
+                    results.append(f"ig:{ig_id}")
                 else:
                     print("FAIL")
             except Exception as e:

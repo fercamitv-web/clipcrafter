@@ -53,6 +53,8 @@ jobs:
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
           YT_COOKIES: ${{ secrets.YT_COOKIES }}
           TT_COOKIES: ${{ secrets.TT_COOKIES }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
         run: python clipcrafter/ci_upload.py
 
       - name: Commit queue progress after upload
