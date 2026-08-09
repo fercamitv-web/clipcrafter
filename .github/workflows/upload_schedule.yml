@@ -5,6 +5,12 @@ on:
     # Runs daily at 08:00 BRT = 11:00 UTC (before the first upload window)
     - cron: '0 11 * * *'   # Daily at 11:00 UTC = 08:00 BRT
   workflow_dispatch:  # manual trigger for testing
+    inputs:
+      discover_only:
+        description: 'Only run clip discovery (no uploads)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   discover-and-upload:
@@ -48,6 +54,7 @@ jobs:
           fi
 
       - name: Upload scheduled clips
+        if: ${{ !inputs.discover_only }}
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
@@ -58,6 +65,7 @@ jobs:
         run: python clipcrafter/ci_upload.py
 
       - name: Commit queue progress after upload
+        if: ${{ !inputs.discover_only }}
         run: |
           git config user.name "clipcrafter-bot"
           git config user.email "bot@clipcrafter"
