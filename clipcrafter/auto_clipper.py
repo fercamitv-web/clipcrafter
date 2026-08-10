@@ -282,7 +282,7 @@ def _cookies_args() -> list:
                 return YT_EXTRACTOR_ARGS + js
         return YT_EXTRACTOR_ARGS + ["--cookies", p] + js
     # Local PC: try browser cookies (validate with a real extraction, not just --version)
-    test_url = "https://youtube.com/watch?v=BaW_jenozKc"
+    test_url = "https://youtube.com/watch?v=f5crQ1q-dEs"
     for browser in ["firefox", "chrome", "brave", "edge"]:
         try:
             r = subprocess.run([YT_DLP, "--cookies-from-browser", browser,

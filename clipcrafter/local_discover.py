@@ -31,8 +31,11 @@ def already_processed(vid, queue):
     return any(e.get("vod_id") == vid for e in queue)
 
 def already_on_disk(vid):
-    """Resumability: video already processed if its final clips exist."""
-    return any(CLIPS_DIR.glob(f"final_{vid}_*.mp4"))
+    """Resumability: video already processed if its final clips exist AND are queued."""
+    if not any(CLIPS_DIR.glob(f"final_{vid}_*.mp4")):
+        return False
+    q = load_queue()
+    return any(e.get("vod_id") == vid for e in q)
 
 def main():
     from auto_clipper import discover_vods, download_audio, download_clip, process_clip, detect_viral_fast, extend_segment
