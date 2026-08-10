@@ -63,6 +63,7 @@ def main():
         return
 
     for i, (vid, dur, title) in enumerate(unprocessed[:5]):
+        vod_title = title
         print(f"\n{'='*50}")
         safe_title = title[:70].encode('ascii', 'replace').decode('ascii')
         print(f"Video {i+1}/{min(5, len(unprocessed))}: {vid} ({dur//60}:{dur%60:02d}) - {safe_title}")
@@ -119,7 +120,7 @@ def main():
         for cp in clip_paths:
             clip_name = f"final_{vid}_{Path(cp).name.replace('raw_', '')}"
             dst = CLIPS_DIR / clip_name
-            ok, title, hook, desc, tags = process_clip(cp, str(dst), game)
+            ok, title, hook, desc, tags = process_clip(cp, str(dst), game, vod_title=vod_title)
             if ok:
                 queue.append({
                     "file": f"clipcrafter/scheduled_uploads/clips/{clip_name}",

@@ -355,7 +355,7 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
 # CLIP PROCESSING
 # ============================================================
 
-def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
+def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = "") -> tuple:
     """Process a clip: shorts mode + hook overlay. Returns (ok, title, hook, desc, tags)."""
     from video_processor import VideoProcessor
     from valorant_studio import ValorantStudio
@@ -365,7 +365,7 @@ def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
     proc = VideoProcessor()
     try:
         if not proc.load(src):
-            return False, f"{game} - Fercami Gameplay #clip", "", "", [game]
+            return False, "", "", "", []
         hook_overlay = vs.generate_hook_overlay()
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
@@ -376,14 +376,17 @@ def process_clip(src: str, dst: str, game: str = "Valorant") -> tuple:
             if analysis and analysis.speech_text:
                 a2 = vs.analyze_transcript(analysis.speech_text.split(" | "))
                 title = vs.generate_seo_title(kill_count=a2.kill_count, event_type=a2.event_type,
-                    agent=a2.agent, map_name=a2.map_name, weapon=a2.weapon)
+                    agent=a2.agent, map_name=a2.map_name, weapon=a2.weapon,
+                    vod_title=vod_title)
                 hook = vs.generate_hook("auto")
             else:
-                title = vs.generate_seo_title()
+                title = vs.generate_seo_title(vod_title=vod_title)
                 hook = vs.generate_hook()
             desc, tags = vs.get_description_tags(game)
+            if not title.strip():
+                return False, "", "", "", []
             return True, title, hook or "", desc, tags
-        return False, f"{game} - CanalPropra #clip", "", "", [game]
+        return False, "", "", "", []
     finally:
         proc.cleanup()
         gc.collect()

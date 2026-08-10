@@ -324,11 +324,65 @@ TITLE_PATTERNS = {
         "COACHING VALORANT - Dica ABSURDA",
         "MELHORANDO NO VALORANT - Gameplay",
     ],
+    "Roblox": [
+        "{topic} - ABSURDO NO ROBLOX",
+        "{event} INSANO NO ROBLOX",
+        "{topic} - MOMENTO QUE PAROU A LIVE DE ROBLOX",
+        "{event} DE ROBLOX QUE VOCE PRECISA VER",
+        "ISSO NO ROBLOX FOI INACREDITAVEL",
+        "{topic} - O QUE ACONTECEU NO ROBLOX AGRADECEU",
+        "QUE {event} NO ROBLOX - Inacreditavel",
+    ],
+    "Minecraft": [
+        "{topic} - SOBREVIVENCIA NO MINECRAFT",
+        "QUE {event} NO MINECRAFT",
+        "{topic} - MINECRAFT GAMEPLAY",
+        "ISSO NO MINECRAFT FOI ABSURDO",
+        "{event} DE MINECRAFT QUE NINGUEM ESPERAVA",
+    ],
+    "FNAF": [
+        "{topic} - SOBREVIVENDO A FNAF",
+        "{event} DE TERROR NO FNAF",
+        "FNAF NAO PERDOA - {topic}",
+        "SOBREVIVI A {topic} - Five Nights at Freddys",
+    ],
+    "Super Mario": [
+        "{event} NO SUPER MARIO BROS",
+        "{topic} - SUPER MARIO GAMEPLAY",
+        "QUE {event} NO MARIO - Inacreditavel",
+        "{topic} - JOGANDO SUPER MARIO",
+    ],
+    "Horror Co-op": [
+        "{event} DE TERROR - {topic}",
+        "{topic} - MOMENTO DE TERROR NA LIVE",
+        "NAO CONSIGO MAIS DORMIR DEPOIS DISSO",
+        "QUE {event} NO JOGO DE TERROR",
+        "{topic} - JOGO DE TERROR COM AMIGOS",
+    ],
+    "Marvel Rivals": [
+        "{event} INSANO NO MARVEL RIVALS",
+        "{topic} - MARVEL RIVALS GAMEPLAY",
+        "QUE JOGADA NO MARVEL RIVALS",
+        "MARVEL RIVALS SEM MISERICORDIA - {topic}",
+    ],
+    "Squid Game": [
+        "{topic} - ROUND 6 NA VIDA REAL?",
+        "{event} DE ROUND 6 QUE VOCE PRECISA VER",
+        "SOBRE VIVER O ROUND 6 - {topic}",
+        "{topic} - O JOGO DA MORTE",
+    ],
+    "Coaching": [
+        "DICA DE VALORANT QUE MUDA TUDO",
+        "APRENDENDO VALORANT - Melhorando",
+        "COACHING VALORANT - Dica ABSURDA",
+        "MELHORANDO NO VALORANT - Gameplay",
+    ],
     "Gaming": [
-        "MOMENTO ABSURDO NA LIVE",
-        "ISSO ACONTECEU NA LIVE",
-        "MELHOR MOMENTO DA LIVE",
-        "MOMENTO QUE PAROU A LIVE",
+        "{topic} - MOMENTO ABSURDO NA LIVE",
+        "{topic} - ISSO ACONTECEU NA LIVE",
+        "{event} DE {game} - MELHOR MOMENTO DA LIVE",
+        "MOMENTO QUE PAROU A LIVE - {topic}",
+        "{topic} - GAMEPLAY",
     ],
 }
 
@@ -416,18 +470,54 @@ class ValorantStudio:
         self.analysis = a
         return a
 
+    def _extract_topic(self, vod_title: str) -> str:
+        """Pull a short SEO-ish topic from the VOD title, without repeating the
+        game name. Falls back to the raw title trimmed to ~40 chars."""
+        if not vod_title:
+            return ""
+        t = re.sub(r"[|/:\-]", " ", vod_title)
+        t = re.sub(r"[-–]", " ", t)
+        t = re.sub(r"\s+", " ", t).strip()
+        game_names = ["valorant", "league of legends", "lol", "roblox", "all star tower defense",
+                      "astd", "minecraft", "fnaf", "five nights at freddys", "freddys", "squid game",
+                      "round 6", "marvel rivals", "super mario", "mario bros", "super mario bros",
+                      "chuck e cheese", "palworld", "horror", "coaching", "dicas", "valorant gameplay"]
+        for g in sorted(game_names, key=len, reverse=True):
+            t = re.sub(re.escape(g), " ", t, flags=re.IGNORECASE)
+        t = re.sub(r"\s+", " ", t).strip(" ,-")
+        # drop episode markers
+        parts = re.split(r"\b(ep\.?\s*\d+|parte\s*\d+|episodio\s*\d+|#\w+)", t, flags=re.IGNORECASE)
+        t = parts[0].strip(" ,-")
+        if not t or len(t.split()) < 3:
+            t = re.sub(r"[|/:\-]", " ", vod_title)
+            t = re.sub(r"\s+", " ", t).split(" | ")[0].strip()
+            t = re.sub(r"!+$", "", t).strip()
+        t = re.sub(r"(^|\s)(no|na|em|de|do|da|dos|das|o|a|os|as|um|uma)\s+(!+\s*)+$", r"\1", t)
+        t = t.strip(" -—–")
+        if len(t) > 45:
+            cut = t[:45]
+            if " " in cut:
+                t = cut.rsplit(" ", 1)[0]
+            else:
+                t = cut
+        return t.strip(" ,-")
+
     def generate_seo_title(self, kill_count: int = None, event_type: str = None,
                            agent: str = "", map_name: str = "",
-                           weapon: str = "") -> str:
+                           weapon: str = "", vod_title: str = "") -> str:
         a = self.analysis
         kc = kill_count if kill_count is not None else a.kill_count
         et = (event_type or a.event_type)
+        if et == "highlight":
+            et = "momento"
         ag = agent or a.agent
         mp = map_name or a.map_name
         wp = weapon or a.weapon
         kc_str = f"{kc}K" if kc >= 2 else ""
+        topic = self._extract_topic(vod_title)
 
-        context = {"kc": kc_str, "event": et, "agent": ag, "weapon": wp, "map": mp}
+        context = {"kc": kc_str, "event": et, "agent": ag, "weapon": wp, "map": mp,
+                   "topic": topic, "game": self.game}
 
         # Select game-appropriate patterns
         game = self.game
@@ -443,19 +533,35 @@ class ValorantStudio:
             else:
                 pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant", [])]
         elif game in TITLE_PATTERNS:
-            pool = [t.format(**context) for t in TITLE_PATTERNS[game]]
+            templates = TITLE_PATTERNS[game]
+            # Prefer patterns that embed the VOD topic when it gives the clip
+            # a unique, searchable angle instead of a formulaic generic title.
+            if topic:
+                topical = [t for t in templates if "{topic}" in t]
+                if topical:
+                    templates = topical
+            else:
+                templates = [t for t in templates if "{topic}" not in t]
+            pool = [t.format(**context) for t in templates]
         else:
-            pool = FALLBACK_TITLES[:]
+            # Unknown game: never fall back to ID/generic-only titles. Build one
+            # from the topic + game so each clip is unique and searchable.
+            txt = topic or f"MOMENTO ABSURDO NA LIVE"
+            tag = f" de {game}" if game and game != "Gaming" else ""
+            pool = [f"{txt}{tag} - Gameplay #clip"]
 
         title = random.choice(pool).strip()
         title = re.sub(r'\s+', ' ', title).strip()
         if len(title.split()) < 5:
-            if game in ("Valorant", "Valorant Duo"):
+            if topic:
+                gname = game if game != "Gaming" else ""
+                title = f"{topic} - {et} de {gname}".strip(" -")
+            elif game in ("Valorant", "Valorant Duo"):
                 title = f"{et} ABSURDO - Valorant Gameplay"
             elif game == "League of Legends":
                 title = f"MOMENTO ABSURDO NO LOL"
             else:
-                title = f"MOMENTO ABSURDO NA LIVE"
+                title = f"MOMENTO ABSURDO NA LIVE de {game}".strip()
         title = title.rstrip("#").rstrip()
         if "#clip" not in title and len(title) < 90:
             title = f"{title} #clip"
@@ -520,14 +626,20 @@ class ValorantStudio:
         a = self.analysis
         game = game or self.game
         tags = ["ClipCrafter","CanalPropra","FercamiGameplay","shorts","clipe","fercami"]
-        if game == "Valorant" or game == "Valorant Duo":
-            tags.extend(["Valorant","ValorantBrasil","jogadas valorant","melhores momentos"])
-        elif game == "League of Legends":
-            tags.extend(["LeagueOfLegends","LoL","lolzinho","lolbrasil"])
-        elif game == "Coaching":
-            tags.extend(["Coaching","DicasValorant","melhorar"])
-        else:
-            tags.extend(["Gameplay","jogando","live"])
+        game_seo = {
+            "Valorant": ["Valorant","ValorantBrasil","jogadas valorant","melhores momentos"],
+            "Valorant Duo": ["Valorant","ValorantBrasil","dupla","duo valorant"],
+            "League of Legends": ["LeagueOfLegends","LoL","lolzinho","lolbrasil"],
+            "Roblox": ["Roblox","RobloxBrasil","jogo do roblox","roblox gameplay"],
+            "Minecraft": ["Minecraft","MinecraftBrasil","sobrevivencia","minecraft gameplay"],
+            "FNAF": ["FNAF","FiveNightsAtFreddys","terror","fnaf brasil"],
+            "Super Mario": ["SuperMario","MarioBros","nintendo","super mario gameplay"],
+            "Horror Co-op": ["terror","jogos de terror","terror co-op","terror multiplayer"],
+            "Marvel Rivals": ["MarvelRivals","marvel","rivals","marvelrivals brasil"],
+            "Squid Game": ["SquidGame","Round6","round 6","jogo da morte"],
+            "Coaching": ["Coaching","DicasValorant","melhorar","coaching valorant"],
+        }
+        tags.extend(game_seo.get(game, ["Gameplay","jogando","live"]))
 
         if a.event_type and a.event_type != "highlight":
             tags.append(a.event_type.lower().replace(" ",""))
