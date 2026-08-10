@@ -370,7 +370,8 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
-            add_watermark=True,             watermark_text="Fercami Gameplay")
+            add_watermark=True,             watermark_text="Fercami Gameplay",
+            add_intro_jingle=True)
         if ok:
             analysis = getattr(proc, "_analysis", None)
             if analysis and analysis.speech_text:

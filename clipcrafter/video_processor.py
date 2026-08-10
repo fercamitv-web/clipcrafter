@@ -148,6 +148,41 @@ def _generate_wav_whooshes(filepath: str, duration: float, num_hits: int, sr: in
             f.write(struct.pack("<h", max(-32768, min(32767, int(s * 32767)))))
 
 
+def _generate_wav_jingle(filepath: str, sr: int = 44100, dur: float = 1.25):
+    """Short synthetic brand intro: rising arpeggio (C5-E5-G5) + low thump,
+    with a quick decay so it only occupies the first ~1.2s of the clip."""
+    nsamples = int(sr * dur)
+    samples = [0.0] * nsamples
+    notes = [523.25, 659.25, 783.99]  # C5, E5, G5
+    note_len = dur / len(notes)
+    for n, freq in enumerate(notes):
+        start = int(n * note_len * sr)
+        end = int(start + note_len * sr)
+        for i in range(start, min(end, nsamples)):
+            t = (i - start) / sr
+            tone = math.sin(2 * math.pi * freq * t) * math.exp(-t * 4.0) * 0.30
+            over = math.sin(2 * math.pi * freq * 2 * t) * math.exp(-t * 6.0) * 0.06
+            samples[i] += tone + over
+    # low thump at the very start for punch
+    for i in range(int(0.12 * sr)):
+        t = i / sr
+        samples[i] += math.sin(2 * math.pi * 60 * t) * math.exp(-t * 18) * 0.50
+    peak = max(abs(s) for s in samples) or 1
+    samples = [s / peak * 0.7 for s in samples]
+    # tail fade-out to avoid click
+    fade = int(0.06 * sr)
+    for i in range(fade):
+        idx = nsamples - 1 - i
+        if idx >= 0:
+            samples[idx] *= i / fade
+    with open(filepath, "wb") as f:
+        f.write(struct.pack("<4sI4s", b"RIFF", 36 + nsamples * 2, b"WAVE"))
+        f.write(struct.pack("<4sIHHIIHH", b"fmt ", 16, 1, 1, sr, sr * 2, 2, 16))
+        f.write(struct.pack("<4sI", b"data", nsamples * 2))
+        for s in samples:
+            f.write(struct.pack("<h", max(-32768, min(32767, int(s * 32767)))))
+
+
 def _generate_ass_subtitle(filepath: str, duration: float, phrases: List[str],
                            video_w: int = 1080, video_h: int = 1920):
     if not phrases:
@@ -231,7 +266,8 @@ class VideoProcessor:
                     add_subtitles: bool = False,
                      hook_text: str = None,
                      loop_mode: bool = False,
-                     gameplay_text: str = None) -> bool:
+                     gameplay_text: str = None,
+                     add_intro_jingle: bool = False) -> bool:
         try:
             output_path = Path(output_path).with_suffix(".mp4")
             output = str(output_path)
@@ -370,6 +406,10 @@ class VideoProcessor:
                     _generate_wav_impact(impact_path)
                     _generate_wav_whooshes(whoosh_path, duration, num_whooshes)
                     extra_inputs = [beat_path, impact_path, whoosh_path]
+                    if add_intro_jingle:
+                        jingle_path = os.path.join(self.temp_dir, "intro_jingle.wav")
+                        _generate_wav_jingle(jingle_path)
+                        extra_inputs.append(jingle_path)
 
                     parts.append("[0:a]asplit=2[orig][side]")
                     parts.append(
@@ -400,9 +440,24 @@ class VideoProcessor:
                         "[audio2][whooshes]amix=inputs=2:duration=first:"
                         "weights=1 0.5[audio3]"
                     )
-                    parts.append(
-                        "[audio3]aecho=0.6:0.4:40:0.3[a_out]"
-                    )
+                    if add_intro_jingle:
+                        # Brand jingle only at the very start (delayed 0, fades
+                        # out quickly so it does not cover the gameplay audio)
+                        parts.append(
+                            "[4:a]adelay=0|0,afade=t=out:st=0:d=1.1:"
+                            "volume=0.5[intro]"
+                        )
+                        parts.append(
+                            "[audio3][intro]amix=inputs=2:duration=first:"
+                            "weights=1 0.55[audio4]"
+                        )
+                        parts.append(
+                            "[audio4]aecho=0.6:0.4:40:0.3[a_out]"
+                        )
+                    else:
+                        parts.append(
+                            "[audio3]aecho=0.6:0.4:40:0.3[a_out]"
+                        )
                     audio_label = "[a_out]"
 
                 filter_complex = ";".join(parts)
