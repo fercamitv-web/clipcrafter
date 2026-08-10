@@ -655,9 +655,15 @@ class ValorantStudio:
             tags.extend(["ace","1v5"])
 
         game_tag = game.replace(" ", "") if game != "League of Legends" else "LoL"
+        cta = (
+            "SE INSCREVA GRATIS e ative o sininho para nao perder NENHUM momento!\n"
+            "Deixa o LIKE se voce deu risada e comenta seu momento favorito!\n\n"
+        )
         desc = (
+            f"{cta}"
             f"Melhores momentos de {game} - Fercami Gameplay!\n\n"
-            f"INSCREVA-SE no CanalPropra para mais momentos INSANOS!\n"
+            f"INSCREVA-SE no CanalPropra para mais momentos INSANOS:\n"
+            f"https://www.youtube.com/@CanalPropra\n\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"
             f"Ative o sininho para nao perder os proximos clipes!\n\n"
             f"#FercamiGameplay #{game_tag} #{a.event_type.replace(' ','')} "
