@@ -306,6 +306,14 @@ TITLE_PATTERNS = {
         "{kc}{event} na {map} que girou o round",
         "Melhor momento na {map} - {event} de Valorant",
     ],
+    "Valorant_topic": [
+        "{topic} - momento de Valorant na ranked",
+        "{topic} do jeito que ninguem esperava",
+        "{topic} - o que rolou no Valorant",
+        "{topic} que parou a partida no Valorant",
+        "Aquele dia de {topic} no Valorant",
+        "{topic} - virada de partida no Valorant",
+    ],
     "League of Legends": [
         "Jogada absurda de LoL que parou a partida",
         "Aquele momento de LoL que todo mundo comenta",
@@ -500,7 +508,11 @@ class ValorantStudio:
         # Select game-appropriate patterns
         game = self.game
         if game in ("Valorant", "Valorant Duo"):
-            if wp and ag:
+            # Prefer the VOD topic when it gives a unique, searchable angle.
+            if topic:
+                templates = TITLE_PATTERNS.get("Valorant_topic", [])
+                pool = [t.format(**context) for t in templates]
+            elif wp and ag:
                 pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_weapon", [])]
             elif wp:
                 pool = [t.format(**context) for t in TITLE_PATTERNS.get("Valorant_weapon", [])]
@@ -632,6 +644,7 @@ class ValorantStudio:
             tags.extend(["ace","1v5"])
 
         game_tag = game.replace(" ", "") if game != "League of Legends" else "LoL"
+        ev_tag = "#momento" if a.event_type in (None, "", "highlight") else "#" + a.event_type.replace(" ", "")
         cta = (
             "SE INSCREVA GRATIS e ative o sininho para nao perder NENHUM momento!\n"
             "Deixa o LIKE se voce deu risada e comenta seu momento favorito!\n\n"
@@ -645,7 +658,7 @@ class ValorantStudio:
             f"https://www.youtube.com/@CanalPropra\n\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"
             f"Ative o sininho para nao perder os proximos clipes!\n\n"
-            f"#FercamiGameplay #{game_tag} #{a.event_type.replace(' ','')} "
+            f"#FercamiGameplay #{game_tag} {ev_tag} "
             f"#ClipCrafter #CanalPropra #Shorts\n"
         )
         return desc, tags[:20]
