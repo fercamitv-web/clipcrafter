@@ -556,6 +556,38 @@ class ValorantStudio:
         title = title[:80] or "Jogada de valorant na ranked"
         return title
 
+    def generate_teaser(self, event: str = "") -> str:
+        """Mid-clip open-loop teaser. Re-arms curiosity after the hook so the
+        viewer holds through the middle-retention cliff. Event-aware for
+        Valorant plays (pre-elasticize the payoff that lands right after)."""
+        a = self.analysis
+        et = (event or a.event_type or "")
+        if et == "highlight":
+            et = ""
+        pools = {
+            "ACE": ["E OLHA QUE\\nAINDA NAO TERMINOU", "O ACE VEM\\nEM SEGUIDA", "VOCE AINDA\\nNAO VIU NADA"],
+            "CLUTCH": ["A VIRADA VEM\\nAGORA", "ELE TAVA LONGE\\nDE ACABAR", "O MELHOR ATO\\nE O PROXIMO"],
+            "MULTI KILL": ["E NAO PARA\\nPOR AI", "AINDA TEM\\nMAIS", "SO FALTA\\nPOUCO PRO APICE"],
+            "ONE TAP": ["ISSO SO\\nFOI O COMEÇO", "ELE NAO TERMINA\\nPOR AQUI"],
+            "": [
+                "ISSO AINDA\\nNAO E NADA",
+                "O MELHOR VEM\\nAGORA",
+                "CALMA...\\nNAO ACABOU",
+                "ESPERA SO\\nO QUE VEM DEPOIS",
+                "O FINAL VAI\\nTE PEGAR",
+                "AQUI AINDA\\nNAO FOI O APICE",
+                "SE VOCE PAROU\\nAGORA PERDEU",
+                "FALTA POUCO\\nPRO MELHOR",
+            ],
+        }
+        if et == "ONE TAP":
+            pool = pools.get("ONE TAP", pools[""])
+        elif et in pools and et != "ONE TAP":
+            pool = pools[et]
+        else:
+            pool = pools[""]
+        return random.choice(pool)[:44]
+
     def generate_hook(self, style: str = "auto") -> str:
         a = self.analysis
         ev_labels = {"ACE":"ACE","CLUTCH":"CLUTCH","ONE TAP":"ONE TAP",

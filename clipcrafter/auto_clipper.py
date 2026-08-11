@@ -367,11 +367,15 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
         if not proc.load(src):
             return False, "", "", "", []
         hook_overlay = vs.generate_hook_overlay()
+        teaser = vs.generate_teaser() if proc.duration > 6 else ""
         ok = proc.export_clip(0, proc.duration, dst,
             shorts_mode=True, viral_audio=True,
             add_subtitles=True, hook_text=hook_overlay, loop_mode=True,
             add_watermark=True,             watermark_text="Fercami Gameplay",
-            add_intro_jingle=True)
+            add_intro_jingle=True,
+            add_progress_bar=True, add_countdown=True,
+            teaser_text=teaser,
+            gameplay_text="COMO ELE FEZ ISSO?\\nASSISTE DE NOVO")
         if ok:
             analysis = getattr(proc, "_analysis", None)
             if analysis and analysis.speech_text:

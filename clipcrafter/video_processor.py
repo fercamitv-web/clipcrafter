@@ -267,7 +267,8 @@ class VideoProcessor:
                      hook_text: str = None,
                      loop_mode: bool = False,
                      gameplay_text: str = None,
-                     add_intro_jingle: bool = False) -> bool:
+                     add_intro_jingle: bool = False,
+                     teaser_text: str = None) -> bool:
         try:
             output_path = Path(output_path).with_suffix(".mp4")
             output = str(output_path)
@@ -378,6 +379,19 @@ class VideoProcessor:
                         f"x=(w-text_w)/2:y=(h-th)/2-60{fp}:"
                         f"enable='gte(t,{duration-3})*lt(t,{duration})'[base]"
                     )
+
+                # Mid-clip open-loop tease: re-armed curiosity at ~50-72% so
+                # viewers hold through the middle (the classic retention cliff).
+                if teaser_text and duration > 6:
+                    ts0 = max(2.0, duration * 0.50)
+                    ts1 = min(duration - 1.5, duration * 0.72)
+                    if ts1 > ts0 + 0.5:
+                        parts.append(
+                            f"[base]drawtext=text='{teaser_text}':"
+                            f"fontcolor=#FFB000:fontsize=56:box=1:boxcolor=black@0.8:"
+                            f"x=(w-text_w)/2:y=(h-th)/2-150{fp}:"
+                            f"enable='gte(t,{ts0:.2f})*lt(t,{ts1:.2f})'[base]"
+                        )
 
                 if duration > 4:
                     parts.append(
