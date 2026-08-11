@@ -120,7 +120,7 @@ def main():
         for cp in clip_paths:
             clip_name = f"final_{vid}_{Path(cp).name.replace('raw_', '')}"
             dst = CLIPS_DIR / clip_name
-            ok, title, hook, desc, tags = process_clip(cp, str(dst), game, vod_title=vod_title)
+            ok, title, hook, desc, tags = process_clip(cp, str(dst), game, vod_title=vod_title, vod_id=vid)
             if ok:
                 queue.append({
                     "file": f"clipcrafter/scheduled_uploads/clips/{clip_name}",

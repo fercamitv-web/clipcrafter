@@ -622,7 +622,7 @@ class ValorantStudio:
             pool = HOOK_2LINE_VALORANT
         return random.choice(pool)
 
-    def get_description_tags(self, game: str = None) -> Tuple[str, List[str]]:
+    def get_description_tags(self, game: str = None, vod_id: str = "") -> Tuple[str, List[str]]:
         a = self.analysis
         game = game or self.game
         tags = ["ClipCrafter","CanalPropra","FercamiGameplay","shorts","clipe","fercami"]
@@ -659,9 +659,11 @@ class ValorantStudio:
             "SE INSCREVA GRATIS e ative o sininho para nao perder NENHUM momento!\n"
             "Deixa o LIKE se voce deu risada e comenta seu momento favorito!\n\n"
         )
+        full_vod = f"\nQuer ver a partida completa? Assiste aqui:\nhttps://youtube.com/watch?v={vod_id}\n" if vod_id else ""
         desc = (
             f"{cta}"
             f"Melhores momentos de {game} - Fercami Gameplay!\n\n"
+            f"{full_vod}"
             f"INSCREVA-SE no CanalPropra para mais momentos INSANOS:\n"
             f"https://www.youtube.com/@CanalPropra\n\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"

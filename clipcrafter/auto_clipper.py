@@ -355,7 +355,7 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
 # CLIP PROCESSING
 # ============================================================
 
-def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = "") -> tuple:
+def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = "", vod_id: str = "") -> tuple:
     """Process a clip: shorts mode + hook overlay. Returns (ok, title, hook, desc, tags)."""
     from video_processor import VideoProcessor
     from valorant_studio import ValorantStudio
@@ -383,7 +383,7 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
             else:
                 title = vs.generate_seo_title(vod_title=vod_title)
                 hook = vs.generate_hook()
-            desc, tags = vs.get_description_tags(game)
+            desc, tags = vs.get_description_tags(game, vod_id=vod_id)
             if not title.strip():
                 return False, "", "", "", []
             return True, title, hook or "", desc, tags

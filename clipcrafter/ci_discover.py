@@ -109,7 +109,7 @@ def process_one_video(vid, dur, title, queue):
         log(f"  {label}...", end=" ")
         t0 = time.time()
         try:
-            ok, clip_title, hook, desc, tags = process_clip(str(raw), str(processed), game, vod_title=title)
+            ok, clip_title, hook, desc, tags = process_clip(str(raw), str(processed), game, vod_title=title, vod_id=vid)
             if ok:
                 dest = CLIPS_DIR / f"{vid}_{label}_shorts.mp4"
                 shutil.copy2(processed, dest)
