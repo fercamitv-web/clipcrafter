@@ -270,119 +270,97 @@ HOOK_2LINE_GENERIC = [
 # ============================================================
 
 TITLE_PATTERNS = {
+    # 2026 formula: [what happened] + [Game] + [context]. Sentence case (no
+    # all-caps — spam signal). Searchable moment type + game name rank in
+    # YouTube search (discovery half of Shorts distribution).
     "Valorant": [
-        "{kc}{event} ABSURDO DE VALORANT",
-        "ESSE {event} FOI INACREDITAVEL - Valorant",
-        "{kc}{event} QUE NINGUEM ESPERAVA",
-        "{event} NA RANKED - Jogando Valorant",
-        "MELHOR {event} DO DIA - Valorant #clip",
-        "{event} INSANO QUE VOCE PRECISA VER",
-        "O {event} MAIS LOUCO DA SEMANA",
-        "{kc}{event} - MOMENTO QUE PAROU A LIVE",
-        "SELVAGEM: {event} ABSURDO NO VALORANT",
-        "{event} PERFEITO - MELHORES MOMENTOS",
-        "QUE {event} ABSURDO - VALORANT GAMEPLAY",
-        "{event} NA LIVE - CanalPropra",
+        "{event} absurdo de Valorant na ranked",
+        "O {event} de Valorant que parou a partida",
+        "{kc}{event} de Valorant - jogada do dia",
+        "{event} de Valorant que todo mundo comenta",
+        "Aquele {event} de Valorant inesquecivel",
+        "Melhor {event} de Valorant da noite",
+        "{event} de Valorant - momento unico na ranked",
+        "O {event} mais comentado da semana no Valorant",
     ],
     "Valorant_agent": [
-        "{kc}{event} DE {agent} QUE NINGUEM ESPERAVA",
-        "{agent} {kc}{event} ABSURDO - Melhores Jogadas",
-        "JOGADA DE {agent} COM {kc}{event} INACREDITAVEL",
-        "{agent} {kc}{event} - MOMENTO DE GENIO",
-        "QUE JOGADA DA {agent} - {kc}{event} PERFEITO",
-        "{agent} SIMPLESMENTE {kc}{event} - VALORANT",
-        "MELHOR {agent} DO DIA - {kc}{event} INSANO",
+        "{agent} {kc}{event} absurdo no Valorant",
+        "Jogada da {agent} - {kc}{event} de Valorant",
+        "{agent} {kc}{event} na ranked de Valorant",
+        "A {agent} {kc}{event} que deixou o time sem reacao",
+        "{agent} no controle: {kc}{event} de Valorant",
+        "{kc}{event} de {agent} - Valorant ranked",
+        "Como a {agent} resolveu o round: {kc}{event}",
     ],
     "Valorant_weapon": [
-        "{weapon} {kc}{event} QUE VOCE PRECISA VER",
-        "{event} DE {weapon} ABSURDO - Valorant Gameplay",
-        "{agent} DE {weapon} - {kc}{event} PERFEITO",
-        "1VS5 DE {weapon} NO VALORANT - {event}",
-        "{kc}{event} COM {weapon} - JOGADA IMPOSSIVEL",
-        "{weapon} PERFEITA: {agent} {kc}{event} INSANO",
-        "{event} COM {weapon} - SENSACIONAL",
+        "{kc}{event} de {weapon} no Valorant",
+        "{event} absurdo usando {weapon} no Valorant",
+        "{weapon} no comando: {kc}{event} de Valorant",
+        "{kc}{event} com {weapon} - Valorant ranked",
+        "{agent} {kc}{event} de {weapon} no Valorant",
+        "A {weapon} resolveu: {kc}{event} de Valorant",
     ],
     "Valorant_map": [
-        "{kc}{event} NO MAPA {map} - Valorant Gameplay",
-        "{event} INSANO NA {map} - Melhores Jogadas",
-        "{kc}{event} NA {map} - Jogada PERFEITA",
-        "MELHOR MOMENTO NA {map} - {event} ABSURDO",
-        "{agent} DOMINOU A {map} - {kc}{event}",
+        "{kc}{event} na {map} - Valorant",
+        "{event} absurdo na {map} de Valorant",
+        "{kc}{event} na {map} que girou o round",
+        "Melhor momento na {map} - {event} de Valorant",
     ],
     "League of Legends": [
-        "MOMENTO ABSURDO NO LOL",
-        "JOGADA DE LOL INACREDITAVEL",
-        "ISSO NO LOL QUE NINGUEM ESPERAVA",
-        "MELHOR MOMENTO DO DIA NO LOL",
-        "LOL SELVAGEM - Jogada IMPOSSIVEL",
-        "QUE JOGADA NO LOL - Inacreditavel",
-        "MOMENTO QUE PAROU A LIVE NO LOL",
+        "Jogada absurda de LoL que parou a partida",
+        "Aquele momento de LoL que todo mundo comenta",
+        "{event} de LoL - jogada do dia",
+        "Momento de LoL que girou a partida",
     ],
     "Coaching": [
-        "DICA DE VALORANT QUE MUDA TUDO",
-        "APRENDENDO VALORANT - Melhorando",
-        "COACHING VALORANT - Dica ABSURDA",
-        "MELHORANDO NO VALORANT - Gameplay",
+        "Dica de Valorant que muda seu jogo",
+        "Melhorando no Valorant - dica de partida",
+        "Coaching de Valorant - o que fazer nessa hora",
     ],
     "Roblox": [
-        "{topic} - ABSURDO NO ROBLOX",
-        "{event} INSANO NO ROBLOX",
-        "{topic} - MOMENTO QUE PAROU A LIVE DE ROBLOX",
-        "{event} DE ROBLOX QUE VOCE PRECISA VER",
-        "ISSO NO ROBLOX FOI INACREDITAVEL",
-        "{topic} - O QUE ACONTECEU NO ROBLOX AGRADECEU",
-        "QUE {event} NO ROBLOX - Inacreditavel",
+        "{topic} - momento no Roblox",
+        "{event} de Roblox que ninguem esperava",
+        "{topic} - o que vi no Roblox",
+        "Momento absurdo de Roblox na partida",
     ],
     "Minecraft": [
-        "{topic} - SOBREVIVENCIA NO MINECRAFT",
-        "QUE {event} NO MINECRAFT",
-        "{topic} - MINECRAFT GAMEPLAY",
-        "ISSO NO MINECRAFT FOI ABSURDO",
-        "{event} DE MINECRAFT QUE NINGUEM ESPERAVA",
+        "{topic} - sobrevivencia no Minecraft",
+        "{topic} - roda o Minecraft?",
+        "{topic} - momento de Minecraft",
+        "{event} no Minecraft que mudou a partida",
     ],
     "FNAF": [
-        "{topic} - SOBREVIVENDO A FNAF",
-        "{event} DE TERROR NO FNAF",
-        "FNAF NAO PERDOA - {topic}",
-        "SOBREVIVI A {topic} - Five Nights at Freddys",
+        "{topic} - terrivel no FNAF",
+        "{event} de terror no FNAF",
+        "FNAF nao perdoa - {topic}",
+        "Sobrevivi a {topic} no FNAF",
     ],
     "Super Mario": [
-        "{event} NO SUPER MARIO BROS",
-        "{topic} - SUPER MARIO GAMEPLAY",
-        "QUE {event} NO MARIO - Inacreditavel",
-        "{topic} - JOGANDO SUPER MARIO",
+        "{event} no Super Mario Bros",
+        "{topic} - momento de Mario",
+        "{topic} - jogando Super Mario",
     ],
     "Horror Co-op": [
-        "{event} DE TERROR - {topic}",
-        "{topic} - MOMENTO DE TERROR NA LIVE",
-        "NAO CONSIGO MAIS DORMIR DEPOIS DISSO",
-        "QUE {event} NO JOGO DE TERROR",
-        "{topic} - JOGO DE TERROR COM AMIGOS",
+        "{event} de terror - {topic}",
+        "{topic} - terror com os amigos",
+        "O susto de {topic} com a galera",
+        "{event} no jogo de terror - {topic}",
     ],
     "Marvel Rivals": [
-        "{event} INSANO NO MARVEL RIVALS",
-        "{topic} - MARVEL RIVALS GAMEPLAY",
-        "QUE JOGADA NO MARVEL RIVALS",
-        "MARVEL RIVALS SEM MISERICORDIA - {topic}",
+        "{event} absurdo no Marvel Rivals",
+        "{topic} - Marvel Rivals na pratica",
+        "Jogada de Marvel Rivals - {event}",
     ],
     "Squid Game": [
-        "{topic} - ROUND 6 NA VIDA REAL?",
-        "{event} DE ROUND 6 QUE VOCE PRECISA VER",
-        "SOBRE VIVER O ROUND 6 - {topic}",
-        "{topic} - O JOGO DA MORTE",
-    ],
-    "Coaching": [
-        "DICA DE VALORANT QUE MUDA TUDO",
-        "APRENDENDO VALORANT - Melhorando",
-        "COACHING VALORANT - Dica ABSURDA",
-        "MELHORANDO NO VALORANT - Gameplay",
+        "{topic} - round 6 na vida real?",
+        "{event} de round 6 que voce precisa ver",
+        "{topic} - o jogo da morte",
     ],
     "Gaming": [
-        "{topic} - MOMENTO ABSURDO NA LIVE",
-        "{topic} - ISSO ACONTECEU NA LIVE",
-        "{event} DE {game} - MELHOR MOMENTO DA LIVE",
-        "MOMENTO QUE PAROU A LIVE - {topic}",
-        "{topic} - GAMEPLAY",
+        "{topic} - momento marcante",
+        "{topic} - o que rolou na partida",
+        "{event} de gameplay - {topic}",
+        "{topic} - gameplay do dia",
     ],
 }
 
@@ -546,26 +524,25 @@ class ValorantStudio:
         else:
             # Unknown game: never fall back to ID/generic-only titles. Build one
             # from the topic + game so each clip is unique and searchable.
-            txt = topic or f"MOMENTO ABSURDO NA LIVE"
+            txt = topic or "Momento absurdo na live"
             tag = f" de {game}" if game and game != "Gaming" else ""
-            pool = [f"{txt}{tag} - Gameplay #clip"]
+            pool = [f"{txt}{tag}".strip()]
 
         title = random.choice(pool).strip()
-        title = re.sub(r'\s+', ' ', title).strip()
+        title = re.sub(r'\s+', ' ', title).strip(" -–—#")
         if len(title.split()) < 5:
             if topic:
                 gname = game if game != "Gaming" else ""
                 title = f"{topic} - {et} de {gname}".strip(" -")
             elif game in ("Valorant", "Valorant Duo"):
-                title = f"{et} ABSURDO - Valorant Gameplay"
+                title = f"{kc}{et} de Valorant na ranked".strip()
             elif game == "League of Legends":
-                title = f"MOMENTO ABSURDO NO LOL"
+                title = f"{et} de LoL que girou a partida"
             else:
-                title = f"MOMENTO ABSURDO NA LIVE de {game}".strip()
-        title = title.rstrip("#").rstrip()
-        if "#clip" not in title and len(title) < 90:
-            title = f"{title} #clip"
-        return title[:100]
+                title = f"{et} de {game}".strip().replace("  ", " ")
+        title = re.sub(r'\s+', ' ', title).strip(" -–—#")
+        title = title[:80] or "Jogada de valorant na ranked"
+        return title
 
     def generate_hook(self, style: str = "auto") -> str:
         a = self.analysis

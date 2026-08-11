@@ -84,7 +84,7 @@ def main():
         print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
         return
 
-    daily_batch = int(os.environ.get("DAILY_BATCH", "5"))
+    daily_batch = int(os.environ.get("DAILY_BATCH", "3"))
     batch = queue[cursor:cursor + daily_batch]
     remaining = len(queue) - cursor - len(batch)
 
@@ -100,11 +100,9 @@ def main():
 
     base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
     upload_times = [
-        base_time.replace(hour=9),
-        base_time.replace(hour=12),
-        base_time.replace(hour=15),
         base_time.replace(hour=18),
-        base_time.replace(hour=21),
+        base_time.replace(hour=20),
+        base_time.replace(hour=22),
     ][:len(batch)]
 
     for i, clip in enumerate(batch):
