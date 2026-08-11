@@ -1,5 +1,5 @@
-"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads 3 clips/day to YouTube + TikTok."""
-import json, os, sys, base64
+"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads clips/day (default 5) to YouTube + TikTok."""
+import json, os, sys, base64, random
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
@@ -8,6 +8,13 @@ CI_DIR = Path(__file__).resolve().parent
 REPO_DIR = CI_DIR.parent
 QUEUE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "clip_queue.json"
 STATE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "upload_state.json"
+
+COMMENT_HOOKS = [
+    "Qual momento foi o melhor? Comenta aí! 🔥",
+    "Você já tinha visto uma jogada assim? Deixa sua opinião! 👇",
+    "O que você achou desse momento? Me conta nos comentários! 🎮",
+    "Se esse momento fosse com você, o que faria? Comenta! 😅",
+]
 
 def load_state():
     if STATE_FILE.exists():
@@ -124,6 +131,12 @@ def main():
             if vid:
                 print(f"OK https://youtube.com/shorts/{vid}")
                 results.append(f"yt:{vid}")
+                try:
+                    from youtube_uploader import post_comment
+                    comment = random.choice(COMMENT_HOOKS)
+                    post_comment(vid, comment.format(**{"title": title}))
+                except Exception as e:
+                    print(f"    (comment skipped: {e})")
             else:
                 print("FAIL (quota?)")
                 save_state(state)

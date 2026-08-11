@@ -119,6 +119,30 @@ def upload_video(video_path: str, title: str = None,
     return video_id
 
 
+def post_comment(video_id: str, text: str) -> bool:
+    """Insert a top-level comment on a video. Best-effort (comment quota/permissions)."""
+    try:
+        creds = authenticate()
+        if not creds:
+            return False
+        youtube = build("youtube", "v3", credentials=creds)
+        youtube.commentThreads().insert(
+            part="snippet",
+            body={
+                "snippet": {
+                    "videoId": video_id,
+                    "topLevelComment": {
+                        "snippet": {"textOriginal": text[:1000]}
+                    }
+                }
+            }
+        ).execute()
+        return True
+    except Exception as e:
+        print(f"    (comment skipped: {e})")
+        return False
+
+
 def delete_video(video_id: str) -> bool:
     creds = authenticate()
     if not creds:
