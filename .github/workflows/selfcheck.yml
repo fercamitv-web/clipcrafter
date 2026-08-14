@@ -1,0 +1,34 @@
+name: Daily Self-Check & Auto-Fix
+
+on:
+  schedule:
+    # 05:05 UTC = 02:05 BRT — runs well before the 08:00 BRT upload job
+    - cron: '5 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  selfcheck:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run daily selfcheck (diagnostics + safe auto-fixes)
+        run: python clipcrafter/selfcheck.py
+
+      - name: Commit auto-fixes (if any)
+        if: ${{ always() }}
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/
+          git diff --cached --quiet || (
+            git commit -m "Auto-fix queue issues found by daily selfcheck"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
+          )
