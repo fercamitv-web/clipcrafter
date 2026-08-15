@@ -5,3 +5,6 @@ clipcrafter/vod_cache/
 clipcrafter/scheduled_uploads/**/raw_*
 clipcrafter/client_secret.json
 clipcrafter/yt_token_pickle.b64
+clipcrafter/_token.txt
+clipcrafter/_debug.json
+clipcrafter/_ig_test.py
