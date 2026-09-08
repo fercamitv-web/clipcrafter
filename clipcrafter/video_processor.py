@@ -465,13 +465,13 @@ class VideoProcessor:
                             "[audio3][intro]amix=inputs=2:duration=first:"
                             "weights=1 0.55[audio4]"
                         )
-                        parts.append(
-                            "[audio4]aecho=0.6:0.4:40:0.3[a_out]"
-                        )
-                    else:
-                        parts.append(
-                            "[audio3]aecho=0.6:0.4:40:0.3[a_out]"
-                        )
+parts.append(
+                "[audio4]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
+            )
+else:
+    parts.append(
+        "[audio3]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
+    )
                     audio_label = "[a_out]"
 
                 filter_complex = ";".join(parts)
@@ -484,7 +484,7 @@ class VideoProcessor:
                     "-t", str(duration),
                     "-filter_complex", filter_complex,
                     "-map", "[base]", "-map", audio_label,
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "18",
                     "-c:a", "aac", "-b:a", "128k",
                     "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart",
@@ -555,7 +555,7 @@ class VideoProcessor:
                 cmd = [
                     "ffmpeg", "-ss", str(start_sec), "-i", self.video_path,
                     "-t", str(duration),
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "18",
                     "-c:a", "aac", "-b:a", "128k",
                     "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart",
@@ -638,7 +638,7 @@ class VideoProcessor:
             f"[a_end][a_start]acrossfade=d={f}[a_blend];"
             f"[a_main][a_blend]concat=n=2:v=0:a=1[a_out]",
             "-map", "[v_out]", "-map", "[a_out]",
-            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+            "-c:v", "libx264", "-preset", "slow", "-crf", "18",
             "-c:a", "aac", "-b:a", "128k",
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
