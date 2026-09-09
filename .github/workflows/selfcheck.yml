@@ -19,8 +19,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run daily selfcheck (diagnostics + safe auto-fixes)
-        run: python clipcrafter/selfcheck.py
+      - name: Run daily ops check (selfcheck + queue + tools)
+        run: python clipcrafter/ops_daily.py
 
       - name: Commit auto-fixes (if any)
         if: ${{ always() }}
