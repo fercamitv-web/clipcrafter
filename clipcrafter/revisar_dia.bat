@@ -1,28 +1,25 @@
 @echo off
-:: --- Pasta do repositório ---
-cd /d "%~dp0"
-
-:: --- Python do venv ---
-set VENV=clipcrafter\venv
-set PYTHON=%VENV%\Scripts\python.exe
-set SCRIPT=clipcrafter\daily_review.py
-
-:: --- Executa o script de revisão ---
+:: Revisao diaria automatica (auto-fix quando possivel)
+cd /d "C:\Users\ferca\OneDrive\Documentos\1"
+set VENV=C:\Users\ferca\OneDrive\Documentos\clipe-pro\venv\Scripts\python.exe
+if not exist "%VENV%" set VENV=python
 echo.
-echo Iniciando revisão diária...
-%PYTHON% %SCRIPT%
+echo Iniciando revisao diaria (ops_daily)...
+"%VENV%" clipcrafter\ops_daily.py
 set ERRLEVEL=%errorlevel%
-
-:: --- Se der erro, mostra mensagem e pausa ---
 if %ERRLEVEL% neq 0 (
     echo.
-    echo ⚠️  ERRO detectado (código %ERRLEVEL%).
-    echo O script encontrou um problema na revisão.
-    echo Verifique o relatório acima ou o log da Actions (GitHub).
+    echo ============================================
+    echo  ERRO detectado (codigo %ERRLEVEL%).
+    echo  O sistema tentou auto-consertar fila/queue.
+    echo  Se for token, rode: python %%TEMP%%\opencode\reauth.py
+    echo  e me chame para atualizar o secret YT_TOKEN_PICKLE.
+    echo  Log salvo em %%USERPROFILE%%\.clipcrafter\logs\
+    echo ============================================
+    pause
+) else (
     echo.
-    pause "Pressione ENTER para fechar esta janela e analisar o erro."
+    echo Revisao concluida sem erros. Janela fecha em 5s...
+    timeout /t 5 >nul
 )
-
-echo.
-echo Revisão concluída com código %ERRLEVEL%.
 exit /b %ERRLEVEL%
