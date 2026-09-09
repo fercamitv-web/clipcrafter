@@ -458,20 +458,19 @@ class VideoProcessor:
                         # Brand jingle only at the very start (delayed 0, fades
                         # out quickly so it does not cover the gameplay audio)
                         parts.append(
-                            "[4:a]adelay=0|0,afade=t=out:st=0:d=1.1:"
-                            "volume=0.5[intro]"
+                            "[4:a]adelay=0|0,afade=t=out:st=0:d=1.1,volume=0.5[intro]"
                         )
                         parts.append(
                             "[audio3][intro]amix=inputs=2:duration=first:"
                             "weights=1 0.55[audio4]"
                         )
-parts.append(
-                "[audio4]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
-            )
-else:
-    parts.append(
-        "[audio3]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
-    )
+                        parts.append(
+                            "[audio4]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
+                        )
+                    else:
+                        parts.append(
+                            "[audio3]loudnorm=I=-16:TP=-1.5:LRA=11,aecho=0.6:0.4:40:0.3[a_out]"
+                        )
                     audio_label = "[a_out]"
 
                 filter_complex = ";".join(parts)
