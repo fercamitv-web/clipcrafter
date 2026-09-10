@@ -100,8 +100,8 @@ def main():
 
     base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
     upload_times = [
+        base_time.replace(hour=12),
         base_time.replace(hour=18),
-        base_time.replace(hour=20),
         base_time.replace(hour=22),
     ][:len(batch)]
 
