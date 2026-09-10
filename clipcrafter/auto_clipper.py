@@ -459,10 +459,11 @@ def extend_segment(start: float, end: float, score: float = 0.5,
         min_dur, max_dur = 12, 20
     dur = end - start
     if min_dur <= dur <= max_dur:
-        return start, end
+        # loop perfeito: corta 0.2s no final para replay imperceptivel
+        return start, max(start+min_dur, end-0.2)
     target = max(min_dur, min(dur, max_dur))
     new_start = start
-    new_end = min(video_dur, end + (target - dur))
+    new_end = min(video_dur, end + (target - dur) - 0.2)
     if new_end - new_start < min_dur:
         new_start = max(0.0, new_end - min_dur)
     if new_end - new_start > max_dur:
