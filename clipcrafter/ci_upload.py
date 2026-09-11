@@ -10,10 +10,10 @@ QUEUE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "clip_queue.json"
 STATE_FILE = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "upload_state.json"
 
 COMMENT_HOOKS = [
-    "Qual momento foi o melhor? Comenta aí! 🔥",
-    "Você já tinha visto uma jogada assim? Deixa sua opinião! 👇",
-    "O que você achou desse momento? Me conta nos comentários! 🎮",
-    "Se esse momento fosse com você, o que faria? Comenta! 😅",
+    "Comenta CLUTCH se foi clutch de verdade 🔥",
+    "Comenta SETUP que mando meu setup 👇",
+    "Comenta LOUD se torceu nesse momento 🎮",
+    "Comenta REPLAY se assistiu de novo 😅",
 ]
 
 def load_state():

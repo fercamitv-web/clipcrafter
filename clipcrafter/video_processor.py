@@ -292,9 +292,8 @@ class VideoProcessor:
                 # Always run analysis for title generation (even with custom hook)
                 self._analysis = _valorant_studio.analysis if transcript_phrases else None
                 target_w, target_h = 1080, 1920
-                # Visible zoom — front-loaded effect by capping at 1.12 with fast rate
-                # (reaches cap in ~2s, creating punch feel)
-                zoom_rate = 0.002
+                # Visible zoom — jump-zoom feel (reaches cap in ~1s)
+                zoom_rate = 0.004
                 parts = [
                     f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.12)':d=1:fps=30[z]",
                     f"[z]scale={target_w}:{target_h}:"
@@ -304,6 +303,24 @@ class VideoProcessor:
                     f"force_original_aspect_ratio=decrease,setsar=1[fg]",
                     "[bg][fg]overlay=(W-w)/2:(H-h)/2[base]"
                 ]
+                # Beat visual a cada 2s — punch sutil que renova atencao
+                parts.append(
+                    "[base]scale=w='iw*(1+0.02*sin(2*PI*t/2))':"
+                    "h='ih*(1+0.02*sin(2*PI*t/2))':eval=frame[base]"
+                )
+                # Primeiro frame (100ms) — texto curto no topo, antes do hook
+                _ff = hook_text.replace("\\", "").replace("'", " ").replace(
+                    ":", " ").replace(",", " ").replace("%", "")
+                _ff_words = _ff.split()[:6]
+                if _ff_words:
+                    _ff_text = " ".join(_ff_words).upper()
+                    parts.append(
+                        f"[base]drawtext=text='{_ff_text}':"
+                        f"fontcolor=white:fontsize=72:box=1:boxcolor=black@0.85:"
+                        f"x=(w-text_w)/2:y=120{fp}:"
+                        f"borderw=2:bordercolor=black@0.6:"
+                        f"enable='lt(t,0.8)'[base]"
+                    )
 
                 # Hook de curiosidade nos primeiros 2s — larger, bolder, with animated scale feel
                 if duration > 3:

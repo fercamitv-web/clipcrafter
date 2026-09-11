@@ -355,6 +355,46 @@ def download_clip(vod_id: str, start: float, end: float, output_path: str) -> bo
 # CLIP PROCESSING
 # ============================================================
 
+def _strip_silence(src: str, min_silence: int = 400, thresh_db: int = -35) -> str:
+    """Remove pausas >0.4s (corta audio+video juntos). Retorna path (orig ou temp)."""
+    try:
+        from pydub import AudioSegment
+        from pydub.silence import detect_silence
+        audio = AudioSegment.from_file(src)
+        sil = detect_silence(audio, min_silence_len=min_silence,
+                             silence_thresh=thresh_db, seek_step=50)
+        if not sil:
+            return src
+        total_sil = sum(e - s for s, e in sil) / 1000.0
+        if total_sil < 0.5:
+            return src
+        dur = len(audio) / 1000.0
+        keep = []
+        prev = 0.0
+        for s, e in sil:
+            s, e = s / 1000.0, e / 1000.0
+            if s - prev >= 0.3:
+                keep.append((max(0.0, prev - 0.1), min(dur, s + 0.1)))
+            prev = e
+        if dur - prev >= 0.3:
+            keep.append((max(0.0, prev - 0.1), dur))
+        if not keep or sum(e - s for s, e in keep) < 8.0:
+            return src
+        from moviepy.video.io.VideoFileClip import VideoFileClip
+        from moviepy.video.compositing.concatenate import concatenate_videoclips
+        import tempfile
+        clip = VideoFileClip(src)
+        parts = [clip.subclip(s, e) for s, e in keep]
+        out = os.path.join(tempfile.gettempdir(), f"nosil_{os.path.basename(src)}")
+        concatenate_videoclips(parts, method="compose").write_videofile(
+            out, codec="libx264", audio_codec="aac", preset="ultrafast",
+            threads=4, logger=None)
+        clip.close()
+        return out
+    except Exception:
+        return src
+
+
 def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = "", vod_id: str = "") -> tuple:
     """Process a clip: shorts mode + hook overlay. Returns (ok, title, hook, desc, tags)."""
     from video_processor import VideoProcessor
@@ -364,6 +404,7 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
     vs.game = game
     proc = VideoProcessor()
     try:
+        src = _strip_silence(src)
         if not proc.load(src):
             return False, "", "", "", []
         hook_overlay = vs.generate_hook_overlay()
