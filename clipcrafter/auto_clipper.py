@@ -403,6 +403,7 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
     vs = ValorantStudio()
     vs.game = game
     proc = VideoProcessor()
+    orig_src = src
     try:
         src = _strip_silence(src)
         if not proc.load(src):
@@ -435,6 +436,11 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
         return False, "", "", "", []
     finally:
         proc.cleanup()
+        try:
+            if src != orig_src and os.path.exists(src):
+                os.remove(src)
+        except Exception:
+            pass
         gc.collect()
 
 

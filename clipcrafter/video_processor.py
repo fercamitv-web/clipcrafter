@@ -295,7 +295,7 @@ class VideoProcessor:
                 # Visible zoom — jump-zoom feel (reaches cap in ~1s)
                 zoom_rate = 0.004
                 parts = [
-                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.12)':d=1:fps=30[z]",
+                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.14)+0.015*sin(2*PI*on/60)':d=1:fps=30[z]",
                     f"[z]scale={target_w}:{target_h}:"
                     f"force_original_aspect_ratio=increase,"
                     f"crop={target_w}:{target_h},boxblur=20:5[bg]",
@@ -303,11 +303,8 @@ class VideoProcessor:
                     f"force_original_aspect_ratio=decrease,setsar=1[fg]",
                     "[bg][fg]overlay=(W-w)/2:(H-h)/2[base]"
                 ]
-                # Beat visual a cada 2s — punch sutil que renova atencao
-                parts.append(
-                    "[base]scale=w='iw*(1+0.02*sin(2*PI*t/2))':"
-                    "h='ih*(1+0.02*sin(2*PI*t/2))':eval=frame[base]"
-                )
+                # Beat visual a cada 2s via zoompan (periodo 60 frames @30fps).
+                # Nao usar scale eval=frame separado: da segfault neste build ffmpeg.
                 # Primeiro frame (100ms) — texto curto no topo, antes do hook
                 _ff = hook_text.replace("\\", "").replace("'", " ").replace(
                     ":", " ").replace(",", " ").replace("%", "")
@@ -613,7 +610,8 @@ class VideoProcessor:
                 except Exception:
                     pass
 
-            return os.path.exists(output)
+            # Blindagem: arquivo vazio/corrompido (ex: segfault ffmpeg) = falha
+            return os.path.exists(output) and os.path.getsize(output) > 50000
         except Exception as e:
             print(f"Export error: {e}")
             import traceback
