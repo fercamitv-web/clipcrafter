@@ -110,6 +110,20 @@ def check_tools():
             ok=False
     return ok
 
+def retitle_backlog():
+    # continua retitulando videos publicados em lotes diários (quota-safe)
+    log("== Retitle backlog (publicados) ==")
+    try:
+        r = subprocess.run([sys.executable, str(CLIP / "retitle_all.py"), "--budget=40"],
+                           capture_output=True, text=True, timeout=600)
+        for ln in (r.stdout or "").splitlines():
+            if ln.startswith(("total", "FIM", "FAIL")):
+                log("  " + ln)
+        return True  # nunca falha o review por isso
+    except Exception as e:
+        log(f"[WARN] retitle backlog: {e}")
+        return True
+
 def check_last_run():
     log("== Último upload (local state) ==")
     try:
@@ -130,6 +144,7 @@ def main():
     results.append(("queue", check_queue()))
     results.append(("token", check_token()))
     results.append(("tools", check_tools()))
+    results.append(("retitle", retitle_backlog()))
     results.append(("last_run", check_last_run()))
     log("-"*60)
     fails=[k for k,v in results if not v]
