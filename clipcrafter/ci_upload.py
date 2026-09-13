@@ -127,35 +127,46 @@ def main():
         print(f"::warning::Estoque baixo: {pending_total} clipes — ritmo reduzido p/ 2/dia")
     elif pending_total <= 60:
         print(f"::notice::Estoque: {pending_total} clipes (~{pending_total // 3} dias)")
-    today = datetime.now(BRT)
-    today_str = today.strftime('%Y-%m-%d')
-    tomorrow_str = (today + timedelta(days=1)).strftime('%Y-%m-%d')
-    print(f"Today: {today.strftime('%A %d/%m/%Y')}")
+    # MURALHA: mantem daily_batch agendados em cada um dos proximos WALL_DAYS dias.
+    # Video agendado (private+publishAt) publica SOZINHO, mesmo com token morto,
+    # PC desligado ou quota zerada depois. Teto MAX_UPLOADS/run = quota-safe
+    # (6x1600=9600 + retitle; estouros degradam com retry, sem corromper).
+    WALL_DAYS = int(os.environ.get("WALL_DAYS", "14"))
+    MAX_UPLOADS = int(os.environ.get("MAX_UPLOADS", "6"))
 
-    # Dias-alvo: hoje (+ amanhã de buffer, p/ publicar sozinho mesmo sem token).
-    # Buffer só com estoque folgado; modo stretch (<=30) não faz buffer.
-    targets = []
-    if state.get("last_upload_date") != today_str:
-        targets.append(today_str)
-    if pending_total > 30 and state.get("buffer_date", "") < tomorrow_str:
-        targets.append(tomorrow_str)
-    if not targets:
-        targets.append(today_str)
+    now = datetime.now(BRT)
+    today_str = now.strftime('%Y-%m-%d')
+    print(f"Today: {now.strftime('%A %d/%m/%Y')}")
+
+    scheduled = state.get("scheduled", {})
+    for d in [d for d in scheduled if d < today_str]:
+        del scheduled[d]  # limpa dias passados
 
     def day_slots(day_str):
         y, m, d = map(int, day_str.split("-"))
-        base = today.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
+        base = now.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
         return [base.replace(hour=h) for h in (12, 18, 22)]
 
     jobs = []  # (clip, publish_dt, day_str)
     off = 0
-    for day_str in targets:
-        day_batch = queue[cursor + off:cursor + off + daily_batch]
-        for j, clip in enumerate(day_batch):
-            jobs.append((clip, day_slots(day_str)[j], day_str))
+    for ahead in range(WALL_DAYS):
+        if len(jobs) >= MAX_UPLOADS:
+            break
+        day = now + timedelta(days=ahead)
+        day_str = day.strftime('%Y-%m-%d')
+        have = scheduled.get(day_str, 0)
+        need = max(0, daily_batch - have)
+        if need <= 0:
+            continue
+        day_batch = queue[cursor + off:cursor + off + min(need, MAX_UPLOADS - len(jobs))]
+        if not day_batch:
+            break
+        slots = day_slots(day_str)[have:have + len(day_batch)]
+        for clip, slot in zip(day_batch, slots):
+            jobs.append((clip, slot, day_str))
         off += len(day_batch)
     if not jobs:
-        print("Nada a agendar.")
+        print("Muralha completa e sem buracos. Nada a agendar.")
         return
     remaining = len(queue) - cursor - len(jobs)
     print(f"Queue: uploading {len(jobs)} clips ({', '.join(sorted(set(d for _, _, d in jobs)))}), {remaining} remaining")
@@ -190,6 +201,10 @@ def main():
             except Exception as e:
                 if "invalid_grant" in str(e):
                     print("TOKEN EXPIRADO (invalid_grant) — rode reauth.py e atualize YT_TOKEN_PICKLE")
+                    from collections import Counter
+                    for d, n in Counter(d for _, _, d in jobs[:i]).items():
+                        scheduled[d] = scheduled.get(d, 0) + n
+                    state["scheduled"] = scheduled
                     state["cursor"] = cursor + i
                     save_queue(queue)
                     save_state(state)
@@ -207,6 +222,10 @@ def main():
             else:
                 print("FAIL (quota?)")
                 # avanca cursor só até os que já subiram: evita repostar amanhã
+                from collections import Counter
+                for d, n in Counter(d for _, _, d in jobs[:i]).items():
+                    scheduled[d] = scheduled.get(d, 0) + n
+                state["scheduled"] = scheduled
                 state["cursor"] = cursor + i
                 save_queue(queue)
                 save_state(state)
@@ -254,13 +273,16 @@ def main():
             state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
         sys.stdout.flush()
 
+    from collections import Counter
+    for d, n in Counter(d for _, _, d in jobs).items():
+        scheduled[d] = scheduled.get(d, 0) + n
+    state["scheduled"] = scheduled
+    state.pop("buffer_date", None)
     state["cursor"] = cursor + len(jobs)
     state["last_upload_date"] = today_str
-    done_days = sorted(set(d for _, _, d in jobs))
-    if tomorrow_str in done_days:
-        state["buffer_date"] = tomorrow_str
     save_queue(queue)
     save_state(state)
+    done_days = sorted(set(d for _, _, d in jobs))
     print(f"\nDone! Next cursor at {state['cursor']}/{len(queue)} (dias: {', '.join(done_days)})")
 
 if __name__ == "__main__":

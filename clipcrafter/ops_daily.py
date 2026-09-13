@@ -53,6 +53,14 @@ def check_queue():
         if fixed:
             log(f"[FIX] {fixed} entries missing keys -> preenchido")
             QUEUE_FILE.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
+        # muralha: dias seguidos com 3+ agendados (publica sozinho sem token)
+        from datetime import timedelta
+        sched = s.get("scheduled", {})
+        wall, _d = 0, datetime.now().date()
+        while sched.get(str(_d), 0) >= 3 and wall < 90:
+            wall += 1
+            _d += timedelta(days=1)
+        log(f"[WALL] muralha agendada: {wall} dias (até {sched and max(sched) or '-'})")
         # report + garantia de vídeo todo dia
         pending = len(q)-s["cursor"]
         days = pending // 3
@@ -120,7 +128,7 @@ def retitle_backlog():
     # continua retitulando videos publicados em lotes diários (quota-safe)
     log("== Retitle backlog (publicados) ==")
     try:
-        r = subprocess.run([sys.executable, str(CLIP / "retitle_all.py"), "--budget=40"],
+        r = subprocess.run([sys.executable, str(CLIP / "retitle_all.py"), "--budget=15"],
                            capture_output=True, text=True, timeout=600)
         for ln in (r.stdout or "").splitlines():
             if ln.startswith(("total", "FIM", "FAIL")):
