@@ -53,9 +53,15 @@ def check_queue():
         if fixed:
             log(f"[FIX] {fixed} entries missing keys -> preenchido")
             QUEUE_FILE.write_text(json.dumps(q, ensure_ascii=False, indent=2), encoding="utf-8")
-        # report
+        # report + garantia de vídeo todo dia
         pending = len(q)-s["cursor"]
-        log(f"[OK] queue {len(q)} total, cursor {s['cursor']}, pendentes {pending}")
+        days = pending // 3
+        if pending <= 10:
+            log(f"[CRIT] estoque crítico: {pending} clipes (~{days} dias) — ritmo auto-reduzido p/ 1/dia no CI")
+        elif pending <= 30:
+            log(f"[WARN] estoque baixo: {pending} clipes (~{days} dias) — ritmo auto-reduzido p/ 2/dia no CI")
+        else:
+            log(f"[OK] queue {len(q)} total, cursor {s['cursor']}, pendentes {pending} (~{days} dias)")
         # dedup titles
         from collections import Counter
         titles=[(e.get("title") or "").strip().lower() for e in q]

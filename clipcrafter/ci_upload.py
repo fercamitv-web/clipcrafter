@@ -85,6 +85,16 @@ def main():
         return
 
     daily_batch = int(os.environ.get("DAILY_BATCH", "3"))
+    pending_total = len(queue) - cursor
+    # Estoque baixo: reduz ritmo p/ nunca zerar (3/dia normal)
+    if pending_total <= 10:
+        daily_batch = min(daily_batch, 1)
+        print(f"::warning::Estoque crítico: {pending_total} clipes — ritmo reduzido p/ 1/dia")
+    elif pending_total <= 30:
+        daily_batch = min(daily_batch, 2)
+        print(f"::warning::Estoque baixo: {pending_total} clipes — ritmo reduzido p/ 2/dia")
+    elif pending_total <= 60:
+        print(f"::notice::Estoque: {pending_total} clipes (~{pending_total // 3} dias)")
     batch = queue[cursor:cursor + daily_batch]
     remaining = len(queue) - cursor - len(batch)
 
@@ -119,13 +129,22 @@ def main():
         # YouTube upload
         if yt_upload:
             print(f"    -> YouTube ({publish_dt.hour}:00)...", end=" ", flush=True)
-            vid = yt_upload(
-                video_path=str(file_path),
-                title=title,
-                description=desc,
-                tags=tags,
-                privacy_status=publish_iso,
-            )
+            try:
+                vid = yt_upload(
+                    video_path=str(file_path),
+                    title=title,
+                    description=desc,
+                    tags=tags,
+                    privacy_status=publish_iso,
+                )
+            except Exception as e:
+                if "invalid_grant" in str(e):
+                    print("TOKEN EXPIRADO (invalid_grant) — rode reauth.py e atualize YT_TOKEN_PICKLE")
+                    state["cursor"] = cursor + i
+                    save_queue(queue)
+                    save_state(state)
+                    sys.exit(1)
+                raise
             if vid:
                 print(f"OK https://youtube.com/shorts/{vid}")
                 results.append(f"yt:{vid}")
@@ -137,7 +156,11 @@ def main():
                     print(f"    (comment skipped: {e})")
             else:
                 print("FAIL (quota?)")
+                # avanca cursor só até os que já subiram: evita repostar amanhã
+                state["cursor"] = cursor + i
+                save_queue(queue)
                 save_state(state)
+                print(f"\nParcial! Next cursor at {state['cursor']}/{len(queue)} (continua amanhã)")
                 sys.exit(0)
 
         # TikTok upload
