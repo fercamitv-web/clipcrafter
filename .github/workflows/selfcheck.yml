@@ -32,3 +32,59 @@ jobs:
             git commit -m "Auto-fix queue issues found by daily selfcheck"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
           )
+
+  # Vigia do token: valida o refresh token TODO DIA às 02:05 (antes do upload 08:00).
+  # Se expirar, abre issue automaticamente p/ avisar antes do horário de postar.
+  token-watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install auth libs
+        run: pip install -q google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Validate YouTube refresh token
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+        run: |
+          python - <<'EOF'
+          import os, sys, base64, pickle
+          try:
+              from google.auth.transport.requests import Request
+          except ImportError:
+              print("libs ausentes");
+              sys.exit(1)
+          cs = os.environ.get("YT_CLIENT_SECRET", "")
+          tp = os.environ.get("YT_TOKEN_PICKLE", "")
+          if not cs or not tp:
+              print("TOKEN CHECK: secrets YT_CLIENT_SECRET/YT_TOKEN_PICKLE ausentes");
+              sys.exit(1)
+          try:
+              creds = pickle.loads(base64.b64decode(tp))
+              creds.refresh(Request())
+              print("TOKEN CHECK: OK - refresh válido")
+          except Exception as e:
+              print(f"TOKEN CHECK: FALHOU - {str(e)[:200]}")
+              print("Ação: rodar reauth.py local e atualizar secret YT_TOKEN_PICKLE");
+              sys.exit(1)
+          EOF
+
+      - name: Open issue if token expired
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OPEN=$(gh issue list --state open --search "YouTube token expirado" --json number --jq length)
+          if [ "$OPEN" = "0" ]; then
+            gh issue create --title "YouTube token expirado — reautenticar antes das 08h" \
+              --body "O vigia das 02:05 detectou refresh token inválido. Sem reauth, os uploads de hoje (12h/18h/22h) vão falhar. Rode reauth.py e atualize o secret YT_TOKEN_PICKLE."
+          else
+            echo "Issue já aberta, sem duplicar."
+          fi
