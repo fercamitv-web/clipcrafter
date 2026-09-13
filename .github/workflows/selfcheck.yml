@@ -49,10 +49,12 @@ jobs:
       - name: Install auth libs
         run: pip install -q google-auth google-auth-oauthlib google-api-python-client
 
-      - name: Validate YouTube refresh token
+      - name: Validate YouTube refresh tokens (1 + reserva)
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+          YT_CLIENT_SECRET_2: ${{ secrets.YT_CLIENT_SECRET_2 }}
+          YT_TOKEN_PICKLE_2: ${{ secrets.YT_TOKEN_PICKLE_2 }}
         run: |
           python - <<'EOF'
           import os, sys, base64, pickle
@@ -61,18 +63,22 @@ jobs:
           except ImportError:
               print("libs ausentes");
               sys.exit(1)
-          cs = os.environ.get("YT_CLIENT_SECRET", "")
-          tp = os.environ.get("YT_TOKEN_PICKLE", "")
-          if not cs or not tp:
-              print("TOKEN CHECK: secrets YT_CLIENT_SECRET/YT_TOKEN_PICKLE ausentes");
-              sys.exit(1)
-          try:
-              creds = pickle.loads(base64.b64decode(tp))
-              creds.refresh(Request())
-              print("TOKEN CHECK: OK - refresh válido")
-          except Exception as e:
-              print(f"TOKEN CHECK: FALHOU - {str(e)[:200]}")
-              print("Ação: rodar reauth.py local e atualizar secret YT_TOKEN_PICKLE");
+          fails = []
+          for suf, label in (("", "token 1"), ("_2", "token 2 (reserva)")):
+              cs = os.environ.get("YT_CLIENT_SECRET" + suf, "")
+              tp = os.environ.get("YT_TOKEN_PICKLE" + suf, "")
+              if not cs or not tp:
+                  print(f"TOKEN CHECK {label}: ausente (pule - configure p/ redundância)");
+                  continue
+              try:
+                  creds = pickle.loads(base64.b64decode(tp))
+                  creds.refresh(Request())
+                  print(f"TOKEN CHECK {label}: OK - refresh válido")
+              except Exception as e:
+                  print(f"TOKEN CHECK {label}: FALHOU - {str(e)[:150]}")
+                  fails.append(label)
+          if fails:
+              print("Ação: rodar reauth.py local e atualizar o secret correspondente");
               sys.exit(1)
           EOF
 

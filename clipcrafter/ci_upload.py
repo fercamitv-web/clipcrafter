@@ -27,15 +27,47 @@ def save_state(state):
 def save_queue(queue):
     QUEUE_FILE.write_text(json.dumps(queue, ensure_ascii=False, indent=2), encoding="utf-8")
 
+def _write_yt_files(client_secret_b64, token_pickle_b64):
+    clipcrafter_dir = Path.home() / ".clipcrafter"
+    clipcrafter_dir.mkdir(parents=True, exist_ok=True)
+    (clipcrafter_dir / "client_secret.json").write_bytes(base64.b64decode(client_secret_b64))
+    (clipcrafter_dir / "youtube_token.pickle").write_bytes(base64.b64decode(token_pickle_b64))
+
+def _yt_token_ok():
+    # valida refresh sem gastar quota (endpoint OAuth, nao API)
+    try:
+        import pickle
+        from google.auth.transport.requests import Request
+        p = Path.home() / ".clipcrafter" / "youtube_token.pickle"
+        creds = pickle.load(open(p, "rb"))
+        creds.refresh(Request())
+        return True
+    except Exception as e:
+        print(f"    (token inválido: {str(e)[:100]})")
+        return False
+
 def setup_youtube():
     client_secret_b64 = os.environ.get("YT_CLIENT_SECRET")
     token_pickle_b64 = os.environ.get("YT_TOKEN_PICKLE")
     if not client_secret_b64 or not token_pickle_b64:
         return None
-    clipcrafter_dir = Path.home() / ".clipcrafter"
-    clipcrafter_dir.mkdir(parents=True, exist_ok=True)
-    (clipcrafter_dir / "client_secret.json").write_bytes(base64.b64decode(client_secret_b64))
-    (clipcrafter_dir / "youtube_token.pickle").write_bytes(base64.b64decode(token_pickle_b64))
+    _write_yt_files(client_secret_b64, token_pickle_b64)
+    if _yt_token_ok():
+        print("  YouTube: token 1 OK")
+    else:
+        # Fallback: segunda conta gerente (credencial independente)
+        cs2 = os.environ.get("YT_CLIENT_SECRET_2")
+        tp2 = os.environ.get("YT_TOKEN_PICKLE_2")
+        if cs2 and tp2:
+            print("  YouTube: token 1 falhou, tentando token 2 (conta reserva)...")
+            _write_yt_files(cs2, tp2)
+            if _yt_token_ok():
+                print("  YouTube: token 2 OK (modo reserva)")
+            else:
+                print("  YouTube: token 2 também falhou")
+                return None
+        else:
+            return None
     from youtube_uploader import upload_video as yt_upload
     return yt_upload
 
