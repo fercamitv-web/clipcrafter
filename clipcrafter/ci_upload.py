@@ -95,12 +95,38 @@ def main():
         print(f"::warning::Estoque baixo: {pending_total} clipes — ritmo reduzido p/ 2/dia")
     elif pending_total <= 60:
         print(f"::notice::Estoque: {pending_total} clipes (~{pending_total // 3} dias)")
-    batch = queue[cursor:cursor + daily_batch]
-    remaining = len(queue) - cursor - len(batch)
-
     today = datetime.now(BRT)
+    today_str = today.strftime('%Y-%m-%d')
+    tomorrow_str = (today + timedelta(days=1)).strftime('%Y-%m-%d')
     print(f"Today: {today.strftime('%A %d/%m/%Y')}")
-    print(f"Queue: uploading {len(batch)} clips, {remaining} remaining after this batch")
+
+    # Dias-alvo: hoje (+ amanhã de buffer, p/ publicar sozinho mesmo sem token).
+    # Buffer só com estoque folgado; modo stretch (<=30) não faz buffer.
+    targets = []
+    if state.get("last_upload_date") != today_str:
+        targets.append(today_str)
+    if pending_total > 30 and state.get("buffer_date", "") < tomorrow_str:
+        targets.append(tomorrow_str)
+    if not targets:
+        targets.append(today_str)
+
+    def day_slots(day_str):
+        y, m, d = map(int, day_str.split("-"))
+        base = today.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
+        return [base.replace(hour=h) for h in (12, 18, 22)]
+
+    jobs = []  # (clip, publish_dt, day_str)
+    off = 0
+    for day_str in targets:
+        day_batch = queue[cursor + off:cursor + off + daily_batch]
+        for j, clip in enumerate(day_batch):
+            jobs.append((clip, day_slots(day_str)[j], day_str))
+        off += len(day_batch)
+    if not jobs:
+        print("Nada a agendar.")
+        return
+    remaining = len(queue) - cursor - len(jobs)
+    print(f"Queue: uploading {len(jobs)} clips ({', '.join(sorted(set(d for _, _, d in jobs)))}), {remaining} remaining")
     if yt_upload:
         print("  YouTube: enabled")
     if tt_upload:
@@ -108,15 +134,7 @@ def main():
     if ig_upload:
         print("  Instagram: enabled")
 
-    base_time = today.replace(hour=12, minute=0, second=0, microsecond=0)
-    upload_times = [
-        base_time.replace(hour=12),
-        base_time.replace(hour=18),
-        base_time.replace(hour=22),
-    ][:len(batch)]
-
-    for i, clip in enumerate(batch):
-        publish_dt = upload_times[i]
+    for i, (clip, publish_dt, job_day) in enumerate(jobs):
         publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
         file_path = REPO_DIR / clip.get("file", "clipcrafter/scheduled_uploads/clips/" + clip.get("clip_file", ""))
 
@@ -204,10 +222,14 @@ def main():
             state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
         sys.stdout.flush()
 
-    state["cursor"] = cursor + len(batch)
+    state["cursor"] = cursor + len(jobs)
+    state["last_upload_date"] = today_str
+    done_days = sorted(set(d for _, _, d in jobs))
+    if tomorrow_str in done_days:
+        state["buffer_date"] = tomorrow_str
     save_queue(queue)
     save_state(state)
-    print(f"\nDone! Next cursor at {state['cursor']}/{len(queue)}")
+    print(f"\nDone! Next cursor at {state['cursor']}/{len(queue)} (dias: {', '.join(done_days)})")
 
 if __name__ == "__main__":
     main()
