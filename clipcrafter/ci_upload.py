@@ -83,14 +83,21 @@ def setup_instagram():
     from instagram_uploader import upload_video as ig_upload
     return ig_upload
 
+def setup_facebook():
+    if not os.environ.get("FB_ACCESS_TOKEN") or not os.environ.get("FB_PAGE_ID"):
+        return None
+    from facebook_uploader import upload_video as fb_upload
+    return fb_upload
+
 def main():
     sys.path.insert(0, str(CI_DIR))
     yt_upload = setup_youtube()
     tt_upload = setup_tiktok()
     ig_upload = setup_instagram()
+    fb_upload = setup_facebook()
 
-    if not yt_upload and not tt_upload and not ig_upload:
-        print("No upload targets configured. Need YT_CLIENT_SECRET+YT_TOKEN_PICKLE and/or TT_* and/or IG_* secrets.")
+    if not yt_upload and not tt_upload and not ig_upload and not fb_upload:
+        print("No upload targets configured. Need YT_* and/or TT_* and/or IG_* and/or FB_* secrets.")
         sys.exit(1)
 
     queue = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
@@ -176,6 +183,8 @@ def main():
         print("  TikTok: enabled")
     if ig_upload:
         print("  Instagram: enabled")
+    if fb_upload:
+        print("  Facebook: enabled")
 
     for i, (clip, publish_dt, job_day) in enumerate(jobs):
         publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
@@ -264,6 +273,24 @@ def main():
                 if ig_id:
                     print(f"OK media_id={ig_id}")
                     results.append(f"ig:{ig_id}")
+                else:
+                    print("FAIL")
+            except Exception as e:
+                print(f"FAIL ({e})")
+
+        # Facebook Page video upload
+        if fb_upload:
+            print(f"    -> Facebook...", end=" ", flush=True)
+            try:
+                fb_id = fb_upload(
+                    video_path=str(file_path),
+                    title=title,
+                    description=desc,
+                    tags=tags,
+                )
+                if fb_id:
+                    print(f"OK id={fb_id}")
+                    results.append(f"fb:{fb_id}")
                 else:
                     print("FAIL")
             except Exception as e:

@@ -111,6 +111,48 @@ def check_token():
         log("  -> rode: python \"%TEMP%\\opencode\\reauth.py\" e atualize GH secret YT_TOKEN_PICKLE")
         return False
 
+def check_meta():
+    # IG/FB: só avisa (WARN), nunca falha o review
+    import urllib.request
+    def _get(path, token):
+        try:
+            url = f"https://graph.facebook.com/v25.0/{path}?access_token={token}"
+            with urllib.request.urlopen(url, timeout=15) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except Exception as e:
+            return {"error": str(e)[:120]}
+    ig_tok = os.environ.get("IG_ACCESS_TOKEN")
+    ig_uid = os.environ.get("IG_USER_ID")
+    if not ig_tok:
+        p = Path.home() / ".clipcrafter" / "instagram_token.json"
+        if p.exists():
+            try:
+                d = json.loads(p.read_text())
+                ig_tok, ig_uid = d.get("access_token"), d.get("ig_user_id")
+            except Exception:
+                pass
+    if ig_tok and ig_uid:
+        r = _get(ig_uid, ig_tok)
+        log("[OK] Instagram token válido" if "error" not in r else f"[WARN] Instagram: {r['error']}")
+    else:
+        log("[WARN] Instagram sem credencial (IG_ACCESS_TOKEN/IG_USER_ID)")
+    fb_tok = os.environ.get("FB_ACCESS_TOKEN")
+    fb_pid = os.environ.get("FB_PAGE_ID")
+    if not fb_tok:
+        p = Path.home() / ".clipcrafter" / "facebook_token.json"
+        if p.exists():
+            try:
+                d = json.loads(p.read_text())
+                fb_tok, fb_pid = d.get("access_token"), d.get("page_id")
+            except Exception:
+                pass
+    if fb_tok and fb_pid:
+        r = _get(fb_pid, fb_tok)
+        log("[OK] Facebook token válido" if "error" not in r else f"[WARN] Facebook: {r['error']}")
+    else:
+        log("[WARN] Facebook sem credencial (FB_ACCESS_TOKEN/FB_PAGE_ID)")
+    return True
+
 def check_tools():
     log("== Ferramentas ==")
     ok=True
@@ -158,6 +200,7 @@ def main():
     results.append(("queue", check_queue()))
     results.append(("token", check_token()))
     results.append(("tools", check_tools()))
+    results.append(("meta", check_meta()))
     results.append(("retitle", retitle_backlog()))
     results.append(("last_run", check_last_run()))
     log("-"*60)
