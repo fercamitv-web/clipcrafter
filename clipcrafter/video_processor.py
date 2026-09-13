@@ -1,4 +1,13 @@
-import os, json, subprocess, tempfile, struct, math, random
+import os, json, subprocess, tempfile, struct, math, random, re, sys
+
+# fontconfig quebrado neste build ffmpeg/Windows corrompe legendas libass (karaoke).
+# Aponta p/ fonts.conf local quando existir (somente Windows; Linux CI ja tem).
+if sys.platform == "win32":
+    for _fc in (os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts-win.conf"),
+                os.path.join(tempfile.gettempdir(), "fonts.conf")):
+        if os.path.exists(_fc):
+            os.environ.setdefault("FONTCONFIG_FILE", _fc)
+            break
 from pathlib import Path
 from typing import List, Optional
 from clip_analyzer import extract_features as _extract_features
@@ -55,6 +64,24 @@ def _pick_phrases(duration: float, count: int = None,
         except Exception:
             pass
     return random.sample(GAMING_PHRASES, min(count, len(GAMING_PHRASES)))
+
+
+def _draw_text(s: str, maxlen: int = 44, multiline: bool = False) -> str:
+    """Sanitize overlay text for ffmpeg drawtext.
+    Templates usam \\n (barra+n) p/ quebra de linha, mas o parser do filtro
+    consome UMA barra (renderizava 'n' literal). Dobra a barra p/ quebra real.
+    Single-line: troca por espaco + trunca p/ nao estourar a tela."""
+    if not s:
+        return ""
+    if multiline:
+        s = s.replace("\\n", "\\\\n")
+    else:
+        s = s.replace("\\n", " ")
+    s = re.sub(r"\s+", " ", s).strip()
+    s = s.replace("'", "\\'")
+    if maxlen and len(s) > maxlen:
+        s = s[:maxlen].rsplit(" ", 1)[0]
+    return s
 
 
 def _seconds_to_ass(t: float) -> str:
@@ -289,6 +316,8 @@ class VideoProcessor:
 
                 if hook_text is None:
                     hook_text = _pick_hook(0.7, transcript=transcript_phrases)
+                # Sanitiza p/ drawtext (quebra-linha \\n virava 'n' literal) + cabe na tela
+                hook_text = _draw_text(hook_text or "", 44)
                 # Always run analysis for title generation (even with custom hook)
                 self._analysis = _valorant_studio.analysis if transcript_phrases else None
                 target_w, target_h = 1080, 1920
@@ -306,9 +335,7 @@ class VideoProcessor:
                 # Beat visual a cada 2s via zoompan (periodo 60 frames @30fps).
                 # Nao usar scale eval=frame separado: da segfault neste build ffmpeg.
                 # Primeiro frame (100ms) — texto curto no topo, antes do hook
-                _ff = hook_text.replace("\\", "").replace("'", " ").replace(
-                    ":", " ").replace(",", " ").replace("%", "")
-                _ff_words = _ff.split()[:6]
+                _ff_words = hook_text.split()[:6]
                 if _ff_words:
                     _ff_text = " ".join(_ff_words).upper()
                     parts.append(
@@ -387,6 +414,7 @@ class VideoProcessor:
                     )
 
                 if gameplay_text and duration > 3:
+                    gameplay_text = _draw_text(gameplay_text, 0, multiline=True)
                     parts.append(
                         f"[base]drawtext=text='{gameplay_text}':"
                         f"fontcolor=white:fontsize=52:box=1:boxcolor=black@0.6:"
@@ -400,6 +428,7 @@ class VideoProcessor:
                     ts0 = max(2.0, duration * 0.50)
                     ts1 = min(duration - 1.5, duration * 0.72)
                     if ts1 > ts0 + 0.5:
+                        teaser_text = _draw_text(teaser_text, 40)
                         parts.append(
                             f"[base]drawtext=text='{teaser_text}':"
                             f"fontcolor=#FFB000:fontsize=56:box=1:boxcolor=black@0.8:"
@@ -408,8 +437,9 @@ class VideoProcessor:
                         )
 
                 if duration > 4:
+                    _sub_text = _draw_text("INSCREVA-SE\\n@CanalPropra", 0, multiline=True)
                     parts.append(
-                        f"[base]drawtext=text='INSCREVA-SE\\n@CanalPropra':"
+                        f"[base]drawtext=text='{_sub_text}':"
                         f"fontcolor=yellow:fontsize=48:box=1:boxcolor=black@0.75:"
                         f"x=(w-text_w)/2:y=h-200{fp}:"
                         f"enable='gte(t,{max(0,duration-4)})'[base]"
