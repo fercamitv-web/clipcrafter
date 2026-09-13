@@ -1,5 +1,5 @@
 {
-  "cursor": 99,
+  "cursor": 105,
   "uploaded": [
     {
       "idx": 18,
@@ -924,6 +924,53 @@
       "platforms": [
         "yt:6Aajohf-GQI"
       ]
+    },
+    {
+      "idx": 99,
+      "title": "Platinas da bala #2 ( pós vct americas ) '' que parou a partida no Valorant",
+      "platforms": [
+        "yt:xouf12QtDG0"
+      ]
+    },
+    {
+      "idx": 100,
+      "title": "Platinas da bala #2 ( pós vct americas ) '' - o que rolou no Valorant",
+      "platforms": [
+        "yt:L7y_-mhDD4E"
+      ]
+    },
+    {
+      "idx": 101,
+      "title": "Platinas da bala #2 ( pós vct americas ) '' do jeito que ninguem esperava pt1",
+      "platforms": [
+        "yt:xzwUEbivsPA"
+      ]
+    },
+    {
+      "idx": 102,
+      "title": "Aquele dia de virada de gameplay Platinas da bala #2 ( do no Valorant",
+      "platforms": [
+        "yt:-lqrz5VVF2k"
+      ]
+    },
+    {
+      "idx": 103,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct - o que rolou no Valorant",
+      "platforms": [
+        "yt:hz_JNzKG2M0"
+      ]
+    },
+    {
+      "idx": 104,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct americas ) '' no Valorant",
+      "platforms": [
+        "yt:JEFJZGSo-4w"
+      ]
     }
-  ]
+  ],
+  "scheduled": {
+    "2026-09-13": 3,
+    "2026-09-14": 3
+  },
+  "last_upload_date": "2026-09-13"
 }
