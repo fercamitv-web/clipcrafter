@@ -1,5 +1,5 @@
 {
-  "cursor": 105,
+  "cursor": 111,
   "uploaded": [
     {
       "idx": 18,
@@ -966,11 +966,54 @@
       "platforms": [
         "yt:JEFJZGSo-4w"
       ]
+    },
+    {
+      "idx": 105,
+      "title": "Aquele dia de Aquele dia de Platinas da bala que parou a partida no Valorant",
+      "platforms": [
+        "yt:KpynqLeNFYA"
+      ]
+    },
+    {
+      "idx": 106,
+      "title": "momento de gameplay MELHOR JOGO DE H�ROI DO - gameplay do dia",
+      "platforms": [
+        "yt:j1Q-DaXf7EQ"
+      ]
+    },
+    {
+      "idx": 107,
+      "title": "momento de terror - momento de terror momento de terror At� o",
+      "platforms": [
+        "yt:S9tHTNCwVy8"
+      ]
+    },
+    {
+      "idx": 108,
+      "title": "nossa opini�o sobre a nova temporada de (com - o jogo da morte",
+      "platforms": [
+        "yt:VzKs2fwkQRQ"
+      ]
+    },
+    {
+      "idx": 109,
+      "title": "momento de gameplay momento de gameplay - o que rolou na partida",
+      "platforms": [
+        "yt:lytganLTBh0"
+      ]
+    },
+    {
+      "idx": 110,
+      "title": "momento no jogo de terror momento de terror - terror com os amigos",
+      "platforms": [
+        "yt:d0G4yEawT54"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-13": 3,
-    "2026-09-14": 3
+    "2026-09-14": 3,
+    "2026-09-15": 3,
+    "2026-09-16": 3
   },
-  "last_upload_date": "2026-09-13"
+  "last_upload_date": "2026-09-14"
 }
