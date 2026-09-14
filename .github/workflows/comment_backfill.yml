@@ -1,0 +1,29 @@
+name: Comment Backfill (engajamento)
+
+on:
+  schedule:
+    # 02:30 UTC = 23:30 BRT — videos das 12h/18h/22h já públicos
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install -q google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Comment keyword CTA on today's videos
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+        run: python clipcrafter/comment_backfill.py
