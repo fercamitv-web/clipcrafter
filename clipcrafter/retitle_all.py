@@ -42,6 +42,17 @@ def spam_markers(t):
 def clean_title(t, main_word):
     t = re.sub(r"\s+", " ", t).strip()
     t = re.sub(r"#\w+", "", t)
+    # colapsa repetições internas ("X X", "X - X")
+    W = r"[\wÀ-ÿ'’-]+"
+    pa = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s+\1\b", re.I)
+    pd = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s*-\s*\1\b", re.I)
+    for _ in range(5):
+        nt = pd.sub(r"\1", pa.sub(r"\1", t))
+        if nt == t:
+            break
+        t = nt
+    t = re.sub(r"\s*\(com\b", "", t)
+    t = t.replace("()", "").replace("''", "").strip()
     for b in BRAND:
         t = re.sub(re.escape(b), "", t, flags=re.I)
     for g in GAMEWORDS:
