@@ -111,6 +111,18 @@ def process_one_video(vid, dur, title, queue):
         try:
             ok, clip_title, hook, desc, tags = process_clip(str(raw), str(processed), game, vod_title=title, vod_id=vid)
             if ok:
+                # Trava anti-repetição (caso Void cup: 4 clipes iguais zerados):
+                # 1) máx 8 pendentes por VOD; 2) sem 3º título com mesmo prefixo
+                same_vod = [e for e in queue if e.get("vod_id") == vid]
+                if len(same_vod) >= 8:
+                    log(f"SKIP (teto 8/VOD atingido p/ {vid})")
+                    continue
+                prefix = (clip_title or "")[:30].strip().lower()
+                same_prefix = [e for e in same_vod
+                               if (e.get("title") or "")[:30].strip().lower() == prefix]
+                if len(same_prefix) >= 2:
+                    log(f"SKIP (3º título repetido p/ {vid}: {prefix[:30]})")
+                    continue
                 dest = CLIPS_DIR / f"{vid}_{label}_shorts.mp4"
                 shutil.copy2(processed, dest)
                 queue.append({

@@ -180,6 +180,55 @@ def retitle_backlog():
         log(f"[WARN] retitle backlog: {e}")
         return True
 
+def check_zombies():
+    # monitor de Shorts zerados ha +14 dias (só relata, nunca deleta)
+    log("== Zumbis (0 views, +14d) ==")
+    try:
+        import pickle
+        from google.auth.transport.requests import Request
+        from googleapiclient.discovery import build
+        from datetime import timedelta
+        p = Path.home() / ".clipcrafter" / "youtube_token.pickle"
+        if not p.exists():
+            log("[WARN] sem token p/ monitor de zumbis")
+            return True
+        creds = pickle.load(open(p, "rb"))
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            pickle.dump(creds, open(p, "wb"))
+        yt = build("youtube", "v3", credentials=creds)
+        ch = yt.channels().list(part="contentDetails", mine=True).execute()["items"][0]
+        upl = ch["contentDetails"]["relatedPlaylists"]["uploads"]
+        ids, page = [], None
+        while len(ids) < 60:
+            r = yt.playlistItems().list(part="contentDetails", playlistId=upl,
+                                        maxResults=50, pageToken=page).execute()
+            ids += [it["contentDetails"]["videoId"] for it in r["items"]]
+            page = r.get("nextPageToken")
+            if not page:
+                break
+        now = datetime.now().astimezone()
+        old = 0
+        for i in range(0, len(ids), 50):
+            for v in yt.videos().list(part="snippet,status,statistics",
+                                      id=",".join(ids[i:i+50])).execute()["items"]:
+                s = v.get("statistics", {})
+                if int(s.get("viewCount", 0)) != 0:
+                    continue
+                if v["status"].get("privacyStatus") != "public":
+                    continue
+                pub = datetime.fromisoformat(v["snippet"]["publishedAt"].replace("Z", "+00:00"))
+                if (now - pub) > timedelta(days=14):
+                    old += 1
+        if old:
+            log(f"[WARN] {old} Shorts zerados ha +14d — revise formato/fonte (nunca deletar)")
+        else:
+            log("[OK] nenhum zumbi +14d")
+        return True
+    except Exception as e:
+        log(f"[WARN] zumbis: {str(e)[:100]}")
+        return True
+
 def check_last_run():
     log("== Último upload (local state) ==")
     try:
@@ -202,6 +251,7 @@ def main():
     results.append(("tools", check_tools()))
     results.append(("meta", check_meta()))
     results.append(("retitle", retitle_backlog()))
+    results.append(("zombies", check_zombies()))
     results.append(("last_run", check_last_run()))
     log("-"*60)
     fails=[k for k,v in results if not v]
