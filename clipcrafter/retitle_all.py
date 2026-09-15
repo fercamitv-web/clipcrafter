@@ -46,13 +46,27 @@ def clean_title(t, main_word):
     W = r"[\wÀ-ÿ'’-]+"
     pa = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s+\1\b", re.I)
     pd = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s*-\s*\1\b", re.I)
-    for _ in range(5):
-        nt = pd.sub(r"\1", pa.sub(r"\1", t))
+    ps = re.compile(rf"\b({W})\s*(?:-\s*)?\1\b", re.I)
+    for _ in range(6):
+        nt = pd.sub(r"\1", pa.sub(r"\1", ps.sub(r"\1", t)))
         if nt == t:
             break
         t = nt
     t = re.sub(r"\s*\(com\b", "", t)
     t = t.replace("()", "").replace("''", "").strip()
+    t = t.replace("�", "")
+    ACC = {"comeo": "começo", "sobrevivncia": "sobrevivência",
+           "opinio": "opinião", "historia": "história", "heroi": "herói",
+           "reacao": "reação", "decisao": "decisão", "emocao": "emoção",
+           "inicio": "início", "voce": "você", "nao": "não"}
+    def _ra(m):
+        w = m.group(0)
+        f = ACC[w.lower()]
+        return f.capitalize() if w[0].isupper() else f
+    t = re.sub(r"\b(" + "|".join(ACC) + r")\b", _ra, t, flags=re.I)
+    t = re.sub(r"\s*\+\s*\w+(\s+\w+)?\s*$", "", t)
+    t = re.sub(r"\s+(e|de|do|da|no|na|a|o|em|que|com|para|por)\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+", " ", t).strip(" -–—|")
     for b in BRAND:
         t = re.sub(re.escape(b), "", t, flags=re.I)
     for g in GAMEWORDS:
