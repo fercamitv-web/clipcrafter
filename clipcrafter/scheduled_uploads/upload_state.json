@@ -1,5 +1,5 @@
 {
-  "cursor": 111,
+  "cursor": 117,
   "uploaded": [
     {
       "idx": 18,
@@ -1008,12 +1008,55 @@
       "platforms": [
         "yt:d0G4yEawT54"
       ]
+    },
+    {
+      "idx": 111,
+      "title": "Minecraft one block ep 2 Propostas + roda o Minecraft?",
+      "platforms": [
+        "yt:0xyzrrVuqR4"
+      ]
+    },
+    {
+      "idx": 112,
+      "title": "Minecraft one block ep 2 Propostas + roda o - momento de Minecraft",
+      "platforms": [
+        "yt:nwSD00qFAwA"
+      ]
+    },
+    {
+      "idx": 113,
+      "title": "Minecraft one block ep 2 Propostas + momento - momento de Minecraft",
+      "platforms": [
+        "yt:z33q6waLbEM"
+      ]
+    },
+    {
+      "idx": 114,
+      "title": "One block O come�o da sobreviv�ncia... - roda o Minecraft?",
+      "platforms": [
+        "yt:taLGa3NH5Kw"
+      ]
+    },
+    {
+      "idx": 115,
+      "title": "One block O come�o da sobreviv�ncia... roda - sobrevivencia no Minecraft",
+      "platforms": [
+        "yt:aNzERZ4Qjgw"
+      ]
+    },
+    {
+      "idx": 116,
+      "title": "Minecraft one block ep 3 A queda da grande - sobrevivencia no Minecraft pt1",
+      "platforms": [
+        "yt:6crgV3sZQ5U"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-14": 3,
     "2026-09-15": 3,
-    "2026-09-16": 3
+    "2026-09-16": 3,
+    "2026-09-17": 3,
+    "2026-09-18": 3
   },
-  "last_upload_date": "2026-09-14"
+  "last_upload_date": "2026-09-15"
 }
