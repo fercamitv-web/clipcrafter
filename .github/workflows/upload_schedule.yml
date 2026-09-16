@@ -67,6 +67,7 @@ jobs:
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DIRECT_EXTRA: '1'
         run: python clipcrafter/ci_upload.py
 
       - name: Commit queue progress after upload

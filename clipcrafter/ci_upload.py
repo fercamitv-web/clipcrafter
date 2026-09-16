@@ -1,4 +1,4 @@
-"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads clips/day (default 5) to YouTube + TikTok."""
+﻿"""Upload runner for GitHub Actions CI. Reads from clip_queue.json and uploads clips/day (default 5) to YouTube + TikTok."""
 import json, os, sys, base64, random
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
@@ -182,7 +182,11 @@ def main():
         base = now.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
         return [base.replace(hour=h) for h in (12, 18, 22)]
 
-    jobs = []  # (clip, publish_dt, day_str)
+    # Experimento A/B (2026-09): 1 clipe/dia publica DIRETO (public imediato)
+    # vs resto agendado (publishAt). DIRECT_EXTRA=1 no cron durante o teste.
+    direct_extra = int(os.environ.get("DIRECT_EXTRA", "0"))
+
+    jobs = []  # (clip, publish_dt|None=public imediato, day_str)
     off = 0
     for ahead in range(WALL_DAYS):
         if len(jobs) >= MAX_UPLOADS:
@@ -200,6 +204,14 @@ def main():
         for clip, slot in zip(day_batch, slots):
             jobs.append((clip, slot, day_str))
         off += len(day_batch)
+    if direct_extra > 0 and len(jobs) < MAX_UPLOADS + direct_extra:
+        # job extra: publica DIRETO (sem agendar) p/ comparar com agendados
+        extra = queue[cursor + off:cursor + off + direct_extra]
+        for clip in extra:
+            jobs.append((clip, None, today_str + "+direct"))
+        off += len(extra)
+        if extra:
+            print(f"  +{len(extra)} direto (experimento A/B)")
     if not jobs:
         print("Muralha completa e sem buracos. Nada a agendar.")
         return
@@ -215,7 +227,8 @@ def main():
         print("  Facebook: enabled")
 
     for i, (clip, publish_dt, job_day) in enumerate(jobs):
-        publish_iso = publish_dt.replace(tzinfo=BRT).isoformat()
+        direct = publish_dt is None
+        publish_iso = "public" if direct else publish_dt.replace(tzinfo=BRT).isoformat()
         file_path = REPO_DIR / clip.get("file", "clipcrafter/scheduled_uploads/clips/" + clip.get("clip_file", ""))
 
         print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
@@ -226,7 +239,7 @@ def main():
 
         # YouTube upload
         if yt_upload:
-            print(f"    -> YouTube ({publish_dt.hour}:00)...", end=" ", flush=True)
+            print(f"    -> YouTube ({'DIRETO' if direct else str(publish_dt.hour) + ':00'})...", end=" ", flush=True)
             try:
                 vid = yt_upload(
                     video_path=str(file_path),
@@ -239,7 +252,7 @@ def main():
                 if "invalid_grant" in str(e):
                     print("TOKEN EXPIRADO (invalid_grant) — rode reauth.py e atualize YT_TOKEN_PICKLE")
                     from collections import Counter
-                    for d, n in Counter(d for _, _, d in jobs[:i]).items():
+                    for d, n in Counter(d for _, p, d in jobs[:i] if p is not None).items():
                         scheduled[d] = scheduled.get(d, 0) + n
                     state["scheduled"] = scheduled
                     state["cursor"] = cursor + i
@@ -260,7 +273,7 @@ def main():
                 print("FAIL (quota?)")
                 # avanca cursor só até os que já subiram: evita repostar amanhã
                 from collections import Counter
-                for d, n in Counter(d for _, _, d in jobs[:i]).items():
+                for d, n in Counter(d for _, p, d in jobs[:i] if p is not None).items():
                     scheduled[d] = scheduled.get(d, 0) + n
                 state["scheduled"] = scheduled
                 state["cursor"] = cursor + i
@@ -330,7 +343,7 @@ def main():
         sys.stdout.flush()
 
     from collections import Counter
-    for d, n in Counter(d for _, _, d in jobs).items():
+    for d, n in Counter(d for _, p, d in jobs if p is not None).items():
         scheduled[d] = scheduled.get(d, 0) + n
     state["scheduled"] = scheduled
     state.pop("buffer_date", None)
