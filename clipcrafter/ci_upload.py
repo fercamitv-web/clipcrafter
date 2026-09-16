@@ -83,6 +83,34 @@ def setup_instagram():
     from instagram_uploader import upload_video as ig_upload
     return ig_upload
 
+def notify_discord(title, results):
+    # Avisa num canal Discord p/ gerar as primeiras views legítimas
+    # (compartilhamento real). Best-effort: nunca derruba o run.
+    url = os.environ.get("DISCORD_WEBHOOK")
+    if not url:
+        return
+    try:
+        import urllib.request
+        links = []
+        for r in results:
+            if r.startswith("yt:"):
+                links.append(f"https://youtube.com/shorts/{r[3:]}")
+            elif r.startswith("tt:"):
+                links.append(f"https://tiktok.com/@{r[3:]}")
+            elif r.startswith("ig:"):
+                links.append(f"IG media {r[3:]}")
+            elif r.startswith("fb:"):
+                links.append(f"FB video {r[3:]}")
+        msg = {"content": f"Novo clipe: **{title[:120]}**\n" + "\n".join(links)}
+        req = urllib.request.Request(
+            url, data=json.dumps(msg).encode("utf-8"), method="POST",
+            headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=15)
+        print("    (discord avisado)")
+    except Exception as e:
+        print(f"    (discord skip: {str(e)[:80]})")
+
+
 def setup_facebook():
     if not os.environ.get("FB_ACCESS_TOKEN") or not os.environ.get("FB_PAGE_ID"):
         return None
@@ -298,6 +326,7 @@ def main():
 
         if results:
             state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
+            notify_discord(title, results)
         sys.stdout.flush()
 
     from collections import Counter
