@@ -10,7 +10,7 @@ jobs:
   comment:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -27,3 +27,14 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
         run: python clipcrafter/comment_backfill.py
+
+      - name: Commit comment progress
+        if: ${{ always() }}
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/comment_state.json
+          git diff --cached --quiet || (
+            git commit -m "Auto-update comment backlog"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
+          )

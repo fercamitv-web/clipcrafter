@@ -263,12 +263,17 @@ def main():
             if vid:
                 print(f"OK https://youtube.com/shorts/{vid}")
                 results.append(f"yt:{vid}")
-                try:
-                    from youtube_uploader import post_comment
-                    comment = random.choice(COMMENT_HOOKS)
-                    post_comment(vid, comment.format(**{"title": title}))
-                except Exception as e:
-                    print(f"    (comment skipped: {e})")
+                # Só tenta comentar se publicou DIRETO (agendado/privado dá 403;
+                # o comment_backfill diário cobre o resto sem gastar quota à toa)
+                if publish_iso == "public":
+                    try:
+                        from youtube_uploader import post_comment
+                        comment = random.choice(COMMENT_HOOKS)
+                        post_comment(vid, comment.format(**{"title": title}))
+                    except Exception as e:
+                        print(f"    (comment skipped: {e})")
+                else:
+                    print("    (comentário via backfill 23:30)")
             else:
                 print("FAIL (quota?)")
                 # avanca cursor só até os que já subiram: evita repostar amanhã
