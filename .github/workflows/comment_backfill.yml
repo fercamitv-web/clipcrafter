@@ -26,6 +26,8 @@ jobs:
         env:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+          COMMENT_BUDGET: '40'
+          COMMENT_PER_DAY: '150'
         run: python clipcrafter/comment_backfill.py
 
       - name: Commit comment progress
