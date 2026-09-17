@@ -151,6 +151,20 @@ def main():
         print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
         return
 
+    # Filtro por jogo (ex: GAME_FILTER=Minecraft): prioriza matches na frente
+    # dos pendentes, sem apagar nada. Se acabar, usa o resto (nunca trava o dia).
+    game_filter = os.environ.get("GAME_FILTER", "").strip().lower()
+    if game_filter:
+        pend = queue[cursor:]
+        match = [c for c in pend if (c.get("game") or "").lower() == game_filter]
+        rest = [c for c in pend if (c.get("game") or "").lower() != game_filter]
+        if match:
+            queue = queue[:cursor] + match + rest
+            save_queue(queue)
+            print(f"Filtro '{game_filter}': {len(match)} na frente")
+        else:
+            print(f"::warning::Filtro '{game_filter}' esgotado — usando demais jogos p/ manter o dia")
+
     daily_batch = int(os.environ.get("DAILY_BATCH", "3"))
     pending_total = len(queue) - cursor
     # Estoque baixo: reduz ritmo p/ nunca zerar (3/dia normal)

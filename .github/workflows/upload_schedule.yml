@@ -68,6 +68,7 @@ jobs:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DIRECT_EXTRA: '1'
+          GAME_FILTER: 'Minecraft'
         run: python clipcrafter/ci_upload.py
 
       - name: Commit queue progress after upload
