@@ -49,9 +49,14 @@ def _yt_token_ok():
 def setup_youtube():
     client_secret_b64 = os.environ.get("YT_CLIENT_SECRET")
     token_pickle_b64 = os.environ.get("YT_TOKEN_PICKLE")
-    if not client_secret_b64 or not token_pickle_b64:
-        return None
-    _write_yt_files(client_secret_b64, token_pickle_b64)
+    if client_secret_b64 and token_pickle_b64:
+        _write_yt_files(client_secret_b64, token_pickle_b64)
+    else:
+        # Via local (PC): usa credencial do reauth em ~/.clipcrafter
+        print("  YouTube: sem secrets, tentando credencial local...")
+        if not (os.path.exists(os.path.join(os.path.expanduser("~"), ".clipcrafter", "client_secret.json"))
+                and os.path.exists(os.path.join(os.path.expanduser("~"), ".clipcrafter", "youtube_token.pickle"))):
+            return None
     if _yt_token_ok():
         print("  YouTube: token 1 OK")
     else:

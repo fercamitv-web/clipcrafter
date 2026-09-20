@@ -19,7 +19,11 @@ if %ERRLEVEL% neq 0 (
     pause
 ) else (
     echo.
-    echo Revisao concluida sem erros. Janela fecha em 5s...
-    timeout /t 5 >nul
+    echo Revisao OK. Verificando se a CI ja subiu hoje (via local redundante)...
+    "%VENV%" clipcrafter\local_upload.py
+    set ERRLEVEL=%errorlevel%
+    echo.
+    echo Tudo certo. Janela fecha em 8s...
+    timeout /t 8 >nul
 )
 exit /b %ERRLEVEL%
