@@ -56,11 +56,15 @@ def check_queue():
         # muralha: dias seguidos com 3+ agendados (publica sozinho sem token)
         from datetime import timedelta
         sched = s.get("scheduled", {})
+
+        def _n(v):
+            return len(v) if isinstance(v, list) else (v or 0)
+
         wall, _d = 0, datetime.now().date()
-        while sched.get(str(_d), 0) >= 3 and wall < 90:
+        while _n(sched.get(str(_d), [])) >= 3 and wall < 90:
             wall += 1
             _d += timedelta(days=1)
-        log(f"[WALL] muralha agendada: {wall} dias (até {sched and max(sched) or '-'})")
+        log(f"[WALL] muralha agendada: {wall} dias (até {max(sched) if sched else '-'})")
         # report + garantia de vídeo todo dia
         pending = len(q)-s["cursor"]
         days = pending // 3

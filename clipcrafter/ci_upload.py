@@ -140,17 +140,44 @@ def reconcile_scheduled(state):
             page = r.get("nextPageToken")
             if not page:
                 break
-        real = Counter()
+        real = {}
         for i in range(0, len(ids), 50):
             for v in yt.videos().list(part="status", id=",".join(ids[i:i+50])).execute()["items"]:
                 st = v["status"]
                 if st.get("privacyStatus") == "private" and st.get("publishAt"):
-                    real[st["publishAt"][:10]] += 1
-        state["scheduled"] = dict(sorted(real.items()))
-        print(f"  Muralha reconciliada: {dict(sorted(real.items()))}")
+                    pa = st["publishAt"]  # UTC ISO
+                    mins = int(pa[11:13]) * 60 + int(pa[14:16]) - 180  # -> BRT
+                    day, hm = pa[:10], None
+                    if mins < 0:
+                        mins += 1440
+                        y, m, d = map(int, day.split("-"))
+                        import datetime as _dt
+                        day = str(_dt.date(y, m, d) - _dt.timedelta(days=1))
+                    hh = f"{mins // 60:02d}:{mins % 60:02d}"
+                    real.setdefault(day, [])
+                    if hh not in real[day]:
+                        real[day].append(hh)
+        real = {d: sorted(h) for d, h in sorted(real.items())}
+        state["scheduled"] = real
+        print(f"  Muralha reconciliada: {real}")
     except Exception as e:
         print(f"  (reconcile skip: {str(e)[:100]})")
     return state
+
+
+def _mark_scheduled(scheduled, jobs_done):
+    # registra HORÁRIOS ocupados (não contagem) p/ nunca duplicar slot
+    for _, publish_dt, day_str in jobs_done:
+        if publish_dt is None:
+            continue
+        hh = f"{publish_dt.hour:02d}:00"
+        lst = scheduled.get(day_str)
+        if not isinstance(lst, list):
+            lst = []
+        if hh not in lst:
+            lst.append(hh)
+        scheduled[day_str] = sorted(lst)
+    return scheduled
 
 
 def setup_facebook():
@@ -244,6 +271,11 @@ def main():
     # vs resto agendado (publishAt). DIRECT_EXTRA=1 no cron durante o teste.
     direct_extra = int(os.environ.get("DIRECT_EXTRA", "0"))
 
+    def taken_hours(day_str):
+        # compat: mapa antigo guardava contagem; novo guarda lista de "HH:MM"
+        v = scheduled.get(day_str, [])
+        return set(v) if isinstance(v, list) else set()
+
     jobs = []  # (clip, publish_dt|None=public imediato, day_str)
     off = 0
     for ahead in range(WALL_DAYS):
@@ -251,22 +283,23 @@ def main():
             break
         day = now + timedelta(days=ahead)
         day_str = day.strftime('%Y-%m-%d')
-        have = scheduled.get(day_str, 0)
-        need = max(0, daily_batch - have)
+        taken = taken_hours(day_str)
+        # slots livres NA ORDEM (12/18/22); hoje só os futuros (+30min margem)
+        free = [s for s in day_slots(day_str)
+                if f"{s.hour:02d}:00" not in taken
+                and (day_str != today_str or s > now + timedelta(minutes=30))]
+        need = max(0, daily_batch - len(taken))
         if need <= 0:
             continue
         day_batch = queue[cursor + off:cursor + off + min(need, MAX_UPLOADS - len(jobs))]
         if not day_batch:
             break
-        slots = day_slots(day_str)[have:have + len(day_batch)]
-        if day_str == today_str:
-            # slot de hoje já passado => publica DIRETO (publishAt no passado
-            # deixa o vídeo privado PARA SEMPRE — foi assim que dias furaram)
-            slots = [s for s in slots if s > now + timedelta(minutes=30)]
         for k, clip in enumerate(day_batch):
-            if k < len(slots):
-                jobs.append((clip, slots[k], day_str))
+            if k < len(free):
+                jobs.append((clip, free[k], day_str))
             else:
+                # sem slot livre (ex: resto do dia já passou) => publica DIRETO.
+                # publishAt no passado deixa privado PARA SEMPRE — foi assim que dias furaram.
                 jobs.append((clip, None, day_str))
         off += len(day_batch)
     if direct_extra > 0 and len(jobs) < MAX_UPLOADS + direct_extra:
@@ -322,9 +355,7 @@ def main():
             except Exception as e:
                 if "invalid_grant" in str(e):
                     print("TOKEN EXPIRADO (invalid_grant) — rode reauth.py e atualize YT_TOKEN_PICKLE")
-                    from collections import Counter
-                    for d, n in Counter(d for _, p, d in jobs[:i] if p is not None).items():
-                        scheduled[d] = scheduled.get(d, 0) + n
+                    _mark_scheduled(scheduled, jobs[:i])
                     state["scheduled"] = scheduled
                     state["cursor"] = cursor + i
                     save_queue(queue)
@@ -348,9 +379,7 @@ def main():
             else:
                 print("FAIL (quota?)")
                 # avanca cursor só até os que já subiram: evita repostar amanhã
-                from collections import Counter
-                for d, n in Counter(d for _, p, d in jobs[:i] if p is not None).items():
-                    scheduled[d] = scheduled.get(d, 0) + n
+                _mark_scheduled(scheduled, jobs[:i])
                 state["scheduled"] = scheduled
                 state["cursor"] = cursor + i
                 save_queue(queue)
@@ -426,9 +455,7 @@ def main():
         save_state(state)
         print("\nSem YouTube neste run: fila e muralha intactas (só FB/TT/IG).")
         return
-    from collections import Counter
-    for d, n in Counter(d for _, p, d in jobs if p is not None).items():
-        scheduled[d] = scheduled.get(d, 0) + n
+    _mark_scheduled(scheduled, jobs)
     state["scheduled"] = scheduled
     state.pop("buffer_date", None)
     state["cursor"] = cursor + len(jobs)
