@@ -252,7 +252,8 @@ def main():
     # PC desligado ou quota zerada depois. Teto MAX_UPLOADS/run = quota-safe
     # (6x1600=9600 + retitle; estouros degradam com retry, sem corromper).
     WALL_DAYS = int(os.environ.get("WALL_DAYS", "14"))
-    MAX_UPLOADS = int(os.environ.get("MAX_UPLOADS", "6"))
+    # Desde dez/2025 upload custa ~100 units (teto 100/dia separado): teto 8/run é seguro
+    MAX_UPLOADS = int(os.environ.get("MAX_UPLOADS", "8"))
 
     now = datetime.now(BRT)
     today_str = now.strftime('%Y-%m-%d')
