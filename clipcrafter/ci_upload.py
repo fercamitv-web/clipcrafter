@@ -220,8 +220,15 @@ def main():
         if not day_batch:
             break
         slots = day_slots(day_str)[have:have + len(day_batch)]
-        for clip, slot in zip(day_batch, slots):
-            jobs.append((clip, slot, day_str))
+        if day_str == today_str:
+            # slot de hoje já passado => publica DIRETO (publishAt no passado
+            # deixa o vídeo privado PARA SEMPRE — foi assim que dias furaram)
+            slots = [s for s in slots if s > now + timedelta(minutes=30)]
+        for k, clip in enumerate(day_batch):
+            if k < len(slots):
+                jobs.append((clip, slots[k], day_str))
+            else:
+                jobs.append((clip, None, day_str))
         off += len(day_batch)
     if direct_extra > 0 and len(jobs) < MAX_UPLOADS + direct_extra:
         # job extra: publica DIRETO (sem agendar) p/ comparar com agendados
