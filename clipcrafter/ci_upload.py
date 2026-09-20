@@ -240,11 +240,17 @@ def main():
     if fb_upload:
         print("  Facebook: enabled")
 
+    # plataformas já postadas por clipe (evita duplicar em retry de outro dia)
+    prevmap = {}
+    for rec in state.get("uploaded", []):
+        prevmap.setdefault(rec.get("idx"), set()).update(
+            p.split(":")[0] for p in rec.get("platforms", []))
+
     for i, (clip, publish_dt, job_day) in enumerate(jobs):
         direct = publish_dt is None
         publish_iso = "public" if direct else publish_dt.replace(tzinfo=BRT).isoformat()
         file_path = REPO_DIR / clip.get("file", "clipcrafter/scheduled_uploads/clips/" + clip.get("clip_file", ""))
-
+        prev = prevmap.get(cursor + i, set())
         print(f"  [{i+1}] {clip['title'][:60]}...", flush=True)
         title = clip["title"]
         desc = clip.get("desc", "")
@@ -252,7 +258,7 @@ def main():
         results = []
 
         # YouTube upload
-        if yt_upload:
+        if yt_upload and "yt" not in prev:
             print(f"    -> YouTube ({'DIRETO' if direct else str(publish_dt.hour) + ':00'})...", end=" ", flush=True)
             try:
                 vid = yt_upload(
@@ -302,7 +308,7 @@ def main():
                 sys.exit(0)
 
         # TikTok upload
-        if tt_upload:
+        if tt_upload and "tt" not in prev:
             print(f"    -> TikTok...", end=" ", flush=True)
             try:
                 hashtags = [t.replace(" ", "") for t in tags[:5]]
@@ -321,7 +327,7 @@ def main():
                 print(f"FAIL ({e})")
 
         # Instagram Reels upload
-        if ig_upload:
+        if ig_upload and "ig" not in prev:
             print(f"    -> Instagram...", end=" ", flush=True)
             try:
                 ig_id = ig_upload(
@@ -339,7 +345,7 @@ def main():
                 print(f"FAIL ({e})")
 
         # Facebook Page video upload
-        if fb_upload:
+        if fb_upload and "fb" not in prev:
             print(f"    -> Facebook...", end=" ", flush=True)
             try:
                 fb_id = fb_upload(
@@ -361,6 +367,14 @@ def main():
             notify_discord(title, results)
         sys.stdout.flush()
 
+    if yt_upload is None:
+        # Sem YouTube não avança fila nem muralha (só registra outras plataformas).
+        # Os clipes serão postados no YT no próximo run com token válido, sem duplicar
+        # (blocos acima pulam plataformas já postadas).
+        save_queue(queue)
+        save_state(state)
+        print("\nSem YouTube neste run: fila e muralha intactas (só FB/TT/IG).")
+        return
     from collections import Counter
     for d, n in Counter(d for _, p, d in jobs if p is not None).items():
         scheduled[d] = scheduled.get(d, 0) + n

@@ -87,9 +87,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          OPEN=$(gh issue list --state open --search "YouTube token expirado" --json number --jq length)
+          OPEN=$(gh issue list -R fercamitv-web/clipcrafter --state open --search "YouTube token expirado" --json number --jq length)
           if [ "$OPEN" = "0" ]; then
-            gh issue create --title "YouTube token expirado — reautenticar antes das 08h" \
+            gh issue create -R fercamitv-web/clipcrafter --title "YouTube token expirado — reautenticar antes das 08h" \
               --body "O vigia das 02:05 detectou refresh token inválido. Sem reauth, os uploads de hoje (12h/18h/22h) vão falhar. Rode reauth.py e atualize o secret YT_TOKEN_PICKLE."
           else
             echo "Issue já aberta, sem duplicar."
