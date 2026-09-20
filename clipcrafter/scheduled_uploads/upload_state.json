@@ -1,5 +1,5 @@
 {
-  "cursor": 152,
+  "cursor": 158,
   "uploaded": [
     {
       "idx": 18,
@@ -1148,14 +1148,57 @@
       "platforms": [
         "yt:nw_ljZQHHVs"
       ]
+    },
+    {
+      "idx": 152,
+      "title": "Momento de terror momento no jogo com os amigos",
+      "platforms": [
+        "yt:P6Z2Guqrx5U"
+      ]
+    },
+    {
+      "idx": 153,
+      "title": "Momento no jogo de terror - O susto de Uendo ... (Lost Rooms) terror",
+      "platforms": [
+        "yt:Z7sxvERQkng"
+      ]
+    },
+    {
+      "idx": 154,
+      "title": "O susto de O início de uma base ... (Lost - terror com os amigos",
+      "platforms": [
+        "yt:o-fVEN3Sz40"
+      ]
+    },
+    {
+      "idx": 155,
+      "title": "Momento de terror - O susto de terror momento no jogo",
+      "platforms": [
+        "yt:R8VLPqa3lRw"
+      ]
+    },
+    {
+      "idx": 156,
+      "title": "Momento de terror O susto de O terror com os",
+      "platforms": [
+        "yt:u-vNXxLiGm0"
+      ]
+    },
+    {
+      "idx": 157,
+      "title": "Aquele dia de Platinas da bala que parou a partida no Valorant pt1",
+      "platforms": [
+        "yt:qNAuH41ulYI"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-20": 2,
-    "2026-09-21": 1,
+    "2026-09-20": 3,
+    "2026-09-21": 3,
     "2026-09-27": 2,
     "2026-09-28": 3,
-    "2026-09-29": 1
+    "2026-09-29": 1,
+    "2026-09-22": 3
   },
   "last_upload_date": "2026-09-20"
 }
