@@ -1,0 +1,48 @@
+name: Wall Guard (detecta buraco e preenche)
+
+on:
+  schedule:
+    # 02:00 UTC = 23:00 BRT — confere hoje+amanhã; se faltar, dispara fill
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install -q google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Check hoje+amanhã slot a slot
+        id: check
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+        run: |
+          python clipcrafter/wall_guard.py; echo "rc=$?" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: Fill faltantes (dispatch upload)
+        if: steps.check.outputs.rc == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST=$(gh run list --workflow "Upload Scheduled Clips" --limit 1 --json conclusion,startedAt --jq ".[0].startedAt")
+          echo "último upload: $LAST"
+          gh workflow run "Upload Scheduled Clips" --ref master
+          echo "fill disparado"
+
+      - name: Skip — muralha completa
+        if: steps.check.outputs.rc == '0'
+        run: echo "Nada a fazer."
