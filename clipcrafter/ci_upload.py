@@ -116,6 +116,43 @@ def notify_discord(title, results):
         print(f"    (discord skip: {str(e)[:80]})")
 
 
+def reconcile_scheduled(state):
+    # Reconstrói o mapa da muralha a partir da VERDADE do YouTube.
+    # Cura qualquer drift: deletes/privates manuais, fantasmas de runs parciais.
+    # Best-effort (token morto => mantém mapa local).
+    try:
+        import pickle
+        from collections import Counter
+        from google.auth.transport.requests import Request
+        from googleapiclient.discovery import build
+        p = Path.home() / ".clipcrafter" / "youtube_token.pickle"
+        creds = pickle.load(open(p, "rb"))
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        yt = build("youtube", "v3", credentials=creds)
+        ch = yt.channels().list(part="contentDetails", mine=True).execute()["items"][0]
+        upl = ch["contentDetails"]["relatedPlaylists"]["uploads"]
+        ids, page = [], None
+        while len(ids) < 500:
+            r = yt.playlistItems().list(part="contentDetails", playlistId=upl,
+                                        maxResults=50, pageToken=page).execute()
+            ids += [it["contentDetails"]["videoId"] for it in r["items"]]
+            page = r.get("nextPageToken")
+            if not page:
+                break
+        real = Counter()
+        for i in range(0, len(ids), 50):
+            for v in yt.videos().list(part="status", id=",".join(ids[i:i+50])).execute()["items"]:
+                st = v["status"]
+                if st.get("privacyStatus") == "private" and st.get("publishAt"):
+                    real[st["publishAt"][:10]] += 1
+        state["scheduled"] = dict(sorted(real.items()))
+        print(f"  Muralha reconciliada: {dict(sorted(real.items()))}")
+    except Exception as e:
+        print(f"  (reconcile skip: {str(e)[:100]})")
+    return state
+
+
 def setup_facebook():
     if not os.environ.get("FB_ACCESS_TOKEN") or not os.environ.get("FB_PAGE_ID"):
         return None
@@ -135,6 +172,8 @@ def main():
 
     queue = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
     state = load_state()
+    if yt_upload:
+        state = reconcile_scheduled(state)
 
     if not queue:
         print("Queue is empty! No more clips to upload.")
