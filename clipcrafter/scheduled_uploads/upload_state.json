@@ -1,5 +1,5 @@
 {
-  "cursor": 145,
+  "cursor": 152,
   "uploaded": [
     {
       "idx": 18,
@@ -1099,17 +1099,67 @@
       "platforms": [
         "yt:OU2M7M4UUZM"
       ]
+    },
+    {
+      "idx": 145,
+      "title": "Momento de terror O início de uma base ... - terror com os amigos",
+      "platforms": [
+        "yt:0YEw8yXLapI"
+      ]
+    },
+    {
+      "idx": 146,
+      "title": "O susto de momento no jogo de terror O com a galera",
+      "platforms": [
+        "yt:NMWeUuMSXhY"
+      ]
+    },
+    {
+      "idx": 147,
+      "title": "O susto de momento de terror O início com a galera",
+      "platforms": [
+        "yt:_O6yGvCXRdU"
+      ]
+    },
+    {
+      "idx": 148,
+      "title": "Momento no jogo de terror - momento de terror momento no jogo de terror",
+      "platforms": [
+        "yt:Z4wTy2BaLCc"
+      ]
+    },
+    {
+      "idx": 149,
+      "title": "Momento de terror - momento no jogo de terror At o sol terror",
+      "platforms": [
+        "yt:EapuiC5_bx4"
+      ]
+    },
+    {
+      "idx": 150,
+      "title": "Momento no jogo de terror - momento de terror Uendo",
+      "platforms": [
+        "yt:tLpf3vk2OPM"
+      ]
+    },
+    {
+      "idx": 151,
+      "title": "Momento no jogo de terror - momento de terror Os novos",
+      "platforms": [
+        "yt:nw_ljZQHHVs"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-19": 3,
     "2026-09-20": 3,
     "2026-09-21": 3,
     "2026-09-22": 3,
     "2026-09-23": 3,
     "2026-09-24": 3,
     "2026-09-25": 3,
-    "2026-09-26": 3
+    "2026-09-26": 3,
+    "2026-09-27": 3,
+    "2026-09-28": 3
   },
-  "last_upload_date": "2026-09-19"
+  "last_upload_date": "2026-09-20"
 }
