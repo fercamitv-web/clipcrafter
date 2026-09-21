@@ -324,7 +324,7 @@ class VideoProcessor:
                 # Visible zoom — jump-zoom feel (reaches cap in ~1s)
                 zoom_rate = 0.004
                 parts = [
-                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.14)+0.015*sin(2*PI*on/60)':d=1:fps=30[z]",
+                    f"[0:v]zoompan=z='min(zoom+{zoom_rate},1.14)+0.03*sin(2*PI*on/60)':d=1:fps=30[z]",
                     f"[z]scale={target_w}:{target_h}:"
                     f"force_original_aspect_ratio=increase,"
                     f"crop={target_w}:{target_h},boxblur=20:5[bg]",
@@ -362,6 +362,12 @@ class VideoProcessor:
                         f"fontcolor=white:fontsize=32:box=1:boxcolor=black@0.6:"
                         f"x=(w-text_w)/2:y=(h+text_h)/2+10{fp}:"
                         f"enable='lt(t,2)'[base]"
+                    )
+                    # Flash de impacto no frame inicial (pattern interrupt)
+                    parts.append(
+                        f"[base]drawbox=x=0:y=0:w=iw:h=ih:"
+                        f"color=white@0.22:t=fill:"
+                        f"enable='lt(t,0.09)'[base]"
                     )
 
                 # Word-by-word subtitles via ASS karaoke
@@ -429,6 +435,12 @@ class VideoProcessor:
                     ts1 = min(duration - 1.5, duration * 0.72)
                     if ts1 > ts0 + 0.5:
                         teaser_text = _draw_text(teaser_text, 40)
+                        # Flash junto do teaser (reaviva atenção no cliff de retenção)
+                        parts.append(
+                            f"[base]drawbox=x=0:y=0:w=iw:h=ih:"
+                            f"color=white@0.18:t=fill:"
+                            f"enable='gte(t,{ts0:.2f})*lt(t,{ts0 + 0.09:.2f})'[base]"
+                        )
                         parts.append(
                             f"[base]drawtext=text='{teaser_text}':"
                             f"fontcolor=#FFB000:fontsize=56:box=1:boxcolor=black@0.8:"
