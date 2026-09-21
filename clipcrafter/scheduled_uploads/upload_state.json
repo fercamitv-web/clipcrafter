@@ -1,5 +1,5 @@
 {
-  "cursor": 164,
+  "cursor": 172,
   "uploaded": [
     {
       "idx": 18,
@@ -1232,17 +1232,111 @@
       "platforms": [
         "yt:4J7EHG0bTWk"
       ]
+    },
+    {
+      "idx": 164,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct americas ) no Valorant",
+      "platforms": [
+        "yt:p2EUYR2eXGg",
+        "fb:2328746207921010"
+      ]
+    },
+    {
+      "idx": 165,
+      "title": "Aquele dia de virada de gameplay Platinas da - o que rolou no Valorant",
+      "platforms": [
+        "yt:lGFr9P-kfwI",
+        "fb:1408427391257379"
+      ]
+    },
+    {
+      "idx": 166,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct - momento de Valorant na ranked pt3",
+      "platforms": [
+        "yt:tlrg7VOxN1w",
+        "fb:2646112835837013"
+      ]
+    },
+    {
+      "idx": 167,
+      "title": "Platinas da bala #2 ( pós vct americas ) do jeito que ninguem esperava",
+      "platforms": [
+        "yt:Cuan5DNeJ1g",
+        "fb:1228361666156197"
+      ]
+    },
+    {
+      "idx": 168,
+      "title": "Aquele dia de Platinas da bala do jeito que ninguem esperava",
+      "platforms": [
+        "yt:p1qpiJKXA70",
+        "fb:1421296239928648"
+      ]
+    },
+    {
+      "idx": 169,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct - virada de partida no Valorant",
+      "platforms": [
+        "yt:T0zV2aNmmuY",
+        "fb:1020717117677495"
+      ]
+    },
+    {
+      "idx": 170,
+      "title": "Platinas da bala #2 ( pós vct americas ) - momento de Valorant na ranked",
+      "platforms": [
+        "yt:ubvy3aDKsdI",
+        "fb:1081168338135191"
+      ]
+    },
+    {
+      "idx": 171,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct no Valorant",
+      "platforms": [
+        "yt:JTmMC5Kj-pc",
+        "fb:1386776806971434"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-20": 3,
-    "2026-09-21": 3,
-    "2026-09-22": 3,
-    "2026-09-23": 3,
-    "2026-09-27": 2,
-    "2026-09-28": 3,
-    "2026-09-29": 1,
-    "2026-09-24": 2
+    "2026-09-21": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-22": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-23": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-24": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-27": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-28": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-25": [
+      "12:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-26": [
+      "12:00",
+      "18:00"
+    ]
   },
-  "last_upload_date": "2026-09-20"
+  "last_upload_date": "2026-09-21"
 }
