@@ -553,7 +553,10 @@ class ValorantStudio:
             else:
                 title = f"{et} de {game}".strip().replace("  ", " ")
         title = re.sub(r'\s+', ' ', title).strip(" -–—#")
-        title = title[:80] or "Jogada de valorant na ranked"
+        # Títulos curtos vencem neste canal (top views: 15-38 chars).
+        if len(title) > 55:
+            title = title[:55].rsplit(" ", 1)[0]
+        title = title or "Jogada de valorant na ranked"
         return title
 
     def generate_teaser(self, event: str = "") -> str:
@@ -682,10 +685,12 @@ class ValorantStudio:
             "Deixa o LIKE se voce deu risada e comenta seu momento favorito!\n\n"
         )
         full_vod = f"\nQuer ver a partida completa? Assiste aqui:\nhttps://youtube.com/watch?v={vod_id}\n" if vod_id else ""
+        top_hit = "\nO MAIS VISTO do canal:\nhttps://youtube.com/shorts/z33q6waLbEM\n"
         desc = (
             f"{cta}"
             f"Melhores momentos de {game} - Fercami Gameplay!\n\n"
             f"{full_vod}"
+            f"{top_hit}"
             f"INSCREVA-SE no CanalPropra para mais momentos INSANOS:\n"
             f"https://www.youtube.com/@CanalPropra\n\n"
             f"Comenta qual dessas jogadas foi a melhor!\n"

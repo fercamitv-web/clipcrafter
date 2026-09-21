@@ -366,6 +366,28 @@ def main():
             if vid:
                 print(f"OK https://youtube.com/shorts/{vid}")
                 results.append(f"yt:{vid}")
+                try:
+                    _game = clip.get("game", "Gaming")
+                    _pl_file = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "playlists.json"
+                    if _pl_file.exists():
+                        _pls = json.loads(_pl_file.read_text(encoding="utf-8")).get("playlists", {})
+                        _pid = _pls.get(_game) or _pls.get("Gaming")
+                        if _pid:
+                            from googleapiclient.discovery import build as _build
+                            import pickle as _pk
+                            from google.auth.transport.requests import Request as _Req
+                            _creds = _pk.load(open(Path.home() / ".clipcrafter" / "youtube_token.pickle", "rb"))
+                            if _creds.expired and _creds.refresh_token:
+                                _creds.refresh(_Req())
+                            _yt = _build("youtube", "v3", credentials=_creds)
+                            _yt.playlistItems().insert(
+                                part="snippet",
+                                body={"snippet": {"playlistId": _pid,
+                                                 "resourceId": {"kind": "youtube#video", "videoId": vid}}},
+                            ).execute()
+                            print("    (playlist OK)")
+                except Exception as _e:
+                    print(f"    (playlist skip: {str(_e)[:80]})")
                 # Só tenta comentar se publicou DIRETO (agendado/privado dá 403;
                 # o comment_backfill diário cobre o resto sem gastar quota à toa)
                 if publish_iso == "public":
