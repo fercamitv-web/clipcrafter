@@ -236,7 +236,7 @@ def main():
         else:
             print(f"::warning::Filtro '{game_filter}' esgotado — usando demais jogos p/ manter o dia")
 
-    daily_batch = int(os.environ.get("DAILY_BATCH", "3"))
+    daily_batch = int(os.environ.get("DAILY_BATCH", "4"))
     pending_total = len(queue) - cursor
     # Estoque baixo: reduz ritmo p/ nunca zerar (3/dia normal)
     if pending_total <= 10:
@@ -266,7 +266,7 @@ def main():
     def day_slots(day_str):
         y, m, d = map(int, day_str.split("-"))
         base = now.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
-        return [base.replace(hour=h) for h in (12, 18, 22)]
+        return [base.replace(hour=h) for h in (12, 15, 18, 22)]
 
     # Experimento A/B (2026-09): 1 clipe/dia publica DIRETO (public imediato)
     # vs resto agendado (publishAt). DIRECT_EXTRA=1 no cron durante o teste.

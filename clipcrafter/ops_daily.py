@@ -67,7 +67,7 @@ def check_queue():
         log(f"[WALL] muralha agendada: {wall} dias (até {max(sched) if sched else '-'})")
         # report + garantia de vídeo todo dia
         pending = len(q)-s["cursor"]
-        days = pending // 3
+        days = pending // 4
         if pending <= 10:
             log(f"[CRIT] estoque crítico: {pending} clipes (~{days} dias) — ritmo auto-reduzido p/ 1/dia no CI")
         elif pending <= 30:
