@@ -1,5 +1,5 @@
 {
-  "cursor": 172,
+  "cursor": 180,
   "uploaded": [
     {
       "idx": 18,
@@ -1296,30 +1296,105 @@
         "yt:JTmMC5Kj-pc",
         "fb:1386776806971434"
       ]
+    },
+    {
+      "idx": 172,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento",
+      "platforms": [
+        "yt:Py4CWVOjbQ8",
+        "fb:1465016062124316"
+      ]
+    },
+    {
+      "idx": 173,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento pt1",
+      "platforms": [
+        "yt:RtbsvL5AKPA",
+        "fb:942393115594521"
+      ]
+    },
+    {
+      "idx": 174,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento pt2",
+      "platforms": [
+        "yt:WD6XFhlGsLo",
+        "fb:1378355977753218"
+      ]
+    },
+    {
+      "idx": 175,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento pt3",
+      "platforms": [
+        "yt:evblEGTSCuU",
+        "fb:1653134939759366"
+      ]
+    },
+    {
+      "idx": 176,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento pt4",
+      "platforms": [
+        "yt:ddgxfyx8RDk",
+        "fb:961992626965615"
+      ]
+    },
+    {
+      "idx": 177,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - momento pt5",
+      "platforms": [
+        "yt:oPgxWYhprC0",
+        "fb:889410664108062"
+      ]
+    },
+    {
+      "idx": 178,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - o que vi",
+      "platforms": [
+        "yt:UkoxoI6VJ7c",
+        "fb:1590716199178654"
+      ]
+    },
+    {
+      "idx": 179,
+      "title": "Melhor JOGO DE Tower Defense Chegou X o que - o que vi pt1",
+      "platforms": [
+        "yt:f6ABK-nAZmI",
+        "fb:1027850880226742"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-21": [
-      "18:00",
-      "22:00"
-    ],
     "2026-09-22": [
-      "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ],
     "2026-09-23": [
       "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ],
     "2026-09-24": [
       "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-25": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-26": [
+      "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ],
     "2026-09-27": [
       "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ],
@@ -1327,16 +1402,7 @@
       "12:00",
       "18:00",
       "22:00"
-    ],
-    "2026-09-25": [
-      "12:00",
-      "18:00",
-      "22:00"
-    ],
-    "2026-09-26": [
-      "12:00",
-      "18:00"
     ]
   },
-  "last_upload_date": "2026-09-21"
+  "last_upload_date": "2026-09-22"
 }
