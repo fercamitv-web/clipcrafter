@@ -685,7 +685,15 @@ class ValorantStudio:
             "Deixa o LIKE se voce deu risada e comenta seu momento favorito!\n\n"
         )
         full_vod = f"\nQuer ver a partida completa? Assiste aqui:\nhttps://youtube.com/watch?v={vod_id}\n" if vod_id else ""
-        top_hit = "\nO MAIS VISTO do canal:\nhttps://youtube.com/shorts/z33q6waLbEM\n"
+        # funil por nicho: prende o espectador no MESMO jogo (sessão conta p/ algoritmo)
+        top_by_game = {
+            "Minecraft": "z33q6waLbEM",
+            "Horror Co-op": "nw_ljZQHHVs",
+            "Valorant": "nywRmYEJy4c",
+            "Gaming": "uzNW1scQYmk",
+        }
+        top_id = top_by_game.get(game, "z33q6waLbEM")
+        top_hit = f"\nO MAIS VISTO de {game}:\nhttps://youtube.com/shorts/{top_id}\n"
         desc = (
             f"{cta}"
             f"Melhores momentos de {game} - Fercami Gameplay!\n\n"
