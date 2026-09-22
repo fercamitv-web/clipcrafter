@@ -1,0 +1,40 @@
+name: Niche Guard (ordem por desempenho)
+
+on:
+  schedule:
+    # domingos 06:00 UTC — recalcula medias por nicho
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install -q google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Recalc scores
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+        run: python clipcrafter/niche_guard.py
+
+      - name: Commit scores
+        if: ${{ always() }}
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/niche_scores.json
+          git diff --cached --quiet || (
+            git commit -m "Auto-update niche scores"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
+          )

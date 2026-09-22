@@ -222,19 +222,35 @@ def main():
         print(f"All {len(queue)} clips have been uploaded. Queue exhausted.")
         return
 
-    # Filtro por jogo (ex: GAME_FILTER=Minecraft): prioriza matches na frente
-    # dos pendentes, sem apagar nada. Se acabar, usa o resto (nunca trava o dia).
+    # Ordem por desempenho (niche_guard): nicho que rende vai na frente.
+    # GAME_FILTER manual ainda vence se definido. Sem apagar nada.
     game_filter = os.environ.get("GAME_FILTER", "").strip().lower()
-    if game_filter:
+    rank = {}
+    try:
+        _nf = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "niche_scores.json"
+        if _nf.exists():
+            _ns = json.loads(_nf.read_text(encoding="utf-8"))
+            _order = _ns.get("order", [])
+            rank = {g.lower(): i for i, g in enumerate(_order)}
+            print(f"Ordem por desempenho: {_order}")
+    except Exception as e:
+        print(f"(scores skip: {str(e)[:60]})")
+    if game_filter or rank:
         pend = queue[cursor:]
-        match = [c for c in pend if (c.get("game") or "").lower() == game_filter]
-        rest = [c for c in pend if (c.get("game") or "").lower() != game_filter]
-        if match:
-            queue = queue[:cursor] + match + rest
-            save_queue(queue)
-            print(f"Filtro '{game_filter}': {len(match)} na frente")
+        if game_filter:
+            match = [c for c in pend if (c.get("game") or "").lower() == game_filter]
+            rest = [c for c in pend if (c.get("game") or "").lower() != game_filter]
+            new_pend = match + rest if match else pend
+            if match:
+                print(f"Filtro '{game_filter}': {len(match)} na frente")
+            else:
+                print(f"::warning::Filtro '{game_filter}' esgotado — usando demais jogos p/ manter o dia")
         else:
-            print(f"::warning::Filtro '{game_filter}' esgotado — usando demais jogos p/ manter o dia")
+            new_pend = sorted(pend, key=lambda e: rank.get((e.get("game") or "").lower(), 50))
+            print("Fila ordenada por desempenho medido")
+        if new_pend != pend:
+            queue = queue[:cursor] + new_pend
+            save_queue(queue)
 
     daily_batch = int(os.environ.get("DAILY_BATCH", "4"))
     pending_total = len(queue) - cursor
