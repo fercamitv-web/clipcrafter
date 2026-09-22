@@ -14,6 +14,19 @@ sys.path.insert(0, str(CI_DIR))
 BUDGET = int(os.environ.get("ENRICH_BUDGET", "20"))
 VIRAL_LINE = "O MAIS VISTO do canal:"
 VIRAL_URL = "https://youtube.com/shorts/z33q6waLbEM"
+CTA_BLOCK = ("INSCREVA-SE no CanalPropra para mais momentos INSANOS:\n"
+             "https://www.youtube.com/@CanalPropra\n\n"
+             "Comenta qual dessas jogadas foi a melhor!")
+
+
+def upgrade_desc(desc):
+    """Completa descrição fraca (<300 chars ou sem CTA) preservando o original."""
+    nd = desc
+    if len(nd) < 300 or "INSCREVA-SE" not in nd.upper():
+        nd = (nd.rstrip() + "\n\n" + CTA_BLOCK)[:4800]
+    if VIRAL_LINE not in nd:
+        nd = (nd.rstrip() + f"\n{VIRAL_LINE}\n{VIRAL_URL}\n")[:5000]
+    return nd
 
 
 def main():
@@ -104,8 +117,8 @@ def main():
                 print(f"{vid}: playlist skip ({str(e)[:80]})")
             try:
                 desc = sn.get("description", "")
-                if VIRAL_LINE not in desc:
-                    nd = (desc.rstrip() + f"\n{VIRAL_LINE}\n{VIRAL_URL}\n")[:5000]
+                nd = upgrade_desc(desc)
+                if nd != desc:
                     body = {"id": vid, "snippet": {"title": sn.get("title", "")[:100],
                             "description": nd, "categoryId": sn.get("categoryId", "20")}}
                     if sn.get("tags"):
