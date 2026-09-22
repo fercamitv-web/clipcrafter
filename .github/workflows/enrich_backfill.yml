@@ -1,0 +1,41 @@
+name: Enrich Backfill (playlist + link viral)
+
+on:
+  schedule:
+    # 03:30 UTC = 00:30 BRT — 20 videos/dia
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install -q google-auth google-auth-oauthlib google-api-python-client
+
+      - name: Enrich videos
+        env:
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_PICKLE: ${{ secrets.YT_TOKEN_PICKLE }}
+          ENRICH_BUDGET: '20'
+        run: python clipcrafter/enrich_backfill.py
+
+      - name: Commit enrich progress
+        if: ${{ always() }}
+        run: |
+          git config user.name "clipcrafter-bot"
+          git config user.email "bot@clipcrafter"
+          git add clipcrafter/scheduled_uploads/enrich_state.json
+          git diff --cached --quiet || (
+            git commit -m "Auto-update enrich backlog"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:master
+          )
