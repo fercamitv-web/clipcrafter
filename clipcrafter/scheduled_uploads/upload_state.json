@@ -1,5 +1,5 @@
 {
-  "cursor": 180,
+  "cursor": 188,
   "uploaded": [
     {
       "idx": 18,
@@ -1360,16 +1360,74 @@
         "yt:f6ABK-nAZmI",
         "fb:1027850880226742"
       ]
+    },
+    {
+      "idx": 180,
+      "title": "Jogos DO QUE ME Deixaram Louco momento no - momento no",
+      "platforms": [
+        "yt:87MPZ1KD_Q4",
+        "fb:2039100780125344"
+      ]
+    },
+    {
+      "idx": 181,
+      "title": "Jogos DO QUE ME Deixaram Louco momento no pt1 - o que",
+      "platforms": [
+        "yt:AP9WYR9pXiU",
+        "fb:4855553238005240"
+      ]
+    },
+    {
+      "idx": 182,
+      "title": "Jogos DO QUE ME Deixaram Louco momento no pt2 - o que",
+      "platforms": [
+        "yt:_TTKFNT4AUg",
+        "fb:1070098139169581"
+      ]
+    },
+    {
+      "idx": 183,
+      "title": "Nossa opinião sobre a nova temporada de na",
+      "platforms": [
+        "yt:0_IwxUcaDWs",
+        "fb:1469122358449033"
+      ]
+    },
+    {
+      "idx": 184,
+      "title": "Nossa opinião sobre a nova temporada de na - o jogo da",
+      "platforms": [
+        "yt:G_ITZWfjN8o",
+        "fb:1126644729690886"
+      ]
+    },
+    {
+      "idx": 185,
+      "title": "Nossa opinião sobre a nova temporada de o - round 6 na",
+      "platforms": [
+        "yt:wDqyoUSsKOc",
+        "fb:1759536138650579"
+      ]
+    },
+    {
+      "idx": 186,
+      "title": "Nossa opinião sobre a nova temporada de o",
+      "platforms": [
+        "yt:G9HjIJOnOZE",
+        "fb:3631088970400881"
+      ]
+    },
+    {
+      "idx": 187,
+      "title": "Nossa opinião sobre a nova temporada de o - o jogo da",
+      "platforms": [
+        "yt:79j7B5gJGqg",
+        "fb:1959230921700435"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-22": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-23": [
-      "12:00",
       "15:00",
       "18:00",
       "22:00"
@@ -1400,9 +1458,20 @@
     ],
     "2026-09-28": [
       "12:00",
+      "15:00",
       "18:00",
       "22:00"
+    ],
+    "2026-09-29": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-09-30": [
+      "12:00",
+      "15:00"
     ]
   },
-  "last_upload_date": "2026-09-22"
+  "last_upload_date": "2026-09-23"
 }
