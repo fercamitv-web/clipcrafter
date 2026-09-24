@@ -1,5 +1,5 @@
 {
-  "cursor": 188,
+  "cursor": 196,
   "uploaded": [
     {
       "idx": 18,
@@ -1424,16 +1424,74 @@
         "yt:79j7B5gJGqg",
         "fb:1959230921700435"
       ]
+    },
+    {
+      "idx": 188,
+      "title": "Sobrevivi a Não perdoa Precisamos terrivel no no FNAF",
+      "platforms": [
+        "yt:KXB370WkxGc",
+        "fb:28342264495424264"
+      ]
+    },
+    {
+      "idx": 189,
+      "title": "FNAF nao perdoa - Sobrevivi a Precisamos sair no",
+      "platforms": [
+        "yt:zWWjtAL9ktY",
+        "fb:1702672047476190"
+      ]
+    },
+    {
+      "idx": 190,
+      "title": "FNAF nao perdoa - Sobrevivi a não perdoa Precisamos",
+      "platforms": [
+        "yt:8lKxBqdbzmY",
+        "fb:1627693652412434"
+      ]
+    },
+    {
+      "idx": 191,
+      "title": "Platinas da bala #2 ( pós vct americas ) que parou a",
+      "platforms": [
+        "yt:zGIjcuGqblU",
+        "fb:1096671602727550"
+      ]
+    },
+    {
+      "idx": 192,
+      "title": "Platinas da bala #2 ( pós vct americas ) do - momento",
+      "platforms": [
+        "yt:OxogY4MUOlo",
+        "fb:1690396029351847"
+      ]
+    },
+    {
+      "idx": 193,
+      "title": "Platinas da bala #2 ( pós vct americas ) o do jeito",
+      "platforms": [
+        "yt:E8QykthOGIM",
+        "fb:1368954061649607"
+      ]
+    },
+    {
+      "idx": 194,
+      "title": "Momento de gameplay Platinas da bala #2 ( o - o que",
+      "platforms": [
+        "yt:kp1OaTXjK6c",
+        "fb:1633416658418791"
+      ]
+    },
+    {
+      "idx": 195,
+      "title": "Momento de gameplay Platinas da bala #2 ( o - momento",
+      "platforms": [
+        "yt:6dYeDrUgUqM",
+        "fb:4671750446479146"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-23": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-24": [
-      "12:00",
       "15:00",
       "18:00",
       "22:00"
@@ -1470,8 +1528,16 @@
     ],
     "2026-09-30": [
       "12:00",
-      "15:00"
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-01": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
     ]
   },
-  "last_upload_date": "2026-09-23"
+  "last_upload_date": "2026-09-24"
 }
