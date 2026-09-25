@@ -1,5 +1,5 @@
 {
-  "cursor": 196,
+  "cursor": 204,
   "uploaded": [
     {
       "idx": 18,
@@ -1488,16 +1488,74 @@
         "yt:6dYeDrUgUqM",
         "fb:4671750446479146"
       ]
+    },
+    {
+      "idx": 196,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct - momento",
+      "platforms": [
+        "yt:jJumc4nvtX8",
+        "fb:1563010134994569"
+      ]
+    },
+    {
+      "idx": 197,
+      "title": "Platinas da bala #2 ( pós vct americas ) que - momento",
+      "platforms": [
+        "yt:vAH1SMybcI0",
+        "fb:1402919048005258"
+      ]
+    },
+    {
+      "idx": 198,
+      "title": "Platinas da bala #2 ( pós vct americas ) do jeito que",
+      "platforms": [
+        "yt:dLBcS0SCLBM",
+        "fb:1793593728444381"
+      ]
+    },
+    {
+      "idx": 199,
+      "title": "Platinas da bala #2 ( pós vct americas ) que do jeito",
+      "platforms": [
+        "yt:prhDZL-Ai4g",
+        "fb:1128674816488998"
+      ]
+    },
+    {
+      "idx": 200,
+      "title": "Platinas da bala #2 ( pós vct americas ) que - virada",
+      "platforms": [
+        "yt:OViwp1y2h9w",
+        "fb:1049719057898069"
+      ]
+    },
+    {
+      "idx": 201,
+      "title": "Aquele dia de Platinas da bala #2 ( pós vct que parou",
+      "platforms": [
+        "yt:ZcI_GjR-f50",
+        "fb:4112988259004947"
+      ]
+    },
+    {
+      "idx": 202,
+      "title": "YORDLE ABSURDAMENTE ROUBADO - o que rolou no Valorant",
+      "platforms": [
+        "yt:bQTWFD69T38",
+        "fb:1341985794675401"
+      ]
+    },
+    {
+      "idx": 203,
+      "title": "YORDLE ABSURDAMENTE ROUBADO do jeito que ninguem",
+      "platforms": [
+        "yt:3zqiRR7hu9k",
+        "fb:963462203485224"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-24": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-25": [
-      "12:00",
       "15:00",
       "18:00",
       "22:00"
@@ -1537,7 +1595,17 @@
       "15:00",
       "18:00",
       "22:00"
+    ],
+    "2026-10-02": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-03": [
+      "12:00",
+      "15:00"
     ]
   },
-  "last_upload_date": "2026-09-24"
+  "last_upload_date": "2026-09-25"
 }
