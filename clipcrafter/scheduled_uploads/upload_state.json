@@ -1,5 +1,5 @@
 {
-  "cursor": 204,
+  "cursor": 212,
   "uploaded": [
     {
       "idx": 18,
@@ -1552,14 +1552,73 @@
         "yt:3zqiRR7hu9k",
         "fb:963462203485224"
       ]
+    },
+    {
+      "idx": 204,
+      "title": "Aquele dia de YORDLE ABSURDAMENTE ROUBADO no Valorant",
+      "platforms": [
+        "yt:xgl8BcR3oIs",
+        "fb:1898143074496486"
+      ]
+    },
+    {
+      "idx": 205,
+      "title": "“PEARL até o ÚLTIMO SEGUNDO! Disputa INSANA - o que",
+      "platforms": [
+        "yt:ERNsVS19Wcg",
+        "fb:1062661123257153"
+      ]
+    },
+    {
+      "idx": 206,
+      "title": "“PEARL até o ÚLTIMO SEGUNDO! Disputa INSANA - momento",
+      "platforms": [
+        "yt:6GHqa5THlbA",
+        "fb:1113954214303070"
+      ]
+    },
+    {
+      "idx": 207,
+      "title": "Aquele dia de “PEARL até o ÚLTIMO SEGUNDO! Disputa",
+      "platforms": [
+        "yt:Nr5D-XhtJqY",
+        "fb:1419160393644439"
+      ]
+    },
+    {
+      "idx": 208,
+      "title": "Aquele dia de “PEARL até o ÚLTIMO SEGUNDO! Disputa pt1",
+      "platforms": [
+        "yt:GXfbegA-4YY",
+        "fb:2538596926644736"
+      ]
+    },
+    {
+      "idx": 209,
+      "title": "momento de gameplay - Somos assim at nesse jogo... o que rolou na",
+      "platforms": [
+        "yt:2QHKorYo2BA",
+        "fb:1054812710710130"
+      ]
+    },
+    {
+      "idx": 210,
+      "title": "Momento de gameplay O susto de Nunca ficamos - momento",
+      "platforms": [
+        "yt:n_apGHVa2tU",
+        "fb:1493822089241690"
+      ]
+    },
+    {
+      "idx": 211,
+      "title": "Somos assim at nesse jogo... gameplay do dia - momento",
+      "platforms": [
+        "yt:ZgFfCikEpUc",
+        "fb:4515301802043708"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-25": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-26": [
       "12:00",
       "15:00",
@@ -1604,8 +1663,20 @@
     ],
     "2026-10-03": [
       "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-04": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-05": [
+      "12:00",
       "15:00"
     ]
   },
-  "last_upload_date": "2026-09-25"
+  "last_upload_date": "2026-09-26"
 }
