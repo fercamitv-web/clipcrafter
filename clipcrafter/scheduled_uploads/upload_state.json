@@ -1,5 +1,5 @@
 {
-  "cursor": 212,
+  "cursor": 220,
   "uploaded": [
     {
       "idx": 18,
@@ -1616,17 +1616,74 @@
         "yt:ZgFfCikEpUc",
         "fb:4515301802043708"
       ]
+    },
+    {
+      "idx": 212,
+      "title": "Essa foi a PIOR partida da minha vida... e",
+      "platforms": [
+        "yt:NSxbcHsIqUk",
+        "fb:1984405278918686"
+      ]
+    },
+    {
+      "idx": 213,
+      "title": "momento de gameplay - Momento de gameplay Melhor JOGO",
+      "platforms": [
+        "yt:-PT8LRwlyVs",
+        "fb:1659309745845202"
+      ]
+    },
+    {
+      "idx": 214,
+      "title": "momento de gameplay - Momento de gameplay Essa foi a",
+      "platforms": [
+        "yt:fR1CstnstOI",
+        "fb:850976138041287"
+      ]
+    },
+    {
+      "idx": 215,
+      "title": "momento de gameplay - Somos assim at nesse jogo... o que rolou na pt1",
+      "platforms": [
+        "yt:hkr5Qm9Dc0g",
+        "fb:1797173304815664"
+      ]
+    },
+    {
+      "idx": 216,
+      "title": "Momento de gameplay - o que rolou na partida pt1",
+      "platforms": [
+        "yt:athJesbbTHI",
+        "fb:2242093299667506"
+      ]
+    },
+    {
+      "idx": 217,
+      "title": "Momento de gameplay o que rolou na partida",
+      "platforms": [
+        "yt:-1aXi2JgX3Y",
+        "fb:1391846509264156"
+      ]
+    },
+    {
+      "idx": 218,
+      "title": "Momento de gameplay Melhor JOGO DE HROI DO o",
+      "platforms": [
+        "yt:TWvvxJy3euw",
+        "fb:1104884061911225"
+      ]
+    },
+    {
+      "idx": 219,
+      "title": "momento de gameplay - Um arquivo que nunca ira ser",
+      "platforms": [
+        "yt:STk-X7v5Q4Y",
+        "fb:1586199523252278"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-26": [
-      "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-27": [
-      "12:00",
       "15:00",
       "18:00",
       "22:00"
@@ -1675,8 +1732,16 @@
     ],
     "2026-10-05": [
       "12:00",
-      "15:00"
+      "15:00",
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-06": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
     ]
   },
-  "last_upload_date": "2026-09-26"
+  "last_upload_date": "2026-09-27"
 }
