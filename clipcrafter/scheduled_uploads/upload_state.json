@@ -1,5 +1,5 @@
 {
-  "cursor": 220,
+  "cursor": 228,
   "uploaded": [
     {
       "idx": 18,
@@ -1680,23 +1680,74 @@
         "yt:STk-X7v5Q4Y",
         "fb:1586199523252278"
       ]
+    },
+    {
+      "idx": 220,
+      "title": "Momento de gameplay nossa opinião sobre a",
+      "platforms": [
+        "yt:n0przHQXduU",
+        "fb:2156640701942649"
+      ]
+    },
+    {
+      "idx": 221,
+      "title": "momento de gameplay - Essa foi a PIOR partida da minha",
+      "platforms": [
+        "yt:3CJaoXuf38M",
+        "fb:1750752066184665"
+      ]
+    },
+    {
+      "idx": 222,
+      "title": "Um arquivo que nunca ira ser descoberto o - momento",
+      "platforms": [
+        "yt:6DlbSiJVbzE",
+        "fb:918919591084489"
+      ]
+    },
+    {
+      "idx": 223,
+      "title": "Momento de gameplay Essa foi a PIOR partida",
+      "platforms": [
+        "yt:_zqGhwT-MWg",
+        "fb:1112053764631494"
+      ]
+    },
+    {
+      "idx": 224,
+      "title": "Momento de gameplay o momento marcante - momento",
+      "platforms": [
+        "yt:hxHp0ksef4I",
+        "fb:2497088194111634"
+      ]
+    },
+    {
+      "idx": 225,
+      "title": "momento de gameplay - Melhor JOGO DE HROI DO ANO",
+      "platforms": [
+        "yt:DrZIO1Ka3TI",
+        "fb:971824721877436"
+      ]
+    },
+    {
+      "idx": 226,
+      "title": "Nossa opinião sobre a nova temporada de - momento",
+      "platforms": [
+        "yt:K1ziA0w2JBQ",
+        "fb:2612263419213045"
+      ]
+    },
+    {
+      "idx": 227,
+      "title": "Melhor JOGO DE HROI DO ANO momento marcante",
+      "platforms": [
+        "yt:Lb7ZqyG9tog",
+        "fb:2281673655989717"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-27": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-28": [
-      "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
-    "2026-09-29": [
-      "12:00",
-      "15:00",
       "18:00",
       "22:00"
     ],
@@ -1741,7 +1792,13 @@
       "15:00",
       "18:00",
       "22:00"
+    ],
+    "2026-09-29": [
+      "12:00",
+      "15:00",
+      "18:00",
+      "22:00"
     ]
   },
-  "last_upload_date": "2026-09-27"
+  "last_upload_date": "2026-09-28"
 }
