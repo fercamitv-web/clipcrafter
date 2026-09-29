@@ -1,5 +1,5 @@
 {
-  "cursor": 228,
+  "cursor": 236,
   "uploaded": [
     {
       "idx": 18,
@@ -1744,20 +1744,79 @@
         "yt:Lb7ZqyG9tog",
         "fb:2281673655989717"
       ]
+    },
+    {
+      "idx": 228,
+      "title": "momento de gameplay - Momento de gameplay momento",
+      "platforms": [
+        "yt:yEma_DR9YQU",
+        "fb:28309838482000592"
+      ]
+    },
+    {
+      "idx": 229,
+      "title": "Momento de gameplay Melhor JOGO DE HROI DO",
+      "platforms": [
+        "yt:HhqdgGAdXJk",
+        "fb:926925080146373"
+      ]
+    },
+    {
+      "idx": 230,
+      "title": "Momento no jogo de terror Nunca ficamos to o",
+      "platforms": [
+        "yt:KY14pY-J-2E",
+        "fb:1630534391907130"
+      ]
+    },
+    {
+      "idx": 231,
+      "title": "Momento de gameplay Nunca ficamos to bravo",
+      "platforms": [
+        "yt:Zi97pQs9ZbE",
+        "fb:2519809321865581"
+      ]
+    },
+    {
+      "idx": 232,
+      "title": "momento de gameplay - Somos assim at nesse jogo... momento",
+      "platforms": [
+        "yt:6IR_N7P-g0o",
+        "fb:1086058691059015"
+      ]
+    },
+    {
+      "idx": 233,
+      "title": "Momento de terror Nunca ficamos to bravo o",
+      "platforms": [
+        "yt:eqS70xZ7WIw",
+        "fb:1413436105178355"
+      ]
+    },
+    {
+      "idx": 234,
+      "title": "Momento de gameplay nossa opinião sobre a pt1",
+      "platforms": [
+        "yt:_ODZbHxS2L0",
+        "fb:1528691282625881"
+      ]
+    },
+    {
+      "idx": 235,
+      "title": "Momento de gameplay Um gameplay do dia - momento",
+      "platforms": [
+        "yt:pnugwyH-Ysw",
+        "fb:1090372933891249"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-28": [
-      "18:00",
-      "22:00"
-    ],
-    "2026-09-30": [
-      "12:00",
+    "2026-09-29": [
       "15:00",
       "18:00",
       "22:00"
     ],
-    "2026-10-01": [
+    "2026-09-30": [
       "12:00",
       "15:00",
       "18:00",
@@ -1793,12 +1852,15 @@
       "18:00",
       "22:00"
     ],
-    "2026-09-29": [
+    "2026-10-01": [
       "12:00",
       "15:00",
       "18:00",
       "22:00"
+    ],
+    "2026-10-07": [
+      "12:00"
     ]
   },
-  "last_upload_date": "2026-09-28"
+  "last_upload_date": "2026-09-29"
 }
