@@ -1,5 +1,5 @@
 {
-  "cursor": 236,
+  "cursor": 244,
   "uploaded": [
     {
       "idx": 18,
@@ -1808,21 +1808,79 @@
         "yt:pnugwyH-Ysw",
         "fb:1090372933891249"
       ]
+    },
+    {
+      "idx": 236,
+      "title": "Momento de gameplay Somos assim at nesse o",
+      "platforms": [
+        "yt:kogiIBUHAgc",
+        "fb:1030263173360517"
+      ]
+    },
+    {
+      "idx": 237,
+      "title": "momento de gameplay - Momento de gameplay momento no",
+      "platforms": [
+        "yt:9taGx3-ywZg",
+        "fb:1115642181322576"
+      ]
+    },
+    {
+      "idx": 238,
+      "title": "Essa foi a PIOR partida da minha vida... e pt1",
+      "platforms": [
+        "yt:1dGkw5OSpM8",
+        "fb:956031746979710"
+      ]
+    },
+    {
+      "idx": 239,
+      "title": "Momento de gameplay Um arquivo que nunca ira",
+      "platforms": [
+        "yt:Fvfv6F9bymY",
+        "fb:1685819132986937"
+      ]
+    },
+    {
+      "idx": 240,
+      "title": "Um arquivo que nunca ira ser descoberto o",
+      "platforms": [
+        "yt:ulfLBqrbZP8",
+        "fb:1570244274319313"
+      ]
+    },
+    {
+      "idx": 241,
+      "title": "Um arquivo que nunca ira ser descoberto o pt1",
+      "platforms": [
+        "yt:d4CqRIR69A0",
+        "fb:1592255242915283"
+      ]
+    },
+    {
+      "idx": 242,
+      "title": "momento de gameplay - Momento de gameplay Um arquivo",
+      "platforms": [
+        "yt:s7FocmlxW3A",
+        "fb:1051176747958750"
+      ]
+    },
+    {
+      "idx": 243,
+      "title": "Essa foi a PIOR partida da minha vida... e pt2",
+      "platforms": [
+        "yt:sHaaopntnTg",
+        "fb:1653476249667793"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-29": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-09-30": [
-      "12:00",
       "15:00",
       "18:00",
       "22:00"
     ],
-    "2026-10-02": [
+    "2026-10-01": [
       "12:00",
       "15:00",
       "18:00",
@@ -1830,8 +1888,6 @@
     ],
     "2026-10-03": [
       "12:00",
-      "15:00",
-      "18:00",
       "22:00"
     ],
     "2026-10-04": [
@@ -1852,15 +1908,22 @@
       "18:00",
       "22:00"
     ],
-    "2026-10-01": [
-      "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-10-07": [
-      "12:00"
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-02": [
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-08": [
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-09": [
+      "12:00",
+      "15:00"
     ]
   },
-  "last_upload_date": "2026-09-29"
+  "last_upload_date": "2026-09-30"
 }
