@@ -1,5 +1,5 @@
 {
-  "cursor": 244,
+  "cursor": 252,
   "uploaded": [
     {
       "idx": 18,
@@ -1872,33 +1872,87 @@
         "yt:sHaaopntnTg",
         "fb:1653476249667793"
       ]
+    },
+    {
+      "idx": 244,
+      "title": "momento de gameplay - Essa foi a PIOR partida da minha pt1",
+      "platforms": [
+        "yt:8r-yCfvz_i4",
+        "fb:976447688140596"
+      ]
+    },
+    {
+      "idx": 245,
+      "title": "Momento de gameplay Somos assim at nesse o pt1",
+      "platforms": [
+        "yt:eKE5fnGRvEI",
+        "fb:2053624088602152"
+      ]
+    },
+    {
+      "idx": 246,
+      "title": "Um arquivo que nunca ira ser descoberto o pt2",
+      "platforms": [
+        "yt:3oOyGAOIcTg",
+        "fb:1652144666531023"
+      ]
+    },
+    {
+      "idx": 247,
+      "title": "Momento de gameplay Essa foi a PIOR partida - momento",
+      "platforms": [
+        "yt:m6tcTft9L9g",
+        "fb:1610326867551909"
+      ]
+    },
+    {
+      "idx": 248,
+      "title": "Momento de gameplay Essa foi a PIOR partida pt1",
+      "platforms": [
+        "yt:LX-vup17Z5Y",
+        "fb:1467061181940840"
+      ]
+    },
+    {
+      "idx": 249,
+      "title": "Momento de gameplay Essa foi a PIOR partida pt2",
+      "platforms": [
+        "yt:kV0whAkVlzY",
+        "fb:1827707338655055"
+      ]
+    },
+    {
+      "idx": 250,
+      "title": "Melhor JOGO DE HROI DO ANO gameplay do dia",
+      "platforms": [
+        "yt:_kdf8KbdxGI",
+        "fb:1137277825312798"
+      ]
+    },
+    {
+      "idx": 251,
+      "title": "Momento de gameplay Um arquivo que nunca ira pt1",
+      "platforms": [
+        "yt:XUYnmeSsArU",
+        "fb:1368124113050990"
+      ]
     }
   ],
   "scheduled": {
-    "2026-09-30": [
+    "2026-10-01": [
       "15:00",
       "18:00",
       "22:00"
     ],
-    "2026-10-01": [
+    "2026-10-02": [
       "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
+      "15:00"
     ],
     "2026-10-03": [
       "12:00",
-      "22:00"
-    ],
-    "2026-10-04": [
-      "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
+      "15:00"
     ],
     "2026-10-05": [
-      "12:00",
-      "15:00",
       "18:00",
       "22:00"
     ],
@@ -1912,10 +1966,6 @@
       "12:00",
       "15:00"
     ],
-    "2026-10-02": [
-      "12:00",
-      "15:00"
-    ],
     "2026-10-08": [
       "12:00",
       "15:00"
@@ -1923,7 +1973,22 @@
     "2026-10-09": [
       "12:00",
       "15:00"
+    ],
+    "2026-10-04": [
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-10": [
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-11": [
+      "12:00",
+      "15:00"
+    ],
+    "2026-10-12": [
+      "12:00"
     ]
   },
-  "last_upload_date": "2026-09-30"
+  "last_upload_date": "2026-10-01"
 }
