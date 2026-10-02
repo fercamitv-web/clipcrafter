@@ -1,5 +1,5 @@
 {
-  "cursor": 252,
+  "cursor": 257,
   "uploaded": [
     {
       "idx": 18,
@@ -1936,31 +1936,61 @@
         "yt:XUYnmeSsArU",
         "fb:1368124113050990"
       ]
+    },
+    {
+      "idx": 252,
+      "title": "Um arquivo que nunca ira ser descoberto o - momento pt1",
+      "platforms": [
+        "yt:O4152TwaF8U",
+        "fb:789939034214395"
+      ]
+    },
+    {
+      "idx": 253,
+      "title": "Somos assim at nesse jogo... momento - momento marcante",
+      "platforms": [
+        "yt:wiDp2Nb0fqQ",
+        "fb:2532504560552170"
+      ]
+    },
+    {
+      "idx": 254,
+      "title": "Momento de gameplay nossa opinião sobre a - gameplay",
+      "platforms": [
+        "yt:emcGj_BOC9o",
+        "fb:2958811931134224"
+      ]
+    },
+    {
+      "idx": 255,
+      "title": "Momento de gameplay Somos assim at nesse",
+      "platforms": [
+        "yt:V4CpaD23CgU",
+        "fb:2665164677249944"
+      ]
+    },
+    {
+      "idx": 256,
+      "title": "Momento de gameplay Somos assim at nesse pt1",
+      "platforms": [
+        "yt:UqWEFtegHN0",
+        "fb:956524720262409"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-01": [
+    "2026-10-02": [
       "15:00",
       "18:00",
       "22:00"
-    ],
-    "2026-10-02": [
-      "12:00",
-      "15:00"
     ],
     "2026-10-03": [
       "12:00",
       "15:00"
     ],
-    "2026-10-05": [
-      "18:00",
-      "22:00"
-    ],
-    "2026-10-06": [
+    "2026-10-04": [
       "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
+      "15:00"
     ],
     "2026-10-07": [
       "12:00",
@@ -1974,10 +2004,6 @@
       "12:00",
       "15:00"
     ],
-    "2026-10-04": [
-      "12:00",
-      "15:00"
-    ],
     "2026-10-10": [
       "12:00",
       "15:00"
@@ -1988,7 +2014,22 @@
     ],
     "2026-10-12": [
       "12:00"
+    ],
+    "2026-10-05": [
+      "12:00"
+    ],
+    "2026-10-06": [
+      "12:00"
+    ],
+    "2026-10-13": [
+      "12:00"
+    ],
+    "2026-10-14": [
+      "12:00"
+    ],
+    "2026-10-15": [
+      "12:00"
     ]
   },
-  "last_upload_date": "2026-10-01"
+  "last_upload_date": "2026-10-02"
 }
