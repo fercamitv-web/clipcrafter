@@ -1,42 +1,42 @@
 {
   "order": [
-    "FNAF",
     "Minecraft",
-    "Roblox",
-    "Gaming",
-    "Squid Game",
     "Horror Co-op",
-    "Valorant"
+    "FNAF",
+    "Roblox",
+    "Squid Game",
+    "Valorant",
+    "Gaming"
   ],
   "scores": {
     "Minecraft": {
-      "avg": 35.5,
-      "n": 0
-    },
-    "Valorant": {
-      "avg": 7.5,
+      "avg": 488.0,
       "n": 36
     },
+    "Valorant": {
+      "avg": 29.6,
+      "n": 182
+    },
     "Roblox": {
-      "avg": 35.5,
+      "avg": 50.3,
       "n": 0
     },
     "Horror Co-op": {
-      "avg": 25.9,
-      "n": 8
+      "avg": 90.5,
+      "n": 24
     },
     "Gaming": {
-      "avg": 35.5,
-      "n": 50
+      "avg": 16.0,
+      "n": 153
     },
     "Squid Game": {
-      "avg": 35.5,
-      "n": 2
+      "avg": 50.3,
+      "n": 1
     },
     "FNAF": {
       "avg": 71.0,
       "n": 4
     }
   },
-  "updated": "2026-10-04"
+  "updated": "2026-10-06"
 }

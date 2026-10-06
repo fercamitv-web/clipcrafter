@@ -553,9 +553,15 @@ class ValorantStudio:
             else:
                 title = f"{et} de {game}".strip().replace("  ", " ")
         title = re.sub(r'\s+', ' ', title).strip(" -–—#")
-        # Títulos curtos vencem neste canal (top views: 15-38 chars).
-        if len(title) > 55:
-            title = title[:55].rsplit(" ", 1)[0]
+        # Teto de tamanho aprendido pelo autotune (top views: titulos curtos).
+        try:
+            _cap = int(json.loads(open(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "scheduled_uploads", "tuning.json"), encoding="utf-8").read()).get("title_cap", 55))
+        except Exception:
+            _cap = 55
+        if len(title) > _cap:
+            title = title[:_cap].rsplit(" ", 1)[0]
         title = title or "Jogada de valorant na ranked"
         return title
 

@@ -279,10 +279,24 @@ def main():
     for d in [d for d in scheduled if d < today_str]:
         del scheduled[d]  # limpa dias passados
 
+    _tune_hours, _tune_med = {}, None
+    try:
+        _tf = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "tuning.json"
+        if _tf.exists():
+            _tj = json.loads(_tf.read_text(encoding="utf-8"))
+            _tune_hours = {str(k): v for k, v in (_tj.get("hour_avg") or {}).items()}
+    except Exception:
+        pass
+
     def day_slots(day_str):
         y, m, d = map(int, day_str.split("-"))
         base = now.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
-        return [base.replace(hour=h) for h in (12, 15, 18, 22)]
+        hours = [12, 15, 18, 22]
+        if _tune_hours:
+            # só reordena entre os slots existentes (nunca inventa horário)
+            _med = sorted(_tune_hours.values())[len(_tune_hours) // 2] if _tune_hours else 0
+            hours = sorted(hours, key=lambda h: -_tune_hours.get(str(h), _med))
+        return [base.replace(hour=h) for h in hours]
 
     # Experimento A/B (2026-09): 1 clipe/dia publica DIRETO (public imediato)
     # vs resto agendado (publishAt). DIRECT_EXTRA=1 no cron durante o teste.
