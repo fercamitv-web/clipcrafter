@@ -270,6 +270,9 @@ def main():
     WALL_DAYS = int(os.environ.get("WALL_DAYS", "14"))
     # Desde dez/2025 upload custa ~100 units (teto 100/dia separado): teto 8/run é seguro
     MAX_UPLOADS = int(os.environ.get("MAX_UPLOADS", "8"))
+    if pending_total <= 30:
+        # estoque baixo: sem extensão de muralha, só o dia (preserva estoque)
+        MAX_UPLOADS = min(MAX_UPLOADS, daily_batch)
 
     now = datetime.now(BRT)
     today_str = now.strftime('%Y-%m-%d')

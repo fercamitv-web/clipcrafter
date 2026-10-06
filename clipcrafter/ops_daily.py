@@ -233,6 +233,50 @@ def check_zombies():
         log(f"[WARN] zumbis: {str(e)[:100]}")
         return True
 
+def check_stock():
+    # Previsão de estoque + reposição automática se crítico.
+    # (A CI já descobre 5 VODs/dia; aqui só visibilidade + emergência local.)
+    log("== Estoque / reposição ==")
+    try:
+        q = json.loads(QUEUE_FILE.read_text(encoding="utf-8"))
+        s = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+        pending = len(q) - s.get("cursor", 0)
+        days = pending // 4
+        log(f"[INFO] pendentes: {pending} (~{days} dias a 4/dia)")
+        # VODs-fonte ainda não processados (rápido: só lista o canal)
+        unproc = []
+        try:
+            sys.path.insert(0, str(CLIP))
+            from auto_clipper import discover_vods
+            from ci_discover import already_processed
+            vods = discover_vods("https://www.youtube.com/@CanalPropra/videos", min_duration=300)
+            unproc = [(v, d, t) for v, d, t in vods if not already_processed(v, q)][:8]
+            log(f"[INFO] VODs-fonte não processados: {len(unproc)}")
+            for v, d, t in unproc[:4]:
+                log(f"       - {v} ({d//60}min) {(t or '')[:45]}")
+        except Exception as e:
+            log(f"[WARN] discovery scan: {str(e)[:100]}")
+        if pending < 7 * 4 and unproc:
+            log("[CRIT] estoque < 1 semana COM fonte disponível -> repondo sozinho (2 VODs, 2º plano)")
+            try:
+                import subprocess as _sp
+                _sp.Popen([sys.executable, str(CLIP / "refill_stock.py")],
+                          cwd=str(REPO), stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
+                log("[OK] reposição lançada em 2º plano (log: ~/.clipcrafter/logs/refill.log)")
+            except Exception as e:
+                log(f"[WARN] não consegui lançar reposição: {e}")
+        elif pending < 7 * 4 and not unproc:
+            log("[CRIT] estoque < 1 semana e SEM VOD novo: poste 1 gameplay (10min) p/ gerar ~10 clips")
+        elif pending < 14 * 4:
+            log("[WARN] estoque < 2 semanas — acompanhe")
+        else:
+            log("[OK] estoque saudável")
+        return True
+    except Exception as e:
+        log(f"[ERR] estoque: {e}")
+        return False
+
 def check_last_run():
     log("== Último upload (local state) ==")
     try:
@@ -255,6 +299,7 @@ def main():
     results.append(("tools", check_tools()))
     results.append(("meta", check_meta()))
     results.append(("retitle", retitle_backlog()))
+    results.append(("stock", check_stock()))
     results.append(("zombies", check_zombies()))
     results.append(("last_run", check_last_run()))
     log("-"*60)
