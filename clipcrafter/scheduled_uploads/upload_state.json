@@ -1,5 +1,5 @@
 {
-  "cursor": 261,
+  "cursor": 263,
   "uploaded": [
     {
       "idx": 18,
@@ -2008,12 +2008,25 @@
         "yt:YEZAIKpJBls",
         "fb:4426547864233087"
       ]
+    },
+    {
+      "idx": 261,
+      "title": "momento de terror - Corra do macaco antes que ele te pegue",
+      "platforms": [
+        "yt:_kWAvcLD3k0",
+        "fb:978380861976666"
+      ]
+    },
+    {
+      "idx": 262,
+      "title": "momento de terror - Corra do macaco antes que ele te pegue pt1",
+      "platforms": [
+        "yt:2j7NubyjrnQ",
+        "fb:2154471985137007"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-07": [
-      "12:00"
-    ],
     "2026-10-10": [
       "12:00",
       "15:00"
@@ -2040,9 +2053,10 @@
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-06": [
+    "2026-10-07": [
+      "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-06"
+  "last_upload_date": "2026-10-07"
 }
