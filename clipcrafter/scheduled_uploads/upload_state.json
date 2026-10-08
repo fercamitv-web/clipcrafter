@@ -1,5 +1,5 @@
 {
-  "cursor": 263,
+  "cursor": 265,
   "uploaded": [
     {
       "idx": 18,
@@ -2024,13 +2024,25 @@
         "yt:2j7NubyjrnQ",
         "fb:2154471985137007"
       ]
+    },
+    {
+      "idx": 263,
+      "title": "O susto de Corra do macaco antes que ele te pegue com a",
+      "platforms": [
+        "yt:y8cdvaaey7w",
+        "fb:2343093799759033"
+      ]
+    },
+    {
+      "idx": 264,
+      "title": "momento de terror - Corra do macaco antes que ele te pegue pt2",
+      "platforms": [
+        "yt:BEdSDcCGvL0",
+        "fb:1539186314905518"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-10": [
-      "12:00",
-      "15:00"
-    ],
     "2026-10-11": [
       "12:00",
       "15:00"
@@ -2053,10 +2065,10 @@
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-07": [
+    "2026-10-08": [
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-07"
+  "last_upload_date": "2026-10-08"
 }
