@@ -1,5 +1,5 @@
 {
-  "cursor": 265,
+  "cursor": 267,
   "uploaded": [
     {
       "idx": 18,
@@ -2040,16 +2040,25 @@
         "yt:BEdSDcCGvL0",
         "fb:1539186314905518"
       ]
+    },
+    {
+      "idx": 265,
+      "title": "Corra do macaco antes que ele te pegue - terror com os",
+      "platforms": [
+        "yt:q6JBgBRc3GA",
+        "fb:965829245964357"
+      ]
+    },
+    {
+      "idx": 266,
+      "title": "O próximo (ALL STARS) está na nossa - o que vi no Roblox",
+      "platforms": [
+        "yt:mPR12Hs7uuk",
+        "fb:1117568537480029"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-11": [
-      "12:00",
-      "15:00"
-    ],
-    "2026-10-12": [
-      "12:00"
-    ],
     "2026-10-13": [
       "12:00"
     ],
@@ -2065,10 +2074,10 @@
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-08": [
+    "2026-10-09": [
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-08"
+  "last_upload_date": "2026-10-09"
 }
