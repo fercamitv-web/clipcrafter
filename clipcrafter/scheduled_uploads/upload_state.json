@@ -1,5 +1,5 @@
 {
-  "cursor": 267,
+  "cursor": 269,
   "uploaded": [
     {
       "idx": 18,
@@ -2056,6 +2056,22 @@
         "yt:mPR12Hs7uuk",
         "fb:1117568537480029"
       ]
+    },
+    {
+      "idx": 267,
+      "title": "O próximo (ALL STARS) está na nossa - o que vi no Roblox pt1",
+      "platforms": [
+        "yt:SJHtO0Hdez4",
+        "fb:1349705880390072"
+      ]
+    },
+    {
+      "idx": 268,
+      "title": "O próximo (ALL STARS) está na nossa - momento no Roblox",
+      "platforms": [
+        "yt:WPuFxChX2Xc",
+        "fb:2354074992086570"
+      ]
     }
   ],
   "scheduled": {
@@ -2074,10 +2090,10 @@
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-09": [
+    "2026-10-10": [
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-09"
+  "last_upload_date": "2026-10-10"
 }
