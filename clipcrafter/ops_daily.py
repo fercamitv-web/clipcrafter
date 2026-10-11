@@ -277,6 +277,85 @@ def check_stock():
         log(f"[ERR] estoque: {e}")
         return False
 
+def check_zeros():
+    # Shorts publicados zerados ha +48h: diagnostica e resolve o resolvivel
+    # (metadados fracos). Nunca deleta, nunca falha o review.
+    log("== Zeros (+48h) ==")
+    try:
+        import pickle
+        from google.auth.transport.requests import Request
+        from googleapiclient.discovery import build
+        from datetime import timedelta
+        p = Path.home() / ".clipcrafter" / "youtube_token.pickle"
+        if not p.exists():
+            log("[WARN] sem token p/ monitor de zeros")
+            return True
+        creds = pickle.load(open(p, "rb"))
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            pickle.dump(creds, open(p, "wb"))
+        yt = build("youtube", "v3", credentials=creds)
+        ch = yt.channels().list(part="contentDetails", mine=True).execute()["items"][0]
+        upl = ch["contentDetails"]["relatedPlaylists"]["uploads"]
+        items = yt.playlistItems().list(part="contentDetails", playlistId=upl,
+                                        maxResults=25).execute()["items"]
+        ids = ",".join(it["contentDetails"]["videoId"] for it in items)
+        vids = yt.videos().list(part="snippet,status,statistics,contentDetails",
+                                id=ids).execute()["items"]
+        now = datetime.now().astimezone()
+        fixed_file = Path.home() / ".clipcrafter" / "zero_fixed.json"
+        fixed = set(json.loads(fixed_file.read_text()) if fixed_file.exists() else [])
+        rep, nfix = [], 0
+        for v in vids:
+            sn, st = v["snippet"], v["status"]
+            if st.get("privacyStatus") != "public":
+                continue
+            if int(v.get("statistics", {}).get("viewCount", 0)) != 0:
+                continue
+            pub = datetime.fromisoformat(sn["publishedAt"].replace("Z", "+00:00"))
+            age_h = (now - pub).total_seconds() / 3600
+            if age_h < 48:
+                continue
+            dur = v.get("contentDetails", {}).get("duration", "?")
+            probs = []
+            if dur.startswith("PT") and ("H" in dur or "M" in dur):
+                probs.append("longo p/ Shorts (>60s: sem prateleira de Shorts)")
+            if not sn.get("tags"):
+                probs.append("sem tags")
+            if "#shorts" not in (sn.get("description", "") or "").lower():
+                probs.append("sem #shorts")
+            rep.append((v["id"], int(age_h), dur, probs, sn.get("title", "")[:45]))
+            # auto-fix: metadados (max 3/dia, sem repetir)
+            if v["id"] not in fixed and nfix < 3 and ("sem tags" in probs or "sem #shorts" in probs):
+                try:
+                    sys.path.insert(0, str(CLIP))
+                    from enrich_backfill import upgrade_desc
+                    nd = upgrade_desc(sn.get("description", ""))
+                    body = {"id": v["id"], "snippet": {
+                        "title": sn.get("title", "")[:100], "description": nd,
+                        "categoryId": sn.get("categoryId", "20")}}
+                    if sn.get("tags"):
+                        body["snippet"]["tags"] = sn["tags"][:500]
+                    elif not sn.get("tags"):
+                        body["snippet"]["tags"] = ["Shorts", "CanalPropra", "gameplay"]
+                    yt.videos().update(part="snippet", body=body).execute()
+                    fixed.add(v["id"])
+                    nfix += 1
+                    probs.append("metadados refeitos agora")
+                except Exception as e:
+                    probs.append(f"fix falhou: {str(e)[:60]}")
+        fixed_file.write_text(json.dumps(sorted(fixed)))
+        if not rep:
+            log("[OK] nenhum Short zerado ha +48h nos 25 mais novos")
+        else:
+            log(f"[WARN] {len(rep)} zerados +48h (<=3 com metadados refeitos/dia):")
+            for vid, h, dur, probs, t in rep[:8]:
+                log(f"       {vid} {h}h {dur} [{'; '.join(probs) or 'só seed fraco'}] {t}")
+        return True
+    except Exception as e:
+        log(f"[WARN] zeros: {str(e)[:100]}")
+        return True
+
 def check_last_run():
     log("== Último upload (local state) ==")
     try:
@@ -301,6 +380,7 @@ def main():
     results.append(("retitle", retitle_backlog()))
     results.append(("stock", check_stock()))
     results.append(("zombies", check_zombies()))
+    results.append(("zeros", check_zeros()))
     results.append(("last_run", check_last_run()))
     log("-"*60)
     fails=[k for k,v in results if not v]
