@@ -4,6 +4,51 @@ from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 
 # === VALORANT KNOWLEDGE ===
+# Gate de qualidade: nenhum título com defeito (gagueira, stuffing, glifo,
+# caps-spam) entra na fila. Aprendido com os zeros: defeito de título mata CTR.
+_ACCENTS = {"comeo": "começo", "sobrevivncia": "sobrevivência",
+            "opinio": "opinião", "historia": "história", "heroi": "herói",
+            "reacao": "reação", "decisao": "decisão", "emocao": "emoção",
+            "inicio": "início", "voce": "você", "nao": "não"}
+
+
+def sanitize_title(t: str, game: str = "") -> str:
+    """Limpeza final anti-zero. Idempotente e conservadora."""
+    if not t:
+        return ""
+    W = r"[\wÀ-ÿ'’-]+"
+    pa = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s+\1\b", re.I)
+    pd = re.compile(rf"\b({W}(?:\s+{W}){{1,3}})\s*-\s*\1\b", re.I)
+    ps = re.compile(rf"\b([^\W\d_]['\wÀ-ÿ'’-]*)\s*(?:-\s*)?\1\b", re.I)
+    t = t.replace("�", "")
+    for _ in range(6):
+        nt = pd.sub(r"\1", pa.sub(r"\1", ps.sub(r"\1", t)))
+        if nt == t:
+            break
+        t = nt
+    t = re.sub(r"#\w+", "", t)
+    t = re.sub(r"\s*\(com\b", "", t)
+    t = t.replace("()", "").replace("''", "").strip()
+    t = re.sub(r"\s+pt\d+\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+", " ", t).strip(" -–—|?!")
+    t = re.sub(r"\s*\+\s*\w+(\s+\w+)?\s*$", "", t)
+    t = re.sub(r"\s+(e|de|do|da|no|na|a|o|em|que|com|para|por)\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+", " ", t).strip(" -–—|")
+
+    def _ra(m):
+        w = m.group(0)
+        f = _ACCENTS[w.lower()]
+        return f.capitalize() if w[0].isupper() else f
+
+    t = re.sub(r"\b(" + "|".join(_ACCENTS) + r")\b", _ra, t, flags=re.I)
+    t = re.sub(r"\b[A-ZÀ-Þ]{5,}\b", lambda m: m.group(0).capitalize(), t)
+    if t:
+        t = t[0].upper() + t[1:]
+    if len(t) > 95:
+        t = t[:95].rsplit(" ", 1)[0]
+    return t
+
+
 AGENTS = ["Jett","Reyna","Phoenix","Raze","Neon","Yoru","Iso",
           "Sage","Cypher","Killjoy","Chamber","Deadlock","Vyse",
           "Brimstone","Omen","Astra","Harbor","Clove","Tejo",
@@ -552,7 +597,11 @@ class ValorantStudio:
                 title = f"{et} de LoL que girou a partida"
             else:
                 title = f"{et} de {game}".strip().replace("  ", " ")
+        title = sanitize_title(title, game)
         title = re.sub(r'\s+', ' ', title).strip(" -–—#")
+        if len(title) < 15:
+            gname = game if game and game != "Gaming" else "gameplay"
+            title = f"Momento insano de {gname} que parou a partida"
         # Teto de tamanho aprendido pelo autotune (top views: titulos curtos).
         try:
             _cap = int(json.loads(open(os.path.join(
