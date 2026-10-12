@@ -42,6 +42,31 @@ def detect_game(vod_title: str) -> str:
     # Default fallback for generic gaming titles
     return "Gaming"
 
+# Tags geradas pelo studio carregam o jogo real (ex.: Roblox, MarvelRivals)
+# mesmo quando o título do VOD é genérico. Reconcilia entry["game"] a partir
+# delas — evita "Gaming" carimbado por setdefault em fila já processada.
+_TAG2GAME = {
+    "duo": "Valorant Duo", "duovalorant": "Valorant Duo",
+    "valorant": "Valorant",
+    "roblox": "Roblox", "robloxbrasil": "Roblox",
+    "minecraft": "Minecraft", "minecraftbrasil": "Minecraft",
+    "marvelrivals": "Marvel Rivals",
+    "fnaf": "FNAF", "fivenightsatfreddys": "FNAF",
+    "supermario": "Super Mario", "mariobros": "Super Mario",
+    "leagueoflegends": "League of Legends",
+    "valorantbrasil": "Valorant", "jogadasvalorant": "Valorant",
+    "squidgame": "Squid Game", "round6": "Squid Game",
+}
+
+
+def game_from_tags(tags) -> str:
+    for t in tags or []:
+        g = _TAG2GAME.get(str(t).lower().replace(" ", ""))
+        if g:
+            return g
+    return ""
+
+
 def detect_style(vod_title: str) -> str:
     vt = vod_title.lower()
     style = None

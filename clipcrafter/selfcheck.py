@@ -159,6 +159,14 @@ def step_queue_integrity():
             log_err(f"entry {i} missing keys {missing}")
         if e.get("game") not in VALID_GAMES:
             log_err(f"entry {i} ({e.get('clip_file')}) unknown game {e.get('game')!r}")
+        try:
+            from content_detector import game_from_tags as _gft
+            tg = _gft(e.get("tags"))
+            if tg and e.get("game") == "Gaming":
+                e["game"] = tg
+                log_fix(f"entry {i} ({e.get('clip_file')}): game Gaming -> {tg} (via tags)")
+        except Exception:
+            pass
 
     # missing files -> drop entry (non-destructive: file is gone anyway)
     alive = [e for e in queue if e.get("file") and (REPO / e["file"]).exists()]

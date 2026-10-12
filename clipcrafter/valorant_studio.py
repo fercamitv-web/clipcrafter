@@ -28,6 +28,7 @@ def sanitize_title(t: str, game: str = "") -> str:
         t = nt
     t = re.sub(r"#\w+", "", t)
     t = re.sub(r"\s*\(com\b", "", t)
+    t = re.sub(r"\s+!\s*", " ", t)
     t = t.replace("()", "").replace("''", "").strip()
     t = re.sub(r"\s+pt\d+\s*$", "", t, flags=re.I)
     t = re.sub(r"\s+", " ", t).strip(" -–—|?!")
@@ -46,6 +47,17 @@ def sanitize_title(t: str, game: str = "") -> str:
         t = t[0].upper() + t[1:]
     if len(t) > 95:
         t = t[:95].rsplit(" ", 1)[0]
+    # Aparagem final (o corte pode ter exposto nova ponta solta).
+    for _ in range(4):
+        nt = re.sub(r"\s+(e|de|do|da|dos|das|no|na|nos|nas|em|o|a|os|as|um|uma|que|com|para|por)\s*$",
+                    "", t, flags=re.IGNORECASE).strip(" -–—|?!")
+        if nt == t:
+            break
+        t = nt
+    # Sufixo "- momento/- gameplay" sozinho não diz nada: corta.
+    t = re.sub(r"\s+-\s*(momento|gameplay|gameplays|video|clipe|clip|live|partida|jogo)\s*$",
+               "", t, flags=re.IGNORECASE).strip(" -–—|")
+    t = re.sub(r"\s+", " ", t)
     return t
 
 
@@ -516,6 +528,15 @@ class ValorantStudio:
         for g in sorted(game_names, key=len, reverse=True):
             t = re.sub(re.escape(g), " ", t, flags=re.IGNORECASE)
         t = re.sub(r"\s+", " ", t).strip(" ,-")
+        # Restos da remoção do nome do jogo ("DO e O", "O !" soltos): colapsa
+        # corridas de conectivos p/ um só e limpa pontas.
+        for _ in range(4):
+            nt = re.sub(r"\b(e|o|a|os|as|do|da|dos|das|de|do|na|no|nos|nas|em|um|uma)\s+(e|o|a|os|as|do|da|dos|das|de|do|na|no|nos|nas|em|um|uma)\b",
+                        r"\2", t, flags=re.IGNORECASE)
+            if nt == t:
+                break
+            t = nt
+        t = re.sub(r"\s+", " ", t).strip(" ,-")
         # drop episode markers
         parts = re.split(r"\b(ep\.?\s*\d+|parte\s*\d+|episodio\s*\d+|#\w+)", t, flags=re.IGNORECASE)
         t = parts[0].strip(" ,-")
@@ -531,6 +552,14 @@ class ValorantStudio:
                 t = cut.rsplit(" ", 1)[0]
             else:
                 t = cut
+            # O corte pode terminar em preposição/conectivo ("... SUPERARAM O"):
+            # aparar até sobrar palavra de conteúdo.
+            for _ in range(4):
+                nt = re.sub(r"\s+(e|de|do|da|dos|das|no|na|nos|nas|em|o|a|os|as|um|uma|que|com|para|por|!+)\s*$",
+                            "", t, flags=re.IGNORECASE).strip(" ,-–—!")
+                if nt == t:
+                    break
+                t = nt
         return t.strip(" ,-")
 
     def generate_seo_title(self, kill_count: int = None, event_type: str = None,
@@ -611,6 +640,12 @@ class ValorantStudio:
             _cap = 55
         if len(title) > _cap:
             title = title[:_cap].rsplit(" ", 1)[0]
+        # O cap recria os defeitos (preposição pendente, corte no meio):
+        # sanitiza DEPOIS de cortar. Idempotente e barato.
+        title = sanitize_title(title, game)
+        if len(title) < 15:
+            gname = game if game and game != "Gaming" else "gameplay"
+            title = f"Momento insano de {gname} que parou a partida"
         title = title or "Jogada de valorant na ranked"
         return title
 

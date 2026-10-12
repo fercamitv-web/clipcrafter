@@ -75,8 +75,11 @@ def main():
         save_queue(queue)
         print(f"{vid}: +{n1 - n0} clips (fila {len(queue)})", flush=True)
         gc.collect()
+    from content_detector import game_from_tags
     for e in queue:
-        e.setdefault("game", "Gaming")
+        if not e.get("game"):
+            # Nunca carimbar "Gaming" por cima de tags que já sabem o jogo.
+            e["game"] = game_from_tags(e.get("tags")) or "Gaming"
         e.setdefault("uploaded_youtube", False)
         e.setdefault("uploaded_tiktok", False)
     save_queue(queue)

@@ -32,7 +32,7 @@ def already_processed(vid, queue):
 def process_one_video(vid, dur, title, queue):
     """Process a single video: download audio, detect, download clips, process, add to queue."""
     from auto_clipper import download_audio, download_clip, process_clip, detect_viral_fast
-    from content_detector import detect_game
+    from content_detector import detect_game, game_from_tags
 
     game = detect_game(title)
     log(f"\n{'='*50}")
@@ -133,6 +133,8 @@ def process_one_video(vid, dur, title, queue):
                     "tags": tags or [],
                     "clip_file": dest.name,
                     "file": f"clipcrafter/scheduled_uploads/clips/{dest.name}",
+                    # Tags carregam o jogo real; VOD com título genérico dá "Gaming".
+                    "game": game_from_tags(tags) or game,
                 })
                 log(f"OK ({time.time()-t0:.0f}s) -> {clip_title[:50]}")
             else:
