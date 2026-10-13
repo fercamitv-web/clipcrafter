@@ -8,3 +8,4 @@ clipcrafter/yt_token_pickle.b64
 clipcrafter/_token.txt
 clipcrafter/_debug.json
 clipcrafter/_ig_test.py
+.local/

@@ -175,6 +175,19 @@ def step_queue_integrity():
         log_fix(f"dropped {dropped} queue entries whose files are missing")
         queue = alive
 
+    # orphan mp4s: file on disk with no queue entry (crash between render
+    # and save). Report so they get recovered instead of silently rotting
+    # — and so the VOD isn't reprocessed into duplicates.
+    try:
+        clips_dir = REPO / "clipcrafter" / "scheduled_uploads" / "clips"
+        known = {e.get("clip_file") for e in queue}
+        orphans = sorted(p.name for p in clips_dir.glob("*_shorts.mp4")
+                         if p.name not in known and not p.name.startswith("raw_"))
+        for o in orphans:
+            log_err(f"orphan mp4 on disk, no queue entry: {o}")
+    except Exception:
+        pass
+
     cursor = load_cursor()
     if cursor >= len(queue):
         log_fix(f"cursor {cursor} >= queue {len(queue)}; clamped to {max(0, len(queue)-1)}")

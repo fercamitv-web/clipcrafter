@@ -136,6 +136,9 @@ def process_one_video(vid, dur, title, queue):
                     # Tags carregam o jogo real; VOD com título genérico dá "Gaming".
                     "game": game_from_tags(tags) or game,
                 })
+                # Salva a cada clipe: crash/OOM/timeout no meio do VOD não
+                # pode deixar mp4 órfão no disco sem entrada na fila.
+                save_queue(queue)
                 log(f"OK ({time.time()-t0:.0f}s) -> {clip_title[:50]}")
             else:
                 log(f"FAIL: {clip_title}")
