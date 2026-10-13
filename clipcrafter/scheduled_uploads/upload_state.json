@@ -1,5 +1,5 @@
 {
-  "cursor": 271,
+  "cursor": 273,
   "uploaded": [
     {
       "idx": 18,
@@ -2088,25 +2088,35 @@
         "yt:G3Ijvl4ROmI",
         "fb:1192449223340734"
       ]
+    },
+    {
+      "idx": 271,
+      "title": "Testamos O Boneco Atualizado — Vocês Vão Ver - momento no",
+      "platforms": [
+        "yt:oJZaOzhOt_M",
+        "fb:1509804387649337"
+      ]
+    },
+    {
+      "idx": 272,
+      "title": "Testamos O Boneco Atualizado — Vocês Vão Ver - o que vi no",
+      "platforms": [
+        "yt:0yjlXSC_fdc",
+        "fb:1161236816477015"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-14": [
-      "12:00"
-    ],
-    "2026-10-15": [
-      "12:00"
-    ],
     "2026-10-16": [
       "12:00"
     ],
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-11": [
+    "2026-10-13": [
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-11"
+  "last_upload_date": "2026-10-13"
 }
