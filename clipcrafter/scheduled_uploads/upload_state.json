@@ -1,5 +1,5 @@
 {
-  "cursor": 275,
+  "cursor": 277,
   "uploaded": [
     {
       "idx": 18,
@@ -2120,16 +2120,31 @@
         "yt:YID01FW5xyo",
         "fb:882043308237489"
       ]
+    },
+    {
+      "idx": 275,
+      "title": "Minhas melhores aventuras no Palworld - sobrevivencia",
+      "platforms": [
+        "yt:qtifWFMUjh0"
+      ]
+    },
+    {
+      "idx": 276,
+      "title": "Melhores aventuras no Palworld - momento insano",
+      "platforms": [
+        "yt:wMhljlmnZxY"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-16": [
-      "12:00"
+    "2026-10-14": [
+      "18:00",
+      "22:00"
     ],
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-14": [
+    "2026-10-15": [
       "18:00",
       "22:00"
     ]
