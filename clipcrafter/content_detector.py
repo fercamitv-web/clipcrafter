@@ -12,7 +12,7 @@ GAME_PATTERNS = [
     (r"pearl|sunset|ascent|bind|haven|breeze|fracture|icebox|lotus|abyss|duelo|duela|furia.*ouro|amassando|bronze|diamante|ranked|rank up", "Valorant"),
     (r"dupla.*abaixa|doando.*ponto|abaixa.*doando|boost|dupla do", "Valorant Duo"),
     # Roblox / game on Roblox
-    (r"roblox|all star|astd|tower defense|anime celestial|chuck e cheese|chuck|protector de fantasm|arsenal|jogo de tiro do roblox|brookhaven|adopt me|piggy|doom|100 k de gemas|atualizado",
+    (r"roblox|all star|astd|tower defense|anime celestial|chuck e cheese|chuck|protector de fantasm|arsenal|jogo de tiro do roblox|brookhaven|adopt me|piggy|doom|100 k de gemas|atualizado|murder mystery|\bmm2\b",
      "Roblox"),
     # Minecraft
     (r"minecraft|one block|surviv|craft tower|palworld|palword|mine|na floresta", "Minecraft"),

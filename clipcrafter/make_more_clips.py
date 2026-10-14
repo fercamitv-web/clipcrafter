@@ -42,7 +42,14 @@ def forced(vid, dur, title, queue, game):
             print(f"  force ERROR {ex}", flush=True)
             continue
         if ok and proc.exists():
-            dest = REPO / "clipcrafter" / "scheduled_uploads" / "clips" / f"{vid}_clip{idx+1:02d}_shorts.mp4"
+            # Nome único: nunca reutilizar clipNN (sobrescrevia mp4 de
+            # entradas já publicadas e duplicava clip_file na fila).
+            used = {e.get("clip_file") for e in queue}
+            k = idx + 1
+            while f"{vid}_clip{k:02d}_shorts.mp4" in used:
+                k += 1
+            dest = REPO / "clipcrafter" / "scheduled_uploads" / "clips" / f"{vid}_clip{k:02d}_shorts.mp4"
+            used.add(dest.name)
             shutil.copy2(proc, dest)
             queue.append({"vod_id": vid, "title": ct, "hook": hook or "", "desc": desc or "",
                           "tags": tags or [], "clip_file": dest.name,
