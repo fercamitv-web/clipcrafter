@@ -124,6 +124,13 @@ def process_one_video(vid, dur, title, queue):
                     log(f"SKIP (3º título repetido p/ {vid}: {prefix[:30]})")
                     continue
                 dest = CLIPS_DIR / f"{vid}_{label}_shorts.mp4"
+                # Nome único: nunca sobrescrever mp4 existente (review be0a819).
+                if dest.name in {e.get("clip_file") for e in queue if e.get("clip_file")} or dest.exists():
+                    k = 31
+                    while (f"{vid}_clip{k:02d}_shorts.mp4" in {e.get("clip_file") for e in queue if e.get("clip_file")}
+                           or (CLIPS_DIR / f"{vid}_clip{k:02d}_shorts.mp4").exists()):
+                        k += 1
+                    dest = CLIPS_DIR / f"{vid}_clip{k:02d}_shorts.mp4"
                 shutil.copy2(processed, dest)
                 queue.append({
                     "vod_id": vid,

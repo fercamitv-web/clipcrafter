@@ -27,6 +27,8 @@ def forced(vid, dur, title, queue, game):
     tmp = _P(tempfile.gettempdir()) / f"force_{vid}"
     tmp.mkdir(parents=True, exist_ok=True)
     n = 0
+    used = {e.get("clip_file") for e in queue if e.get("clip_file")}
+    clips_dir = REPO / "clipcrafter" / "scheduled_uploads" / "clips"
     step = max(45, (dur - 60 - FORCE_LEN) // max(1, FORCE_N))
     for idx in range(FORCE_N):
         s = 30 + idx * step
@@ -44,11 +46,11 @@ def forced(vid, dur, title, queue, game):
         if ok and proc.exists():
             # Nome único: nunca reutilizar clipNN (sobrescrevia mp4 de
             # entradas já publicadas e duplicava clip_file na fila).
-            used = {e.get("clip_file") for e in queue}
             k = idx + 1
-            while f"{vid}_clip{k:02d}_shorts.mp4" in used:
+            while (f"{vid}_clip{k:02d}_shorts.mp4" in used
+                   or (clips_dir / f"{vid}_clip{k:02d}_shorts.mp4").exists()):
                 k += 1
-            dest = REPO / "clipcrafter" / "scheduled_uploads" / "clips" / f"{vid}_clip{k:02d}_shorts.mp4"
+            dest = clips_dir / f"{vid}_clip{k:02d}_shorts.mp4"
             used.add(dest.name)
             shutil.copy2(proc, dest)
             queue.append({"vod_id": vid, "title": ct, "hook": hook or "", "desc": desc or "",
