@@ -1,5 +1,5 @@
 {
-  "cursor": 273,
+  "cursor": 275,
   "uploaded": [
     {
       "idx": 18,
@@ -2104,6 +2104,22 @@
         "yt:0yjlXSC_fdc",
         "fb:1161236816477015"
       ]
+    },
+    {
+      "idx": 273,
+      "title": "Os 3 jogos que superaram tudo no Roblox",
+      "platforms": [
+        "yt:xHPBnwNo5QE",
+        "fb:1997191747639744"
+      ]
+    },
+    {
+      "idx": 274,
+      "title": "Melhor jogo de tiro do Roblox - momento insano",
+      "platforms": [
+        "yt:YID01FW5xyo",
+        "fb:882043308237489"
+      ]
     }
   ],
   "scheduled": {
@@ -2113,10 +2129,10 @@
     "2026-10-17": [
       "12:00"
     ],
-    "2026-10-13": [
+    "2026-10-14": [
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-13"
+  "last_upload_date": "2026-10-14"
 }
