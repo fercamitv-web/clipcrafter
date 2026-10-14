@@ -21,7 +21,7 @@ FORCE_N = 5
 FORCE_LEN = 20
 
 
-def forced(vid, dur, title, queue, game):
+def forced(vid, dur, title, queue, game, offset_sec=0):
     from pathlib import Path as _P
     import tempfile
     tmp = _P(tempfile.gettempdir()) / f"force_{vid}"
@@ -31,7 +31,9 @@ def forced(vid, dur, title, queue, game):
     clips_dir = REPO / "clipcrafter" / "scheduled_uploads" / "clips"
     step = max(45, (dur - 60 - FORCE_LEN) // max(1, FORCE_N))
     for idx in range(FORCE_N):
-        s = 30 + idx * step
+        # offset_sec desloca as janelas: levas repetidas no mesmo VOD
+        # cortam trechos novos em vez de duplicar os anteriores.
+        s = 30 + offset_sec + idx * step
         e = min(s + FORCE_LEN, dur - 10)
         if e - s < 12:
             break
