@@ -1,5 +1,5 @@
 {
-  "cursor": 277,
+  "cursor": 285,
   "uploaded": [
     {
       "idx": 18,
@@ -2134,20 +2134,89 @@
       "platforms": [
         "yt:wMhljlmnZxY"
       ]
+    },
+    {
+      "idx": 277,
+      "title": "Opiniao sobre o cenario competitivo - Platinas da Bala",
+      "platforms": [
+        "yt:h2lY4cD3_aY",
+        "fb:1104000968898415"
+      ]
+    },
+    {
+      "idx": 278,
+      "title": "Previsao que ninguem esperava - Platinas da Bala",
+      "platforms": [
+        "yt:090JXgmOhA8",
+        "fb:2591509071352084"
+      ]
+    },
+    {
+      "idx": 279,
+      "title": "Atualizacao que muda o jogo - Platinas da Bala",
+      "platforms": [
+        "yt:EsqF6b2Dxe0",
+        "fb:2207991203455015"
+      ]
+    },
+    {
+      "idx": 280,
+      "title": "O que vai acontecer no cenario - Platinas da Bala",
+      "platforms": [
+        "yt:TW1H_26_0Ik",
+        "fb:1097309526551036"
+      ]
+    },
+    {
+      "idx": 281,
+      "title": "Veredito da semana no cenario - Platinas da Bala",
+      "platforms": [
+        "yt:e4_I3Mxh-tw",
+        "fb:1634947698181764"
+      ]
+    },
+    {
+      "idx": 282,
+      "title": "Dois meses de VCT Americas - o que mudou",
+      "platforms": [
+        "yt:S_dNRDaDTQo",
+        "fb:1801956797891748"
+      ]
+    },
+    {
+      "idx": 283,
+      "title": "Quando viram que estavam perdendo - VCT Americas",
+      "platforms": [
+        "yt:WzBGpWhp_o4",
+        "fb:1106140402382235"
+      ]
+    },
+    {
+      "idx": 284,
+      "title": "LOUD no VCT Americas - analise pos-jogo",
+      "platforms": [
+        "yt:Kj0HNsyebyQ",
+        "fb:1882333843180923"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-14": [
+    "2026-10-15": [
+      "15:00",
       "18:00",
       "22:00"
     ],
     "2026-10-17": [
-      "12:00"
+      "12:00",
+      "18:00",
+      "22:00"
     ],
-    "2026-10-15": [
+    "2026-10-16": [
+      "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-14"
+  "last_upload_date": "2026-10-15"
 }
