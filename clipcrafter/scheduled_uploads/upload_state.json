@@ -1,5 +1,5 @@
 {
-  "cursor": 285,
+  "cursor": 293,
   "uploaded": [
     {
       "idx": 18,
@@ -2198,25 +2198,93 @@
         "yt:Kj0HNsyebyQ",
         "fb:1882333843180923"
       ]
+    },
+    {
+      "idx": 285,
+      "title": "VCT Americas: o que a LOUD fez no pos-jogo",
+      "platforms": [
+        "yt:uqy5iDbln_0",
+        "fb:1831857544905010"
+      ]
+    },
+    {
+      "idx": 286,
+      "title": "Pos-VCT Americas: veredito sobre a LOUD",
+      "platforms": [
+        "yt:MWkWnYOUdxQ",
+        "fb:1361819752469146"
+      ]
+    },
+    {
+      "idx": 287,
+      "title": "LOUD errou onde no VCT - pos-jogo",
+      "platforms": [
+        "yt:kugrpn1gMJk",
+        "fb:1751453156151436"
+      ]
+    },
+    {
+      "idx": 288,
+      "title": "VCT Americas e a LOUD - o que faltou",
+      "platforms": [
+        "yt:q3yW03IP47U",
+        "fb:1882687313108159"
+      ]
+    },
+    {
+      "idx": 289,
+      "title": "Pos-jogo: LOUD no detalhe - VCT Americas",
+      "platforms": [
+        "yt:pXKVzoB0j9Y",
+        "fb:1647888397046605"
+      ]
+    },
+    {
+      "idx": 290,
+      "title": "VCT: a jogada que definiu - LOUD",
+      "platforms": [
+        "yt:H-fk3W0ZK1I",
+        "fb:2198373371077104"
+      ]
+    },
+    {
+      "idx": 291,
+      "title": "LOUD no VCT - momento decisivo",
+      "platforms": [
+        "yt:mPMTpM5LawI",
+        "fb:964725169490038"
+      ]
+    },
+    {
+      "idx": 292,
+      "title": "Previsao ousada para o cenario - Platinas da Bala",
+      "platforms": [
+        "yt:A9rBTmnkKTA",
+        "fb:29278655641747278"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-15": [
+    "2026-10-16": [
       "15:00",
       "18:00",
       "22:00"
     ],
     "2026-10-17": [
       "12:00",
+      "15:00",
       "18:00",
       "22:00"
     ],
-    "2026-10-16": [
+    "2026-10-18": [
       "12:00",
       "15:00",
       "18:00",
       "22:00"
+    ],
+    "2026-10-19": [
+      "22:00"
     ]
   },
-  "last_upload_date": "2026-10-15"
+  "last_upload_date": "2026-10-16"
 }
