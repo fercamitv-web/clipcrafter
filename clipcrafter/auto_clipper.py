@@ -432,6 +432,13 @@ def process_clip(src: str, dst: str, game: str = "Valorant", vod_title: str = ""
             desc, tags = vs.get_description_tags(game, vod_id=vod_id)
             if not title.strip():
                 return False, "", "", "", []
+            # Linha de legenda em inglês queimada no vídeo (padrão do canal).
+            # Best-effort: nunca reprova um clipe pronto por causa do EN.
+            try:
+                from english_subs import add_english_subs
+                add_english_subs(dst)
+            except Exception:
+                pass
             return True, title, hook or "", desc, tags
         return False, "", "", "", []
     finally:
