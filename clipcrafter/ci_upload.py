@@ -328,14 +328,21 @@ def main():
         day_batch = queue[cursor + off:cursor + off + min(need, MAX_UPLOADS - len(jobs))]
         if not day_batch:
             break
+        queued = 0
         for k, clip in enumerate(day_batch):
             if k < len(free):
                 jobs.append((clip, free[k], day_str))
+                queued += 1
             else:
-                # sem slot livre (ex: resto do dia já passou) => publica DIRETO.
-                # publishAt no passado deixa privado PARA SEMPRE — foi assim que dias furaram.
-                jobs.append((clip, None, day_str))
-        off += len(day_batch)
+                # Sem slot livre (ex: resto do dia já passou) => ADIA p/ o
+                # próximo dia. Publicar DIRETO aqui postava vários em
+                # sequência no mesmo dia (incidente 16/10: 8 uploads, 1 direto
+                # público no meio do lote). Direto só via DIRECT_EXTRA explícito.
+                break
+        off += queued
+        if queued < len(day_batch):
+            # Faltou slot hoje: continua amanhã em vez de estourar o teto.
+            continue
     if direct_extra > 0 and len(jobs) < MAX_UPLOADS + direct_extra:
         # job extra: publica DIRETO (sem agendar) p/ comparar com agendados
         extra = queue[cursor + off:cursor + off + direct_extra]
