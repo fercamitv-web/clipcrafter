@@ -1,5 +1,5 @@
 {
-  "cursor": 293,
+  "cursor": 295,
   "uploaded": [
     {
       "idx": 18,
@@ -2262,14 +2262,25 @@
         "yt:A9rBTmnkKTA",
         "fb:29278655641747278"
       ]
+    },
+    {
+      "idx": 293,
+      "title": "Mudanca no cenario competitivo - Platinas da Bala",
+      "platforms": [
+        "yt:AuK_a61s89I",
+        "fb:1597151629095866"
+      ]
+    },
+    {
+      "idx": 294,
+      "title": "Aposta para a proxima semana - Platinas da Bala",
+      "platforms": [
+        "yt:s6amYORbam8",
+        "fb:1419514617047353"
+      ]
     }
   ],
   "scheduled": {
-    "2026-10-16": [
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-10-17": [
       "12:00",
       "15:00",
@@ -2283,8 +2294,12 @@
       "22:00"
     ],
     "2026-10-19": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-20": [
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-16"
+  "last_upload_date": "2026-10-17"
 }
