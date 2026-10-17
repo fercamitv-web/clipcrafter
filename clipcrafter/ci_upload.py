@@ -383,7 +383,7 @@ def main():
         results = []
 
         # YouTube upload
-        if yt_upload and "yt" not in prev:
+        if yt_upload and "yt" not in prev and not clip.get("uploaded_youtube"):
             print(f"    -> YouTube ({'DIRETO' if direct else str(publish_dt.hour) + ':00'})...", end=" ", flush=True)
             try:
                 vid = yt_upload(
@@ -406,6 +406,15 @@ def main():
             if vid:
                 print(f"OK https://youtube.com/shorts/{vid}")
                 results.append(f"yt:{vid}")
+                # Salva imediatamente: se o script cair daqui p/ frente, o clipe
+                # ja esta registrado e nao sera repostado no proximo run.
+                clip["uploaded_youtube"] = True
+                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": list(results)})
+                _mark_scheduled(scheduled, jobs[:i + 1])
+                state["scheduled"] = scheduled
+                state["cursor"] = cursor + i + 1
+                save_queue(queue)
+                save_state(state)
                 try:
                     _game = clip.get("game", "Gaming")
                     _pl_file = REPO_DIR / "clipcrafter" / "scheduled_uploads" / "playlists.json"
@@ -506,7 +515,16 @@ def main():
                 print(f"FAIL ({e})")
 
         if results:
-            state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
+            # Se o YouTube ja salvou esta entrada dentro do loop, atualiza as
+            # plataformas; senao, cria nova entrada (caso sem YouTube).
+            found = False
+            for u in state["uploaded"]:
+                if u.get("idx") == cursor + i:
+                    u["platforms"] = results
+                    found = True
+                    break
+            if not found:
+                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
             notify_discord(title, results)
         sys.stdout.flush()
 
@@ -521,7 +539,10 @@ def main():
     _mark_scheduled(scheduled, jobs)
     state["scheduled"] = scheduled
     state.pop("buffer_date", None)
-    state["cursor"] = cursor + len(jobs)
+    # Cursor so avanca para clipes que ainda nao foram salvos individualmente
+    # dentro do loop (upload do YouTube ja fez isso por clipe).
+    if state["cursor"] < cursor + len(jobs):
+        state["cursor"] = cursor + len(jobs)
     state["last_upload_date"] = today_str
     save_queue(queue)
     save_state(state)
