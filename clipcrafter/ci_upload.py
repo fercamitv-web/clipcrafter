@@ -278,6 +278,14 @@ def main():
     today_str = now.strftime('%Y-%m-%d')
     print(f"Today: {now.strftime('%A %d/%m/%Y')}")
 
+    # Trava anti-duplicato: conta quantos uploads DIRETO (public imediato) ja
+    # foram hoje. Se ja houve um, nao libera mais nenhum direto nesta execucao
+    # (evita publicar varios em sequencia no mesmo dia — incidente 17/10).
+    direct_today = sum(
+        1 for u in state.get("uploaded", [])
+        if u.get("direct") and str(u.get("ts", "")).startswith(today_str))
+    state["direct_today"] = direct_today
+
     scheduled = state.get("scheduled", {})
     for d in [d for d in scheduled if d < today_str]:
         del scheduled[d]  # limpa dias passados
@@ -382,6 +390,14 @@ def main():
         tags = clip.get("tags", ["Valorant"])
         results = []
 
+        # Trava: nunca publicar DIRETO se ja houve um direto hoje (exceto
+        # DIRECT_EXTRA explicitamente habilitado). Evita publicar varios em
+        # sequencia no mesmo dia (incidente 17/10: 2 videos publicados a
+        # 25s de distancia, fora de qualquer slot agendado).
+        if direct and direct_today > 0 and direct_extra == 0:
+            print(f"    -> YouTube: pulado (ja houve direto hoje; adia p/ proximo dia)", flush=True)
+            continue
+
         # YouTube upload
         if yt_upload and "yt" not in prev and not clip.get("uploaded_youtube"):
             print(f"    -> YouTube ({'DIRETO' if direct else str(publish_dt.hour) + ':00'})...", end=" ", flush=True)
@@ -409,7 +425,8 @@ def main():
                 # Salva imediatamente: se o script cair daqui p/ frente, o clipe
                 # ja esta registrado e nao sera repostado no proximo run.
                 clip["uploaded_youtube"] = True
-                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": list(results)})
+                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": list(results),
+                                          "ts": now.isoformat(), "direct": direct})
                 _mark_scheduled(scheduled, jobs[:i + 1])
                 state["scheduled"] = scheduled
                 state["cursor"] = cursor + i + 1
@@ -524,7 +541,8 @@ def main():
                     found = True
                     break
             if not found:
-                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results})
+                state["uploaded"].append({"idx": cursor + i, "title": title, "platforms": results,
+                                          "ts": now.isoformat(), "direct": direct})
             notify_discord(title, results)
         sys.stdout.flush()
 
