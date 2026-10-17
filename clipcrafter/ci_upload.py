@@ -252,7 +252,7 @@ def main():
             queue = queue[:cursor] + new_pend
             save_queue(queue)
 
-    daily_batch = int(os.environ.get("DAILY_BATCH", "4"))
+    daily_batch = int(os.environ.get("DAILY_BATCH", "3"))
     pending_total = len(queue) - cursor
     # Estoque baixo: reduz ritmo p/ nunca zerar (3/dia normal)
     if pending_total <= 10:
@@ -302,7 +302,7 @@ def main():
     def day_slots(day_str):
         y, m, d = map(int, day_str.split("-"))
         base = now.replace(year=y, month=m, day=d, hour=12, minute=0, second=0, microsecond=0)
-        hours = [12, 15, 18, 22]
+        hours = [12, 18, 22]
         if _tune_hours:
             # só reordena entre os slots existentes (nunca inventa horário)
             _med = sorted(_tune_hours.values())[len(_tune_hours) // 2] if _tune_hours else 0
