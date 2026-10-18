@@ -1,5 +1,5 @@
 {
-  "cursor": 295,
+  "cursor": 297,
   "uploaded": [
     {
       "idx": 18,
@@ -2282,15 +2282,29 @@
       ],
       "ts": "2026-10-17T13:43:09.935206-03:00",
       "direct": true
+    },
+    {
+      "idx": 295,
+      "title": "Melhor jogo de tiro do Roblox - jogada insana pt1",
+      "platforms": [
+        "yt:zc0qEvRLrrg",
+        "fb:2092959388254219"
+      ],
+      "ts": "2026-10-18T11:16:35.051215-03:00",
+      "direct": false
+    },
+    {
+      "idx": 296,
+      "title": "Obrigado all star tower defense - momento no Roblox",
+      "platforms": [
+        "yt:FJTt3U6LPvk",
+        "fb:1579917710102758"
+      ],
+      "ts": "2026-10-18T11:16:35.051215-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-17": [
-      "12:00",
-      "15:00",
-      "18:00",
-      "22:00"
-    ],
     "2026-10-18": [
       "12:00",
       "15:00",
@@ -2302,8 +2316,13 @@
       "22:00"
     ],
     "2026-10-20": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-21": [
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-17"
+  "last_upload_date": "2026-10-18",
+  "direct_today": 0
 }
