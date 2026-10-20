@@ -1,5 +1,5 @@
 {
-  "cursor": 299,
+  "cursor": 301,
   "uploaded": [
     {
       "idx": 18,
@@ -2322,13 +2322,29 @@
       ],
       "ts": "2026-10-19T14:22:45.295190-03:00",
       "direct": false
+    },
+    {
+      "idx": 299,
+      "title": "40 minutos de risadas no Murder Mystery - com os amigos pt1",
+      "platforms": [
+        "yt:zNQYGsPK7u8",
+        "fb:1138383218745789"
+      ],
+      "ts": "2026-10-20T12:34:51.661041-03:00",
+      "direct": false
+    },
+    {
+      "idx": 300,
+      "title": "Murder Mystery com os amigos - partida so de risada pt1",
+      "platforms": [
+        "yt:AXcLSDWn3Ss",
+        "fb:1632297311960752"
+      ],
+      "ts": "2026-10-20T12:34:51.661041-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-19": [
-      "18:00",
-      "22:00"
-    ],
     "2026-10-20": [
       "18:00",
       "22:00"
@@ -2338,9 +2354,13 @@
       "22:00"
     ],
     "2026-10-22": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-23": [
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-19",
+  "last_upload_date": "2026-10-20",
   "direct_today": 0
 }
