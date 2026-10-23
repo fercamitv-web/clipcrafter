@@ -1,5 +1,5 @@
 {
-  "cursor": 305,
+  "cursor": 307,
   "uploaded": [
     {
       "idx": 18,
@@ -2382,13 +2382,29 @@
       ],
       "ts": "2026-10-22T12:48:51.621485-03:00",
       "direct": false
+    },
+    {
+      "idx": 305,
+      "title": "Tentando fugir do Chuck - sera que deu",
+      "platforms": [
+        "yt:EtyrNAB_3u0",
+        "fb:1977450773215530"
+      ],
+      "ts": "2026-10-23T12:38:42.262636-03:00",
+      "direct": false
+    },
+    {
+      "idx": 306,
+      "title": "Chuck E Cheese atras da gente - fuga insana",
+      "platforms": [
+        "yt:512P_kcxcaU",
+        "fb:1826510478689793"
+      ],
+      "ts": "2026-10-23T12:38:42.262636-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-22": [
-      "18:00",
-      "22:00"
-    ],
     "2026-10-23": [
       "18:00",
       "22:00"
@@ -2398,9 +2414,13 @@
       "22:00"
     ],
     "2026-10-25": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-26": [
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-22",
+  "last_upload_date": "2026-10-23",
   "direct_today": 0
 }
