@@ -1,5 +1,5 @@
 {
-  "cursor": 307,
+  "cursor": 309,
   "uploaded": [
     {
       "idx": 18,
@@ -2402,13 +2402,29 @@
       ],
       "ts": "2026-10-23T12:38:42.262636-03:00",
       "direct": false
+    },
+    {
+      "idx": 307,
+      "title": "Fuga do Chuck E Cheese - momento tenso",
+      "platforms": [
+        "yt:kBwk_P6LBoQ",
+        "fb:4562260260768126"
+      ],
+      "ts": "2026-10-24T11:14:47.145888-03:00",
+      "direct": false
+    },
+    {
+      "idx": 308,
+      "title": "A revolucao do Tower Defense - Craft Tower no Roblox",
+      "platforms": [
+        "yt:pTBtgdpB2rI",
+        "fb:4109596372505711"
+      ],
+      "ts": "2026-10-24T11:14:47.145888-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-23": [
-      "18:00",
-      "22:00"
-    ],
     "2026-10-24": [
       "18:00",
       "22:00"
@@ -2418,9 +2434,13 @@
       "22:00"
     ],
     "2026-10-26": [
+      "18:00",
+      "22:00"
+    ],
+    "2026-10-27": [
       "22:00"
     ]
   },
-  "last_upload_date": "2026-10-23",
+  "last_upload_date": "2026-10-24",
   "direct_today": 0
 }
