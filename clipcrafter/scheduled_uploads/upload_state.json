@@ -1,5 +1,5 @@
 {
-  "cursor": 314,
+  "cursor": 315,
   "uploaded": [
     {
       "idx": 18,
@@ -2472,12 +2472,19 @@
       ],
       "ts": "2026-10-28T14:02:09.598735-03:00",
       "direct": false
+    },
+    {
+      "idx": 314,
+      "title": "Atualizacao e o que esperar - Platinas da Bala",
+      "platforms": [
+        "yt:4M7atp3uwWU",
+        "fb:2234749264589238"
+      ],
+      "ts": "2026-10-29T14:17:53.433115-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-28": [
-      "18:00"
-    ],
     "2026-10-29": [
       "18:00"
     ],
@@ -2486,8 +2493,11 @@
     ],
     "2026-10-31": [
       "18:00"
+    ],
+    "2026-11-01": [
+      "18:00"
     ]
   },
-  "last_upload_date": "2026-10-28",
+  "last_upload_date": "2026-10-29",
   "direct_today": 0
 }
