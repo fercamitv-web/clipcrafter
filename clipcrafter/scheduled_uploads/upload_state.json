@@ -1,5 +1,5 @@
 {
-  "cursor": 315,
+  "cursor": 316,
   "uploaded": [
     {
       "idx": 18,
@@ -2482,12 +2482,19 @@
       ],
       "ts": "2026-10-29T14:17:53.433115-03:00",
       "direct": false
+    },
+    {
+      "idx": 315,
+      "title": "Me enfiei no caos de RV e o caos venceu - realidade virtual",
+      "platforms": [
+        "yt:DwqBUocX5z4",
+        "fb:1398679955646128"
+      ],
+      "ts": "2026-10-30T13:59:24.514271-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-29": [
-      "18:00"
-    ],
     "2026-10-30": [
       "18:00"
     ],
@@ -2496,8 +2503,11 @@
     ],
     "2026-11-01": [
       "18:00"
+    ],
+    "2026-11-02": [
+      "18:00"
     ]
   },
-  "last_upload_date": "2026-10-29",
+  "last_upload_date": "2026-10-30",
   "direct_today": 0
 }
