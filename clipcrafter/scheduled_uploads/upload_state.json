@@ -1,5 +1,5 @@
 {
-  "cursor": 316,
+  "cursor": 317,
   "uploaded": [
     {
       "idx": 18,
@@ -2492,12 +2492,19 @@
       ],
       "ts": "2026-10-30T13:59:24.514271-03:00",
       "direct": false
+    },
+    {
+      "idx": 316,
+      "title": "Caos de RV me venceu - realidade virtual insana",
+      "platforms": [
+        "yt:3hBreLpP7fI",
+        "fb:2512420362586086"
+      ],
+      "ts": "2026-10-31T12:58:34.209755-03:00",
+      "direct": false
     }
   ],
   "scheduled": {
-    "2026-10-30": [
-      "18:00"
-    ],
     "2026-10-31": [
       "18:00"
     ],
@@ -2506,8 +2513,11 @@
     ],
     "2026-11-02": [
       "18:00"
+    ],
+    "2026-11-03": [
+      "18:00"
     ]
   },
-  "last_upload_date": "2026-10-30",
+  "last_upload_date": "2026-10-31",
   "direct_today": 0
 }
