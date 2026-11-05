@@ -2523,11 +2523,7 @@
       "direct": false
     }
   ],
-  "scheduled": {
-    "2026-11-04": [
-      "22:00"
-    ]
-  },
+  "scheduled": {},
   "last_upload_date": "2026-11-01",
   "direct_today": 0
 }
